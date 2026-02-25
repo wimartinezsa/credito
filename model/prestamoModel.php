@@ -11,7 +11,7 @@ class prestamoModel{
 
  
 
-public function insertarPrestamo($ficha,$cliente, $fecha, $tiempo, $valor, $interes, $tipo){
+public function insertarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $valor, $interes, $tipo,$fiador){
 
     try {
 
@@ -23,11 +23,11 @@ public function insertarPrestamo($ficha,$cliente, $fecha, $tiempo, $valor, $inte
 
         $stament = $this->PDO->prepare("
             INSERT INTO prestamos 
-            (ficha, persona, fecha_prestamo, tiempo, valor_prestado, interes, tipo) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            (sociedad, ficha, persona, fecha_prestamo, tiempo, valor_prestado, interes, tipo,fiador) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
-        $stament->execute([$ficha,$cliente, $fecha, $tiempo, $valor, $interes, $tipo]);
+        $stament->execute([$sociedad,$ficha,$cliente, $fecha, $tiempo, $valor, $interes, $tipo,$fiador]);
 
         $id_prestamo = $this->PDO->lastInsertId();
 
@@ -134,8 +134,8 @@ public function insertarPrestamo($ficha,$cliente, $fecha, $tiempo, $valor, $inte
 
 
 
-public function registrarPrestamo($ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo){
-        return $this->insertarPrestamo($ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo);
+public function registrarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo,$fiador){
+        return $this->insertarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo,$fiador);
     }
 
 
@@ -143,12 +143,14 @@ public function registrarPrestamo($ficha,$cliente, $fecha, $tiempo, $valor,$inte
         
 
 public function listarTodos(){
-            $stament = $this->PDO->prepare("SELECT p.id_prestamo,p.ficha, per.identificacion, per.nombres, p.fecha_prestamo, p.tiempo, p.valor_prestado, 
+            $stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.tipo,p.ficha, per.identificacion, per.nombres, p.fecha_prestamo, p.tiempo, p.valor_prestado, 
 (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo ) AS futuro,
 (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pagado') AS pagado,
 (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pendiente') AS pendiente
  FROM personas per
- JOIN prestamos p ON per.id_persona = p.persona");
+ JOIN prestamos p ON per.id_persona = p.persona
+ LEFT JOIN  sociedades s ON s.id_sociedad = p.sociedad
+ ORDER BY p.id_prestamo ASC");
             $stament->execute();
             return $stament->fetchAll(PDO::FETCH_ASSOC);
         }
@@ -163,7 +165,7 @@ public function buscarPrestamo($id_prestamo){
 
 
 
-    public function actualizarPrestamo($ficha,$id_prestamo,$cliente, $fecha, $tiempo, $valor, $interes, $tipo){
+    public function actualizarPrestamo($sociedad,$ficha,$id_prestamo,$cliente, $fecha, $tiempo, $valor, $interes, $tipo, $fiador){
 
     try {
 
@@ -175,11 +177,11 @@ public function buscarPrestamo($id_prestamo){
 
         $stament = $this->PDO->prepare("
             UPDATE prestamos 
-            SET persona=?, fecha_prestamo=?, tiempo=?, valor_prestado=?, interes=?, tipo=?, ficha=? 
+            SET sociedad=?, persona=?, fecha_prestamo=?, tiempo=?, valor_prestado=?, interes=?, tipo=?, ficha=? ,fiador=?
             WHERE id_prestamo=?
         ");
 
-        $stament->execute([$cliente, $fecha, $tiempo, $valor, $interes, $tipo,$ficha,$id_prestamo]);
+        $stament->execute([$sociedad,$cliente, $fecha, $tiempo, $valor, $interes, $tipo,$ficha,$fiador,$id_prestamo]);
 
 
 // se eliminan todos los pagos y se crean de nuevo con los nuevos datos del prestamo

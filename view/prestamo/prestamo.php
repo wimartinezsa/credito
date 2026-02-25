@@ -16,7 +16,9 @@ require_once ("../head/head.php");
   <thead>
     <tr>
       <th scope="col">#</th>
+      <th scope="col">Sociedad</th>
       <th scope="col">Cliente</th>
+      <th scope="col">Tipo</th>
       <th scope="col">Fecha</th>
       <th scope="col">Tiempo</th>
       <th scope="col">V. Prestado</th>
@@ -45,12 +47,6 @@ require_once ("../head/head.php");
                 <form >
                     <input type="number" name="id_prestamo" class="form-control" id="id_prestamo" hidden readonly> 
 
-
-             
-
-
-
-
                 <div class="row">
                        <div class="col-6">
                              <div class="mb-3">
@@ -66,12 +62,6 @@ require_once ("../head/head.php");
                           </div>
                         </div>
                   </div>
-
-
-
-
-
-
 
                     <div class="row">
                        <div class="col-6">
@@ -137,10 +127,6 @@ require_once ("../head/head.php");
                         </div>
                     </div>
 
-
-
-
-
                          <div class="mb-3">
                             <label for="fiador" class="form-label">Fiador</label>
                             <select class="form-select" name="fiador" id="fiador">
@@ -148,10 +134,6 @@ require_once ("../head/head.php");
                             </select>
              
                 </div>
-
-
-
-           
 
 
       </form>

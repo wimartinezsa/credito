@@ -31,8 +31,13 @@
                     <a class="navbar-brand" href="/creditos/view/usuario/usuario.php">Clientes</a>
                     </li>
 
-                   
+                      <li class="nav-item">
+                    <a class="navbar-brand" href="/creditos/view/usuario/usuario.php">Gastos</a>
+                    </li>
 
+                       <li class="nav-item">
+                    <a class="navbar-brand" href="/creditos/view/usuario/usuario.php">Sociedad</a>
+                    </li>
 
                     <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

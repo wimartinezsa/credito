@@ -1,15 +1,13 @@
 
 let modalPrestamo = null;
-  //btn_registrar.style.display='block';
-        //  btn_actualizar.style.display='none';
+
 function modalPrestamos(){
-
-         
-
         const el = document.getElementById('modalPrestamo');
         modalPrestamo = new bootstrap.Modal(el, { keyboard: false });
-          listaClientes();
-          actualizarBotonesModal();
+        document.getElementById("id_prestamo").value="";
+        listaClientes();
+        listarSociedades();
+        actualizarBotonesModal();
         modalPrestamo.show();
       
 }
@@ -24,8 +22,10 @@ function actualizarBotonesModal(){
         // Estamos actualizando
         btnRegistrar.style.display = 'none';
         btnActualizar.style.display = 'block';
+      
     } else {
         // Estamos registrando
+ 
         btnRegistrar.style.display = 'block';
         btnActualizar.style.display = 'none';
     }
@@ -57,11 +57,13 @@ function listaClientes(){
     
         // Llenar filas con datos
         data.forEach(usuario => {
-            const select = document.getElementById("cliente");
+            const selectCliente = document.getElementById("cliente");
+            const selectFiador = document.getElementById("fiador");
             const option = document.createElement("option");
             option.value = usuario.id_persona;
             option.textContent = `${usuario.nombres} - ${usuario.identificacion}`;
-            select.appendChild(option);
+            selectCliente.appendChild(option);
+            selectFiador.appendChild(option.cloneNode(true));
         });
         
       
@@ -103,7 +105,9 @@ function listaPrestamo(){
             const row = tbody.insertRow();
             row.innerHTML = `
                 <td>${prestamo.ficha}</td>
+                <td>${prestamo.sociedad}</td>
                 <td>${prestamo.nombres}</td>
+                <td>${prestamo.tipo}</td>
                 <td>${prestamo.fecha_prestamo}</td>
                 <td>${prestamo.tiempo}</td>
                 <td>${prestamo.valor_prestado}</td>
@@ -119,7 +123,7 @@ function listaPrestamo(){
         });
         
         // Inicializar DataTable DESPUÉS de llenar los datos
-        dataTableInstance = $('#tabla-usuarios').DataTable({
+        dataTableInstance = $('#tabla-prestamos').DataTable({
             pageLength: 10,
             searching: true,
             ordering: true,
@@ -137,6 +141,7 @@ function listaPrestamo(){
 function guardarPrestamo(){
     // Implementar lógica para guardar préstamo
     let datos= new URLSearchParams();
+    datos.append('sociedad',document.getElementById('sociedad').value);
     datos.append('ficha',document.getElementById('ficha').value);
     datos.append('cliente',document.getElementById('cliente').value);
     datos.append('fecha',document.getElementById('fecha').value);
@@ -144,6 +149,7 @@ function guardarPrestamo(){
     datos.append('valor',document.getElementById('valor_prestado').value);
     datos.append('interes',document.getElementById('interes').value);
     datos.append('tipo',document.getElementById('tipo').value);
+    datos.append('fiador',document.getElementById('fiador').value);
 
     fetch("./registrarPrestamo.php", {
         method: 'POST',
@@ -169,14 +175,18 @@ function verPagos(id_prestamo){
 }
 
 
-function buscarPrestamo(id_prestamo){
+async function buscarPrestamo(id_prestamo){
+    document.getElementById("id_prestamo").value="";
+   await  listarSociedades();
+    await listaClientes();
     fetch(`./buscarPrestamo.php?id_prestamo=${id_prestamo}`, {
         method: 'GET',      
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(async response =>await response.json())
+    .then(data =>  {
       
         document.getElementById("id_prestamo").value=data.id_prestamo;
+        document.getElementById("sociedad").value=data.sociedad;
         document.getElementById("ficha").value=data.ficha;
         document.getElementById("cliente").value=data.persona;
         document.getElementById("fecha").value=data.fecha_prestamo;
@@ -184,8 +194,14 @@ function buscarPrestamo(id_prestamo){
         document.getElementById("valor_prestado").value=data.valor_prestado;
         document.getElementById("interes").value=data.interes;
         document.getElementById("tipo").value=data.tipo;
+        document.getElementById("fiador").value=data.fiador;
 
-       modalPrestamos();
+        const el = document.getElementById('modalPrestamo');
+        modalPrestamo = new bootstrap.Modal(el, { keyboard: false });
+       
+
+        actualizarBotonesModal();
+        modalPrestamo.show();
     })
     .catch(err => {
         console.error(err);
@@ -197,6 +213,7 @@ function buscarPrestamo(id_prestamo){
 function actualizarPrestamo(){
     let datos= new URLSearchParams();
     datos.append('id_prestamo',document.getElementById('id_prestamo').value);
+    datos.append('sociedad',document.getElementById('sociedad').value);
     datos.append('ficha',document.getElementById('ficha').value);
     datos.append('cliente',document.getElementById('cliente').value);
     datos.append('fecha',document.getElementById('fecha').value);
@@ -204,6 +221,7 @@ function actualizarPrestamo(){
     datos.append('valor',document.getElementById('valor_prestado').value);
     datos.append('interes',document.getElementById('interes').value);
     datos.append('tipo',document.getElementById('tipo').value);
+    datos.append('fiador',document.getElementById('fiador').value);
 
     fetch("./actualizarPrestamo.php", {
         method: 'POST',
@@ -211,7 +229,7 @@ function actualizarPrestamo(){
     })
     .then(response => response.text())
     .then(text => {
-        console.log(text);
+       // console.log(text);
        //limpiarFormulario();
       listaPrestamo();
       modalPrestamo.hide();
@@ -224,6 +242,8 @@ function actualizarPrestamo(){
 
 function limpiarFormulario(){
     document.getElementById("id_prestamo").value="";
+    document.getElementById("ficha").value="";
+    document.getElementById("sociedad").value="";
     document.getElementById("cliente").value="";    
     document.getElementById("fecha").value="";
     document.getElementById("tiempo").value="";
@@ -336,10 +356,44 @@ if (!confirm('¿Confirma que desea hacer devolución de esta cuota?')) return;
     });
     
 }
+
+
+function listarSociedades(){
+    fetch(`../sociedad/listarSociedad.php`, {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+       
+        const select = document.getElementById("sociedad");
+
+        // 🔹 Limpiar el select antes de llenarlo
+        select.innerHTML = "";
+
+        // 🔹 (Opcional) Agregar opción por defecto
+        //const optionDefault = document.createElement("option");
+        //optionDefault.value = "";
+        //optionDefault.textContent = "Seleccione una sociedad";
+        //select.appendChild(optionDefault);
+
+        data.forEach(sociedad => {
+            const option = document.createElement("option");    
+            option.value = sociedad.id_sociedad;
+            option.textContent = sociedad.sociedad;
+            select.appendChild(option);
+        });
+    });
+}
+
+
+
+
 // Exponer funciones globalmente para manejadores inline
 window.modalPrestamos = modalPrestamos;
 window.listaPrestamo = listaPrestamo;
 window.listaClientes = listaClientes;
+window.listarSociedades = listarSociedades;
+window.limpiarFormulario = limpiarFormulario;
 window.guardarPrestamo = guardarPrestamo;
 window.pagarCuota=pagarCuota;
 window.devolucionCuota=devolucionCuota;
@@ -348,6 +402,7 @@ window.modalCuotasPrestamo = modalCuotasPrestamo;
 // Cargar lista cuando el documento esté listo
 document.addEventListener('DOMContentLoaded', function(){
    listaPrestamo();
+ 
   
     console.log('prestamos.js cargado. DataTable y modal listos.');
 });

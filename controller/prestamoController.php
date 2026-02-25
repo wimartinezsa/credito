@@ -8,8 +8,8 @@ class prestamoController{
         $this->model = new prestamoModel();
     }
 
-   public function registrarPrestamo($ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo){
-        return $this->model->registrarPrestamo($ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo);
+   public function registrarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo, $fiador){
+        return $this->model->registrarPrestamo($sociedad,   $ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo, $fiador);
     }
     public function listarTodos(){
         return $this->model->listarTodos();
@@ -19,8 +19,8 @@ class prestamoController{
         return $this->model->buscarPrestamo($id_prestamo);
     }
 
-public function actualizarPrestamo($ficha,$id_prestamo,$cliente, $fecha, $tiempo, $valor,$interes,$tipo){
-        return $this->model->actualizarPrestamo($ficha,$id_prestamo,$cliente, $fecha, $tiempo, $valor,$interes,$tipo);
+public function actualizarPrestamo($ficha,$sociedad,$id_prestamo,$cliente, $fecha, $tiempo, $valor,$interes,$tipo,$fiador){
+        return $this->model->actualizarPrestamo($sociedad,$ficha,$id_prestamo,$cliente, $fecha, $tiempo, $valor,$interes,$tipo,$fiador);
     }   
 
 
