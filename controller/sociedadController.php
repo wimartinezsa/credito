@@ -12,7 +12,17 @@ class sociedadController{
         return $this->model->listarSociedades();
     }
     
-    
+    public function registrarSociedades($nombre, $valor){
+        return $this->model->registrarSociedades($nombre, $valor);
+    }   
+
+    public function buscarSociedad($id){
+        return $this->model->buscarSociedad($id);
+    }   
+
+    public function actualizarSociedad($id, $nombre, $valor){
+        return $this->model->actualizarSociedad($id, $nombre, $valor);
+    }   
 }
 
 ?>

@@ -4,6 +4,7 @@ let modalPrestamo = null;
 function modalPrestamos(){
         const el = document.getElementById('modalPrestamo');
         modalPrestamo = new bootstrap.Modal(el, { keyboard: false });
+        limpiarFormulario();
         document.getElementById("id_prestamo").value="";
         listaClientes();
         listarSociedades();

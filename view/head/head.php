@@ -6,14 +6,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
    
+   
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 
 
 
     <title>Document</title>
 </head>
 <body>
+
 <div class="container-fluid">
-       <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
 
           
@@ -24,32 +27,36 @@
                   
                    
                     <li class="nav-item">
-                        <a class="navbar-brand" href="/creditos/view/prestamo/prestamo.php">Prestamos</a>
+                        <a class="nav-link" href="/creditos/view/prestamo/prestamo.php">Prestamos</a>
                     </li>
 
                    <li class="nav-item">
-                    <a class="navbar-brand" href="/creditos/view/usuario/usuario.php">Clientes</a>
+                    <a class="nav-link" href="/creditos/view/usuario/usuario.php">Clientes</a>
                     </li>
 
                       <li class="nav-item">
-                    <a class="navbar-brand" href="/creditos/view/usuario/usuario.php">Gastos</a>
+                    <a class="nav-link" href="/creditos/view/gastos/gasto.php">Gastos</a>
                     </li>
 
                        <li class="nav-item">
-                    <a class="navbar-brand" href="/creditos/view/usuario/usuario.php">Sociedad</a>
+                    <a class="nav-link" href="/creditos/view/sociedad/sociedad.php">Sociedad</a>
                     </li>
 
-                    <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Reportes
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Reporte de Prestamos</a></li>
-                        <li><a class="dropdown-item" href="#">Recaudo del mes</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Estadistica</a></li>
-                    </ul>
-                    </li>
+                   <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Reportes
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Estado de la Sociedad</a></li>
+            <li><a class="dropdown-item" href="#">Reporte de Gastos</a></li>
+            <li><a class="dropdown-item" href="#">Reporte de Prestamos</a></li>
+            <li><a class="dropdown-item" href="#">Reporte de Cliente</a></li>
+            <li><a class="dropdown-item" href="#">Reporte de Ficha</a></li>
+             <li><a class="dropdown-item" href="#">Cuotas Vencidas</a></li>
+             <li><a class="dropdown-item" href="#">Hostorial del CLiente</a></li>
+            <li><a class="dropdown-item" href="#">Creditos Negados</a></li>
+          </ul>
+        </li>
                    
                 </ul>
                 <form class="d-flex" role="search">
@@ -59,5 +66,5 @@
                 </div>
             </div>
         </nav>
+
 </div>
-  <div class="container-fluid">

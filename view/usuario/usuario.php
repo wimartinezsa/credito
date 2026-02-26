@@ -6,7 +6,7 @@ require_once ("../head/head.php");
 
 
 
-
+<div class="container-fluid"> 
 
 
 <!-- Trigger button for Frm_procedimientos -->
@@ -30,7 +30,8 @@ require_once ("../head/head.php");
   </tbody>
 </table>
 
-
+</div>
+  
 
 <!-- Modal Registrar Usuario-->
 <div class="modal fade" id="modalCliente" data-bs-target="#modalCliente" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

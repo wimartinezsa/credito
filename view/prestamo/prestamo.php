@@ -7,7 +7,7 @@ require_once ("../head/head.php");
 
 
 
-
+<div class="container-fluid">
 <!-- Trigger button for Frm_procedimientos -->
 <button type="button" class="btn btn-secondary mb-3" onclick="modalPrestamos()">PRESTAMO</button>
 
@@ -33,7 +33,7 @@ require_once ("../head/head.php");
   </tbody>
 </table>
 
-
+</div>
 
 <!-- Modal Registrar Usuario-->
 <div class="modal fade" id="modalPrestamo" data-bs-target="#modalPrestamo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
