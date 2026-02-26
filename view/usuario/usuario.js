@@ -13,7 +13,7 @@ function modalUsuario(){
 }
 
 function actualizarBotonesModal(){
-    let id_persona = document.getElementById('id_prestamo').value;
+    let id_persona = document.getElementById('id_persona').value;
     const btnRegistrar = document.querySelector('button[name="btn_registrar"]');
     const btnActualizar = document.querySelector('button[name="btn_actualizar"]');
     

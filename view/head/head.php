@@ -47,11 +47,10 @@
             Reportes
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Estado de la Sociedad</a></li>
-            <li><a class="dropdown-item" href="#">Reporte de Gastos</a></li>
-            <li><a class="dropdown-item" href="#">Reporte de Prestamos</a></li>
-            <li><a class="dropdown-item" href="#">Reporte de Cliente</a></li>
-            <li><a class="dropdown-item" href="#">Reporte de Ficha</a></li>
+            <li><a class="dropdown-item" href="/creditos/view/reportes/reporte1View.php">Estado de la Sociedad</a></li>
+            <li><a class="dropdown-item" href="/creditos/view/reportes/reporte2View.php">Reporte de Gastos</a></li>
+            <li><a class="dropdown-item" href="/creditos/view/reportes/reporte3View.php">Reporte de Prestamos</a></li>
+            <li><a class="dropdown-item" href="/creditos/view/reportes/reporte4View.php">Reporte de Ficha</a></li>
              <li><a class="dropdown-item" href="#">Cuotas Vencidas</a></li>
              <li><a class="dropdown-item" href="#">Hostorial del CLiente</a></li>
             <li><a class="dropdown-item" href="#">Creditos Negados</a></li>
