@@ -49,6 +49,25 @@ class reporteModel{
             $stament->execute();
             return $stament->fetchAll(PDO::FETCH_ASSOC);
         }   
+
+
+        public function listarReporteCuotas($ficha){
+            $stament = $this->PDO->prepare("SELECT c.id_cuota,c.fecha_cuota,c.mes,c.valor,c.tipo,c.estado FROM cuotas c
+            JOIN prestamos p ON c.prestamo = p.id_prestamo
+            WHERE p.ficha=:ficha");
+            $stament->bindParam(':ficha', $ficha);
+            $stament->execute();
+            return $stament->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        public function listarCuotasVencidas(){
+            $stament = $this->PDO->prepare("SELECT c.id_cuota,c.fecha_cuota,c.mes,c.valor,c.tipo,c.estado,p.ficha,pr.nombres FROM cuotas c
+            JOIN prestamos p ON c.prestamo = p.id_prestamo
+            JOIN personas pr ON pr.id_persona=p.persona
+            WHERE c.estado='pendiente' AND c.fecha_cuota < CURDATE()");
+            $stament->execute();
+            return $stament->fetchAll(PDO::FETCH_ASSOC);
+        }
 }
 
 ?>

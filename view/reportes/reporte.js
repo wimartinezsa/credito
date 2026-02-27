@@ -162,15 +162,17 @@ function listarPrestamosPorFechas(){
 
 }
 
-function reporteFicha(){
+async function reporteFicha(){
 const ficha = document.getElementById('ficha').value; 
-    listarReporteFicha(ficha);
-    listarReporteCuotas(ficha);
+
+  await  listarReporteFicha(ficha);
+  await  listarReporteCuotas(ficha);
 }
 
 
 function listarReporteCuotas(ficha){
-    fetch(`../cuota/listarCuotas.php?ficha=${ficha}`, {
+
+    fetch(`./reporteCuotas.php?ficha=${ficha}`, {
         method: 'GET',
     })
     .then(response => response.json())
@@ -240,7 +242,7 @@ function listarReporteFicha(ficha){
     })
     .then(response => response.json())
     .then(data => {
-        console.log(data);
+     
         const tabla = document.getElementById("tabla-reporte");
         if (!tabla) return;
 
@@ -256,11 +258,11 @@ function listarReporteFicha(ficha){
         }
 
         tbody.innerHTML = "";
-    let totalPrestamos = 0;
+   
     //p.id_prestamo,s.sociedad,p.ficha,p.fecha_prestamo,p.interes,p.tiempo,p.valor_prestado,p.tipo,p.estado,pr.nombres
         data.forEach(ficha => {
             const row = tbody.insertRow();
-            totalPrestamos += parseFloat(ficha.valor_prestado);
+         
             row.innerHTML = `
                 <td>${ficha.id_prestamo}</td>
                 <td>${ficha.sociedad}</td>
@@ -280,24 +282,13 @@ function listarReporteFicha(ficha){
             `;
         });
 
-       document.getElementById("total-gastos").innerHTML = "Total Prestamos: $" + totalPrestamos.toFixed(2);
+    
 
        dataTableInstance = $('#tabla-reporte').DataTable({
     pageLength: 10,
     searching: true,
     ordering: true,
     paging: true,
-    dom: 'Bfrtip',
-    buttons: [
-        {
-            extend: 'excelHtml5',
-            text: 'Exportar a Excel',
-            title: 'Reporte_Prestamos',
-            exportOptions: {
-                columns: ':visible'
-            }
-        }
-    ]
 });
 
     })
@@ -311,11 +302,64 @@ function listarReporteFicha(ficha){
 }
 
 
+function reporteCuotaVencidas(){
 
+    fetch("./cuotaVencida.php", {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+       
+        const tabla = document.getElementById("tabla-reporte");
+        if (!tabla) return;
 
+        if (dataTableInstance) {
+            dataTableInstance.destroy();
+            dataTableInstance = null;
+        }
 
+        let tbody = tabla.querySelector('tbody');
+        if (!tbody) {
+            tbody = document.createElement('tbody');
+            tabla.appendChild(tbody);
+        }
+
+        tbody.innerHTML = "";
+   
+    //p.id_prestamo,s.sociedad,p.ficha,p.fecha_prestamo,p.interes,p.tiempo,p.valor_prestado,p.tipo,p.estado,pr.nombres
+        data.forEach(cuota => {
+            const row = tbody.insertRow();
+         
+            row.innerHTML = `
+                <td>${cuota.id_cuota}</td>
+                <td>${cuota.mes}</td>
+                <td>${cuota.fecha_cuota}</td>
+                <td>${cuota.valor}</td>
+                <td>${cuota.tipo}</td>
+                <td>${cuota.estado}</td>
+            `;
+        });
+
+    
+
+       dataTableInstance = $('#tabla-reporte').DataTable({
+    pageLength: 10,
+    searching: true,
+    ordering: true,
+    paging: true,
+});
+
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error al listar cuotas vencidas: ' + err);
+    });
+
+}
 
 window.gastoPorFecha = gastoPorFecha;
+window.reporteCuotaVencidas = reporteCuotaVencidas;
+window.reporteFicha = reporteFicha;
 
 
 

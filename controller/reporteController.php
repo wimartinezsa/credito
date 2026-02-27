@@ -20,6 +20,14 @@ class reporteController{
     function listarReporteFicha($ficha){
         return $this->model->listarReporteFicha($ficha);
     }
+
+    function listarReporteCuotas($ficha){
+        return $this->model->listarReporteCuotas($ficha);
+    }   
+
+    function listarCuotasVencidas(){
+        return $this->model->listarCuotasVencidas();
+    }   
 }
 
 ?>
