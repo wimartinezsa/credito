@@ -7,6 +7,7 @@
 
 
 let dataTableInstance = null;
+// Reporte numero 2
 function gastoPorFecha(){
 
     const fechaInicio = document.getElementById('fecha_inicio').value;
@@ -78,6 +79,8 @@ function gastoPorFecha(){
     });
 }
 
+
+// Reporte numero 3
 function listarPrestamosPorFechas(){
 
     const fechaInicio = document.getElementById('fecha_inicio').value;
@@ -162,6 +165,7 @@ function listarPrestamosPorFechas(){
 
 }
 
+// Reporte numero 4
 async function reporteFicha(){
 const ficha = document.getElementById('ficha').value; 
 
@@ -301,7 +305,7 @@ function listarReporteFicha(ficha){
 
 }
 
-
+// Reporte numero 5
 function reporteCuotaVencidas(){
 
     fetch("./cuotaVencida.php", {
@@ -310,6 +314,7 @@ function reporteCuotaVencidas(){
     .then(response => response.json())
     .then(data => {
        
+        console.log(data);
         const tabla = document.getElementById("tabla-reporte");
         if (!tabla) return;
 
@@ -331,7 +336,10 @@ function reporteCuotaVencidas(){
             const row = tbody.insertRow();
          
             row.innerHTML = `
-                <td>${cuota.id_cuota}</td>
+                <td>${cuota.ficha}</td>
+                <td>${cuota.nombres}</td>
+                  <td>${cuota.telefono}</td>
+                <td>${cuota.valor_prestado}</td>
                 <td>${cuota.mes}</td>
                 <td>${cuota.fecha_cuota}</td>
                 <td>${cuota.valor}</td>
@@ -347,6 +355,17 @@ function reporteCuotaVencidas(){
     searching: true,
     ordering: true,
     paging: true,
+      dom: 'Bfrtip',
+    buttons: [
+        {
+            extend: 'excelHtml5',
+            text: 'Exportar a Excel',
+            title: 'Reporte_Prestamos',
+            exportOptions: {
+                columns: ':visible'
+            }
+        }
+    ]
 });
 
     })
@@ -356,6 +375,169 @@ function reporteCuotaVencidas(){
     });
 
 }
+
+
+
+function reporteHistorialCliente(){
+
+    const identificacion = document.getElementById("identificacion").value;
+
+    const params = new URLSearchParams({
+        identificacion: identificacion
+    });
+
+    fetch("./historialCliente.php?" + params.toString(), {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+       
+        console.log(data);
+        const tabla = document.getElementById("tabla-reporte");
+        if (!tabla) return;
+
+        if (dataTableInstance) {
+            dataTableInstance.destroy();
+            dataTableInstance = null;
+        }
+
+        let tbody = tabla.querySelector('tbody');
+        if (!tbody) {
+            tbody = document.createElement('tbody');
+            tabla.appendChild(tbody);
+        }
+
+        tbody.innerHTML = "";
+   
+    //p.id_prestamo,s.sociedad,p.ficha,p.fecha_prestamo,p.interes,p.tiempo,p.valor_prestado,p.tipo,p.estado,pr.nombres
+        data.forEach(ficha => {
+            const row = tbody.insertRow();
+         
+                row.innerHTML = `
+                <td>${ficha.id_prestamo}</td>
+                <td>${ficha.sociedad}</td>
+                 <td>${ficha.nombres}</td>
+                <td>${ficha.ficha}</td>
+                <td>${ficha.fecha_prestamo}</td>
+                 <td>${ficha.tipo}</td>
+                <td>${ficha.interes}</td>
+                <td>${ficha.tiempo}</td>
+                <td>${ficha.valor_prestado}</td>
+                <td>${ficha.futuro}</td>
+                <td>${ficha.pagado}</td>
+                <td>${ficha.pendiente===null ? 0 : ficha.pendiente}</td>
+                <td>${ficha.estado}</td>
+            `;
+
+
+        });
+
+    
+
+       dataTableInstance = $('#tabla-reporte').DataTable({
+    pageLength: 10,
+    searching: true,
+    ordering: true,
+    paging: true,
+      dom: 'Bfrtip',
+    buttons: [
+        {
+            extend: 'excelHtml5',
+            text: 'Exportar a Excel',
+            title: 'Reporte_Prestamos',
+            exportOptions: {
+                columns: ':visible'
+            }
+        }
+    ]
+});
+
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error al listar cuotas vencidas: ' + err);
+    });
+
+}
+
+
+
+function reporteCreditoNegado(){
+
+  
+
+    fetch("./creditoNegado.php", {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+       
+        console.log(data);
+        const tabla = document.getElementById("tabla-reporte");
+        if (!tabla) return;
+
+        if (dataTableInstance) {
+            dataTableInstance.destroy();
+            dataTableInstance = null;
+        }
+
+        let tbody = tabla.querySelector('tbody');
+        if (!tbody) {
+            tbody = document.createElement('tbody');
+            tabla.appendChild(tbody);
+        }
+
+        tbody.innerHTML = "";
+   
+    //p.id_prestamo,s.sociedad,p.ficha,p.fecha_prestamo,p.interes,p.tiempo,p.valor_prestado,p.tipo,p.estado,pr.nombres
+        data.forEach(ficha => {
+            const row = tbody.insertRow();
+         
+                row.innerHTML = `
+                <td>${ficha.id_prestamo}</td>
+                <td>${ficha.sociedad}</td>
+                 <td>${ficha.nombres}</td>
+                <td>${ficha.ficha}</td>
+                <td>${ficha.fecha_prestamo}</td>
+                 <td>${ficha.tipo}</td>
+                <td>${ficha.interes}</td>
+                <td>${ficha.tiempo}</td>
+                <td>${ficha.valor_prestado}</td>
+                <td>${ficha.estado}</td>
+            `;
+
+
+        });
+
+    
+
+       dataTableInstance = $('#tabla-reporte').DataTable({
+    pageLength: 10,
+    searching: true,
+    ordering: true,
+    paging: true,
+      dom: 'Bfrtip',
+    buttons: [
+        {
+            extend: 'excelHtml5',
+            text: 'Exportar a Excel',
+            title: 'Reporte_Prestamos',
+            exportOptions: {
+                columns: ':visible'
+            }
+        }
+    ]
+});
+
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error al listar cuotas vencidas: ' + err);
+    });
+
+}
+
+
 
 window.gastoPorFecha = gastoPorFecha;
 window.reporteCuotaVencidas = reporteCuotaVencidas;

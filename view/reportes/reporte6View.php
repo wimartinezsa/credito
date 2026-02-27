@@ -8,20 +8,20 @@ require_once ("../head/head.php");
 <div class="container-fluid"> 
 
 
-<h4 class="text-center">INFORME DE ESTADO DE LA FICHA</h4>
+<h4 class="text-center">INFORME DEL CLIENTE</h4>
 <hr>
 <div class="row">
     <div class="col-md-6">
-        <label for="ficha" class="form-label">Ficha</label>
-        <input type="number" id="ficha" class="form-control" placeholder="Digite el codigo de la ficha">
+        <label for="identificacion" class="form-label">Identificacion</label>
+        <input type="number" id="identificacion" class="form-control" placeholder="Digite el numero de identificación del cliente">
      </div> 
        
         <div class="col-md-6 d-flex align-items-end">
-            <button class="btn btn-primary" id="btn-generar-reporte" onclick="reporteFicha()">Generar Reporte</button>
+            <button class="btn btn-primary" id="btn-generar-reporte" onclick="reporteHistorialCliente()">Generar Reporte</button>
         </div>  
 </div>
 <hr>
-<h4>Estado del Prestamo</h4>
+<h4>HISTORIAL DEL CLIENTE</h4>
 <table class="table" id="tabla-reporte">
   <thead>
     <tr>
@@ -44,26 +44,6 @@ require_once ("../head/head.php");
   <tbody>
   </tbody>
 </table>
-<h4>Estado de cuotas</h4>
-<table class="table" id="tabla-cuotas">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-       <th scope="col">Mes</th>
-      <th scope="col">Fecha</th>
-      <th scope="col">Valor</th>
-      <th scope="col">Tipo</th>
-      <th scope="col">Estado</th>
-
-     
-     
-    
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-
 
 
 </div>

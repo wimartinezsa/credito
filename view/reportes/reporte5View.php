@@ -8,7 +8,7 @@ require_once ("../head/head.php");
 <div class="container-fluid"> 
 
 
-<h4 class="text-center">INFORME DE PRESTAMOS POR FICHA</h4>
+<h4 class="text-center">INFORME DE CUOTAS VENCIDAS</h4>
 <hr>
 <div class="row">
     <div class="col-md-6">
@@ -19,12 +19,15 @@ require_once ("../head/head.php");
 <hr>
 
 <h4>Listado de cuotas vencidas</h4>
-<table class="table" id="tabla-cuotas">
+<table class="table" id="tabla-reporte">
   <thead>
     <tr>
-      <th scope="col">#</th>
+      <th scope="col">Ficha</th>
+      <th scope="col">Cliente</th>
+      <th scope="col">Telefono</th>
+      <th scope="col">Prestamo</th>
        <th scope="col">Mes</th>
-      <th scope="col">Fecha</th>
+      <th scope="col">Fecha Pago</th>
       <th scope="col">Valor</th>
       <th scope="col">Tipo</th>
       <th scope="col">Estado</th>

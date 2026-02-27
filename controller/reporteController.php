@@ -28,6 +28,15 @@ class reporteController{
     function listarCuotasVencidas(){
         return $this->model->listarCuotasVencidas();
     }   
-}
+
+    function listarReportCliente($identificacion){
+        return $this->model->listarReportCliente($identificacion);
+    }
+    
+    function listarCreditoNegado(){
+        return $this->model->listarCreditoNegado();
+    }
+
+ }
 
 ?>
