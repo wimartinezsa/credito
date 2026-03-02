@@ -10,6 +10,41 @@ class reporteModel{
         }
 
        
+//reporte numero 1
+   public function listarEstadoSociedad($id_sociedad){
+          
+            $stament = $this->PDO->prepare("SELECT s.sociedad,
+            (SELECT SUM(valor)  FROM sociedades so  WHERE  so.id_sociedad=s.id_sociedad)AS inicial,
+            (SELECT SUM(p.valor_prestado)  FROM prestamos p   WHERE  p.sociedad=s.id_sociedad AND p.estado!='negado')AS prestado,
+
+            (SELECT SUM(cu.valor)
+             FROM prestamos p 
+             JOIN cuotas cu ON cu.prestamo=p.id_prestamo  
+             WHERE  p.sociedad=s.id_sociedad AND p.estado!='negado')AS futuro,
+            
+            (SELECT SUM(cu.valor)
+            FROM prestamos p  
+            JOIN cuotas cu ON cu.prestamo=p.id_prestamo
+            WHERE  p.sociedad=s.id_sociedad AND p.estado!='negado' AND cu.estado='pagado')AS recaudado,
+
+            (SELECT SUM(cu.valor)
+            FROM prestamos p  
+            JOIN cuotas cu ON cu.prestamo=p.id_prestamo
+            WHERE  p.sociedad=s.id_sociedad AND p.estado!='negado' AND cu.estado='pendiente')AS pendiente,
+            
+            (SELECT SUM(g.valor)  FROM sociedades so  
+            JOIN gastos g ON g.sociedad= so.`id_sociedad`
+            WHERE  so.id_sociedad=s.id_sociedad) AS gastos
+            FROM sociedades s  WHERE s.id_sociedad=:id_sociedad");
+            $stament->bindParam(':id_sociedad', $id_sociedad);
+            $stament->execute();
+            return $stament->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+
+
+
+
         public function listarGastosPorFechas($fecha_inicio, $fecha_fin){
             $stament = $this->PDO->prepare("SELECT g.id_gasto,g.fecha,g.detalle,g.valor,s.sociedad FROM gastos g
             JOIN sociedades s ON g.sociedad = s.id_sociedad

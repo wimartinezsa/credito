@@ -7,6 +7,119 @@
 
 
 let dataTableInstance = null;
+
+// Reporte numero 1
+
+function listarSociedades(){
+    
+
+    fetch("../sociedad/listarSociedad.php", {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        const select = document.getElementById('sociedad');
+        select.innerHTML = '<option value="">Seleccionar Sociedad</option>';
+        data.forEach(sociedad => {
+            const option = document.createElement('option');
+            option.value = sociedad.id_sociedad;
+            option.textContent = sociedad.sociedad;
+            select.appendChild(option);
+        });
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error al listar: ' + err);
+    });
+    
+}
+
+
+function estadoSociedad(){
+
+    const idSociedad = document.getElementById('sociedad').value;
+    if (!idSociedad) {
+        alert('Por favor, seleccione una sociedad');
+        return;
+    }
+    fetch(`./estadoSociedad.php?id_sociedad=${idSociedad}`, {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+
+     
+       let  estadosDiv = '';
+      
+        estadosDiv += `
+                 <div class="card text-bg-light mb-3" style="max-width: 18rem; border-success">
+                <div class="card-header">SOCIEDAD: ${data[0].sociedad}</div>
+                <div class="card-body">
+                    <h5 class="card-title">Valor Inicial</h5>
+                    <p class="card-text">Total: $${data[0].inicial}</p>
+                </div>
+                </div>
+            `;
+           
+
+        
+                 estadosDiv += `
+                    <div class="card text-bg-light mb-3" style="max-width: 18rem; border-success">
+              
+                        <div class="card-header">SOCIEDAD: ${data[0].sociedad}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">Valor Prestado</h5>
+                            <p class="card-text">Total: $${data[0].prestado}</p>
+                        </div>
+                    </div>
+            `;
+           
+
+
+   estadosDiv += `
+                    <div class="card text-bg-light mb-3" style="max-width: 18rem; border-success">
+              
+                        <div class="card-header">SOCIEDAD: ${data[0].sociedad}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">Valor Futuro</h5>
+                            <p class="card-text">Total: $${data[0].futuro}</p>
+                        </div>
+                    </div>
+            `;
+
+            estadosDiv += `
+                    <div class="card text-bg-light mb-3" style="max-width: 18rem; border-success">
+              
+                        <div class="card-header">SOCIEDAD: ${data[0].sociedad}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">Valor Recaudado</h5>
+                            <p class="card-text">Total: $${data[0].recaudado}</p>
+                        </div>
+                    </div>
+            `;
+
+
+estadosDiv += `
+                    <div class="card text-bg-light mb-3" style="max-width: 18rem; border-success">
+              
+                        <div class="card-header" >SOCIEDAD:${data[0].sociedad}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">Valor Pendiente</h5>
+                            <p class="card-text">Total: $${data[0].pendiente}</p>
+                        </div>
+                    </div>
+            `;
+
+
+          
+            document.getElementById('estado-sociedad').innerHTML = estadosDiv;
+       
+    });
+}
+
+
+
 // Reporte numero 2
 function gastoPorFecha(){
 
@@ -472,7 +585,6 @@ function reporteCreditoNegado(){
     .then(response => response.json())
     .then(data => {
        
-        console.log(data);
         const tabla = document.getElementById("tabla-reporte");
         if (!tabla) return;
 
@@ -490,20 +602,20 @@ function reporteCreditoNegado(){
         tbody.innerHTML = "";
    
     //p.id_prestamo,s.sociedad,p.ficha,p.fecha_prestamo,p.interes,p.tiempo,p.valor_prestado,p.tipo,p.estado,pr.nombres
-        data.forEach(ficha => {
+        data.forEach(prestamo => {
             const row = tbody.insertRow();
          
                 row.innerHTML = `
-                <td>${ficha.id_prestamo}</td>
-                <td>${ficha.sociedad}</td>
-                 <td>${ficha.nombres}</td>
-                <td>${ficha.ficha}</td>
-                <td>${ficha.fecha_prestamo}</td>
-                 <td>${ficha.tipo}</td>
-                <td>${ficha.interes}</td>
-                <td>${ficha.tiempo}</td>
-                <td>${ficha.valor_prestado}</td>
-                <td>${ficha.estado}</td>
+                <td>${prestamo.id_prestamo}</td>
+                <td>${prestamo.sociedad}</td>
+                 <td>${prestamo.nombres}</td>
+                <td>${prestamo.ficha}</td>
+                <td>${prestamo.fecha_prestamo}</td>
+                 <td>${prestamo.tipo}</td>
+                <td>${prestamo.interes}</td>
+                <td>${prestamo.tiempo}</td>
+                <td>${prestamo.valor_prestado}</td>
+                <td>${prestamo.estado}</td>
             `;
 
 

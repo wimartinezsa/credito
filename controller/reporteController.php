@@ -9,6 +9,10 @@ class reporteController{
         $this->model = new reporteModel();
     }
 
+
+    public function listarEstadoSociedad($id_sociedad){
+        return $this->model->listarEstadoSociedad($id_sociedad);
+    }
     public function listarGastosPorFechas($fecha_inicio, $fecha_fin){
         return $this->model->listarGastosPorFechas($fecha_inicio, $fecha_fin);
     }

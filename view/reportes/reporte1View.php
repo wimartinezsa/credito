@@ -11,22 +11,36 @@ require_once ("../head/head.php");
 <br>
 <h4 class="text-center">ESTADO DE LA SOCIEDAD</h4>
 <br>
-<table class="table" id="tabla-rportes">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Sociedad</th>
-      <th scope="col">Prestado</th>
-      <th scope="col">Recaudado</th>
-      <th scope="col">Pendiente</th>
-      <th scope="col">Gastos</th>
-      <th scope="col">Observación</th>
-      <th scope="col">Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
+<select id="sociedad" onchange="estadoSociedad()" class="form-control">
+    <option value="">Seleccionar Sociedad</option>
+   
+</select>
+<br>
+<div class="container">
+
+    <!-- flex container to align cards in a row -->
+    <div id="estado-sociedad" class="d-flex flex-wrap" style="gap:1rem;"></div>
+   
+
+
+    
+
+
+   
+
+   
+
+
+
+
+
+
+</div>
+
+
+
+
+
 
 </div>
   
@@ -43,3 +57,7 @@ require_once ("../head/footer.php");
 ?>
 
  <script src="../reportes/reporte.js"></script>
+ <script>
+
+  listarSociedades();
+ </script>

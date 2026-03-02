@@ -167,8 +167,8 @@ function buscarUsuario(id_usuario){
             document.getElementById('nombres').value = data[0].nombres;
             document.getElementById('direccion').value = data[0].direccion;
             document.getElementById('telefono').value = data[0].telefono;            
-            document.getElementById('calificacion').value = data.calificacion;
-            document.getElementById('observacion').value = data.observacion;           
+            document.getElementById('calificacion').value = data[0].calificacion;
+            document.getElementById('observacion').value = data[0].observacion;           
             document.getElementById('id_persona').value = data[0].id_persona;
             modalUsuario();
         } else {
