@@ -207,6 +207,35 @@ function limpiarFormulario(){
     document.getElementById('id_persona').value="";
 }
 
+function login(){
+  
+    let datos= new URLSearchParams();
+    datos.append('identificacion',document.getElementById('identificacion').value);
+    datos.append('password',document.getElementById('password').value);
+    fetch('./view/usuario/login.php', {
+        method: 'POST',
+        body: datos
+    })
+    .then(r => r.json())
+    .then(data => {
+       console.log('Datos recibidos del servidor:', data);
+      
+        if (data && data.token) {
+            console.log('token:', data.token);
+            localStorage.setItem("token", data.token);
+            // optionally store user info
+            localStorage.setItem("usuario", JSON.stringify(data.usuario));
+            alert('Login exitoso');
+            // redirigir a página protegida
+             window.location.href = 'http://localhost/creditos/view/prestamo/prestamo.php';
+        } else {
+            alert('Credenciales incorrectas');
+        }
+    })
+    .catch(err => alert('Error: ' + err));
+}
+
+
 // Exponer funciones globalmente para manejadores inline
 window.modalUsuario = modalUsuario;
 window.buscarUsuario=buscarUsuario;
@@ -216,11 +245,7 @@ window.desactivarUsuario = desactivarUsuario;
 window.limpiarFormulario = limpiarFormulario;
 
 
-// Cargar lista cuando el documento esté listo
-document.addEventListener('DOMContentLoaded', function(){
-   listarUsuario();
-    console.log('usuario.js cargado. DataTable y modal listos.');
-});
+
 
 
 

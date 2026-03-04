@@ -2,6 +2,8 @@
 require_once("../../controller/usuarioController.php");
 $controller = new usuarioController();
 
+
+
 // Capturamos desde la URL (query string)
 $id = isset($_GET['id_usuario']) ? $_GET['id_usuario'] : null;
 

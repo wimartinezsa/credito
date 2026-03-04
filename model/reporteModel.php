@@ -35,7 +35,9 @@ class reporteModel{
             (SELECT SUM(g.valor)  FROM sociedades so  
             JOIN gastos g ON g.sociedad= so.`id_sociedad`
             WHERE  so.id_sociedad=s.id_sociedad) AS gastos
+            
             FROM sociedades s  WHERE s.id_sociedad=:id_sociedad");
+
             $stament->bindParam(':id_sociedad', $id_sociedad);
             $stament->execute();
             return $stament->fetchAll(PDO::FETCH_ASSOC);

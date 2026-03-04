@@ -11,9 +11,11 @@
 
 
 
-    <title>Document</title>
+    <title>Creditos</title>
 </head>
 <body>
+
+
 
 <div class="container-fluid">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -59,8 +61,8 @@
                    
                 </ul>
                 <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-                    <button class="btn btn-outline-success" type="submit">Search</button>
+                    
+                    <button class="btn btn-outline-success" type="button" onclick="cerrarSesion()">Cerrar</button>
                 </form>
                 </div>
             </div>

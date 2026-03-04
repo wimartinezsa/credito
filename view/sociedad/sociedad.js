@@ -36,8 +36,10 @@ function actualizarBotonesModal(){
 
 
 function listarSociedades(){
+   
     fetch(`./listarSociedad.php`, {
         method: 'GET',
+        
     })
     .then(response => response.json())
     .then(data => {

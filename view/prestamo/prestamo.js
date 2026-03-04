@@ -79,8 +79,14 @@ function listaClientes(){
 
 
 function listaPrestamo(){
+
+    const token = localStorage.getItem("token");
     fetch("./listarPrestamo.php", {
         method: 'GET',
+         headers: {
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
+    }
     })
     .then(response => response.json())
     .then(data => {

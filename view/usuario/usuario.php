@@ -1,6 +1,11 @@
 
 
-<?php   
+<?php  
+session_start();
+if(!isset($_SESSION['token'])){
+    header("Location: http://localhost/creditos/index.php");
+    exit;
+} 
 require_once ("../head/head.php");
 ?>
 
@@ -110,3 +115,12 @@ require_once ("../head/footer.php");
 ?>
 
  <script src="../usuario/usuario.js"></script>
+ <script>
+
+  // Cargar lista cuando el documento esté listo
+document.addEventListener('DOMContentLoaded', function(){
+   listarUsuario();
+    console.log('usuario.js cargado. DataTable y modal listos.');
+});
+
+ </script>

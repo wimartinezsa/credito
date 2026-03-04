@@ -1,4 +1,7 @@
 <?php   
+$headers = getallheaders();
+
+
 require_once ("../head/head.php");
 ?>
 

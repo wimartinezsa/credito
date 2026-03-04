@@ -25,4 +25,14 @@
   
 
 </body>
+<script>
+   function cerrarSesion() {
+      alert('hola');
+    // Eliminar el token del almacenamiento local
+   // localStorage.removeItem('token');
+    
+    // Redirigir al usuario a la página de inicio de sesión
+   // window.location.href = 'http://localhost/creditos/index.php';
+}
+</script>
 </html>
