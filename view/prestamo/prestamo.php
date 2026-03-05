@@ -10,8 +10,10 @@ require_once ("../head/head.php");
 
 
 <div class="container-fluid">
+
+<h4 class="text-center">Lista de Creditos</h4>
 <!-- Trigger button for Frm_procedimientos -->
-<button type="button" class="btn btn-secondary mb-3" onclick="modalPrestamos()">PRESTAMO</button>
+<button type="button" class="btn btn-secondary mb-3" onclick="modalPrestamos()">NUEVO CREDITO</button>
 
 <br>
 <table class="table" id="tabla-prestamos">
@@ -42,7 +44,7 @@ require_once ("../head/head.php");
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Administrar Prestamos</h1>
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Administrar Creditos</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -153,7 +155,7 @@ require_once ("../head/head.php");
 
 
 
-<!-- Modal Registrar Usuario-->
+<!-- Modal Cuotas-->
 <div class="modal fade" id="modalCuotas" data-bs-target="#modalCuotas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -192,7 +194,43 @@ require_once ("../head/head.php");
 </div>
 
 
+<!-- Modal Cuotas-->
+<div class="modal fade" id="modalGarantia" data-bs-target="#modalCuotas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Administrar Documentos de Garantía</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="number" id="cod_prestamo" hidden readonly>
+               <table class="table" id="tabla-cuotas">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Mes</th>
+                          <th>Fecha</th>
+                          <th>Valor</th>
+                          <th>Tipo de Pago</th>
+                          <th>Estado</th>
+                         
+                        </tr>
+                      </thead>
+                    
+                      
+               </table>
+                 
 
+
+      </div>
+      <div class="modal-footer">
+        <h4 id="valores"></h4>
+      
+       
+      </div>
+    </div>
+  </div>
+</div>
 
 
 

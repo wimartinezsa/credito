@@ -43,7 +43,13 @@ function modalCuotasPrestamo(){
         modalCuotas.show();
 }
 
+let modalGarantia = null;
 
+function modalAdminGarantia(id_prestado){
+        const el = document.getElementById('modalGarantia');
+        modalGarantia = new bootstrap.Modal(el, { keyboard: false });
+        modalGarantia.show();
+}
 
 
 let dataTableInstance = null;
@@ -133,7 +139,9 @@ function listaPrestamo(){
              
                 <td>
                 <button class="btn btn-sm btn-primary" onclick="buscarPrestamo(${prestamo.id_prestamo})">Actualizar</button>
-                   <button class="btn btn-sm btn-success" onclick="verPagos(${prestamo.id_prestamo})">Ver Pagos</button>
+                <button class="btn btn-sm btn-success" onclick="verPagos(${prestamo.id_prestamo})">Ver Pagos</button>
+                <button class="btn btn-sm btn-danger" onclick="modalAdminGarantia(${prestamo.id_prestamo})">Ver Garantía</button>
+                
                 </td>
             `;
         });
@@ -152,6 +160,8 @@ function listaPrestamo(){
        alert('Error al listar: ' + err);
     });
 }
+
+
 
 
 function guardarPrestamo(){

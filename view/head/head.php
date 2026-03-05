@@ -29,7 +29,7 @@
                   
                    
                     <li class="nav-item">
-                        <a class="nav-link" href="/creditos/view/prestamo/prestamo.php">Prestamos</a>
+                        <a class="nav-link" href="/creditos/view/prestamo/prestamo.php">Creditos</a>
                     </li>
 
                    <li class="nav-item">
