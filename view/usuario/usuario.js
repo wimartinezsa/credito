@@ -1,8 +1,5 @@
 
 
-
-
-
 let modalCliente = null;
 
 function modalUsuario(){
@@ -46,7 +43,15 @@ function guardarUsuario(){
         method: 'POST',
         body:datos,
     })
-    .then(response => response.text())
+    .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
     .then(text => {
         alert(text);
        limpiarFormulario();
@@ -79,7 +84,15 @@ function actualizarUsuario(){
         method: 'POST',
         body:datos,
     })
-    .then(response => response.text())
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
     .then(text => {
         console.log(text);
         alert(text);
@@ -102,7 +115,15 @@ function listarUsuario(){
     fetch("./listarUsuario.php", {
         method: 'GET',
     })
-    .then(response => response.json())
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
     .then(data => {
         const tabla = document.getElementById("tabla-usuarios");
         if (!tabla) return;
@@ -160,7 +181,15 @@ function buscarUsuario(id_usuario){
     fetch(`./buscarUsuario.php?id_usuario=${id_usuario}`, {
         method: 'GET',
     })
-    .then(r => r.json())
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
     .then(data => {
         if(data.length>0){
             document.getElementById('identificacion').value = data[0].identificacion;
@@ -188,7 +217,15 @@ function desactivarUsuario(id_usuario){
             method: 'DELETE'
          
         })
-        .then(r => r.text())
+         .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
         .then(text => {
             alert(text);
             //listar();
@@ -207,33 +244,6 @@ function limpiarFormulario(){
     document.getElementById('id_persona').value="";
 }
 
-function login(){
-  
-    let datos= new URLSearchParams();
-    datos.append('identificacion',document.getElementById('identificacion').value);
-    datos.append('password',document.getElementById('password').value);
-    fetch('./view/usuario/login.php', {
-        method: 'POST',
-        body: datos
-    })
-    .then(r => r.json())
-    .then(data => {
-       console.log('Datos recibidos del servidor:', data);
-      
-        if (data && data.token) {
-            console.log('token:', data.token);
-            localStorage.setItem("token", data.token);
-            // optionally store user info
-            localStorage.setItem("usuario", JSON.stringify(data.usuario));
-            alert('Login exitoso');
-            // redirigir a página protegida
-             window.location.href = 'http://localhost/creditos/view/prestamo/prestamo.php';
-        } else {
-            alert('Credenciales incorrectas');
-        }
-    })
-    .catch(err => alert('Error: ' + err));
-}
 
 
 // Exponer funciones globalmente para manejadores inline

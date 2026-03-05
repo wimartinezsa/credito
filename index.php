@@ -31,7 +31,7 @@
 
 
 
-<script src="./view/usuario/usuario.js"></script>
+<script src="./view/autenticacion/autenticacion.js"></script>
 
 </body>
 </html>

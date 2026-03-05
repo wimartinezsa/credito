@@ -41,7 +41,15 @@ function listarSociedades(){
         method: 'GET',
         
     })
-    .then(response => response.json())
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
     .then(data => {
         const tableBody = document.querySelector("#tabla-sociedades tbody");
         tableBody.innerHTML = ""; // Limpiar tabla antes de llenarla
@@ -96,7 +104,15 @@ function registrarSociedad(){
         },
         body: `sociedad=${encodeURIComponent(nombre)}&valor=${encodeURIComponent(valor)}`
     })
-    .then(response => response.json())
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
     .then(data => {
         if (data.success) {
             alert("Sociedad registrada exitosamente.");
@@ -120,7 +136,15 @@ function actualizarSociedad(){
         },
         body: `id_sociedad=${encodeURIComponent(id)}&sociedad=${encodeURIComponent(nombre)}&valor=${encodeURIComponent(valor)}`
     })
-    .then(response => response.json())
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             alert("Sociedad actualizada exitosamente.");

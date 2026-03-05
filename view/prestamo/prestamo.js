@@ -80,16 +80,25 @@ function listaClientes(){
 
 function listaPrestamo(){
 
-    const token = localStorage.getItem("token");
+
     fetch("./listarPrestamo.php", {
         method: 'GET',
-         headers: {
-        "Authorization": "Bearer " + token,
-        "Content-Type": "application/json"
-    }
     })
-    .then(response => response.json())
+    .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
     .then(data => {
+       
+        if (!data) return;
+        
+      
+        
         const tabla = document.getElementById("tabla-prestamos");
         if (!tabla) return;
         
@@ -162,7 +171,15 @@ function guardarPrestamo(){
         method: 'POST',
         body:datos,
     })
-    .then(response => response.text())
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
     .then(text => {
         console.log(text);
        //limpiarFormulario();
@@ -189,7 +206,15 @@ async function buscarPrestamo(id_prestamo){
     fetch(`./buscarPrestamo.php?id_prestamo=${id_prestamo}`, {
         method: 'GET',      
     })
-    .then(async response =>await response.json())
+    .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
     .then(data =>  {
       
         document.getElementById("id_prestamo").value=data.id_prestamo;
@@ -234,7 +259,15 @@ function actualizarPrestamo(){
         method: 'POST',
         body:datos,
     })
-    .then(response => response.text())
+    .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
     .then(text => {
        // console.log(text);
        //limpiarFormulario();
@@ -268,8 +301,22 @@ function listarCuotas(id_prestamo){
     fetch(`../cuota/listarCuotas.php?id_prestamo=${id_prestamo}`, {
         method: 'GET',
     })
-    .then(response => response.json())
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
     .then(data => {
+        // early checks
+        if (!data) return;
+        if (!Array.isArray(data)) {
+            console.warn('Respuesta inesperada de listarCuotas.php', data);
+            return;
+        }
 
         const tabla = document.getElementById("tabla-cuotas");
         if (!tabla) return; 
@@ -338,7 +385,15 @@ function pagarCuota(id_cuota){
     fetch(`../cuota/pagarCuota.php?id_cuota=${id_cuota}`, {
         method: 'GET',
     })
-    .then(response => response.text())
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
     .then(text => {
         listaPrestamo();
       listarCuotas(document.getElementById("cod_prestamo").value);
@@ -355,7 +410,15 @@ if (!confirm('¿Confirma que desea hacer devolución de esta cuota?')) return;
      fetch(`../cuota/devolucionCuota.php?id_cuota=${id_cuota}`, {
         method: 'GET',
     })
-    .then(response => response.text())
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
     .then(text => {
       listaPrestamo();
       listarCuotas(document.getElementById("cod_prestamo").value);

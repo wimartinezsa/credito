@@ -4,8 +4,8 @@
 
    
 
-    require_once("../../controller/usuarioController.php");
-    $controller = new usuarioController();
+    require_once("../../controller/autenticacionController.php");
+    $controller = new autenticacionController();
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

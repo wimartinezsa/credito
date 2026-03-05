@@ -21,8 +21,8 @@ class prestamoController{
 
 public function actualizarPrestamo($ficha,$sociedad,$id_prestamo,$cliente, $fecha, $tiempo, $valor,$interes,$tipo,$fiador){
         return $this->model->actualizarPrestamo($sociedad,$ficha,$id_prestamo,$cliente, $fecha, $tiempo, $valor,$interes,$tipo,$fiador);
-    }   
-
+    }
+ 
 
 }
 

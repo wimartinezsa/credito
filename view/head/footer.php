@@ -27,12 +27,23 @@
 </body>
 <script>
    function cerrarSesion() {
-      alert('hola');
-    // Eliminar el token del almacenamiento local
-   // localStorage.removeItem('token');
-    
-    // Redirigir al usuario a la página de inicio de sesión
-   // window.location.href = 'http://localhost/creditos/index.php';
-}
-</script>
+      // opcional alert de depuración
+      // alert('cerrando sesión');
+    fetch("../autenticacion/cerrarSesion.php", {
+        method: 'GET',
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Sesión cerrada:', data);
+        // redirigir de forma absoluta al inicio del proyecto
+        window.location.href = '/Creditos/index.php';
+    })
+    .catch(error => {
+        console.error('Error al cerrar sesión:', error);
+    });
+
+}</script>
 </html>
