@@ -203,17 +203,28 @@ require_once ("../head/head.php");
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <input type="number" id="cod_prestamo" hidden readonly>
-               <table class="table" id="tabla-cuotas">
+        <input type="number" id="codigo_prestamo" hidden readonly>
+        <div class="row">
+          <div class="col-4">
+            <select class="form-select" name="tipo" id="tipo_garantia"></select>
+        </div>
+        <div class="col-5">
+            <input type="file" id="archivo" name="archivo" accept="application/pdf" required>
+        </div>
+        <div class="col-3">
+           <button type="button" class="btn btn-primary" id="btnSubirGarantia" onclick="subirGarantia()">Subir documento</button>
+        </div>
+       
+          </div>
+        </div>
+
+
+               <table class="table" id="tabla-garantias">
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>Mes</th>
-                          <th>Fecha</th>
-                          <th>Valor</th>
-                          <th>Tipo de Pago</th>
+                          <th>tipo</th>
                           <th>Estado</th>
-                         
                         </tr>
                       </thead>
                     
@@ -239,4 +250,4 @@ require_once ("../head/head.php");
 require_once ("../head/footer.php");
 ?>
 
-<script src="../prestamo/prestamo.js"></script>
+<script src="/Creditos/view/prestamo/prestamo.js?v=2"></script>

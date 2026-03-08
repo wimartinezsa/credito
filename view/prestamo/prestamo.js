@@ -48,6 +48,9 @@ let modalGarantia = null;
 function modalAdminGarantia(id_prestado){
         const el = document.getElementById('modalGarantia');
         modalGarantia = new bootstrap.Modal(el, { keyboard: false });
+        document.getElementById("codigo_prestamo").value=id_prestado;
+         listarTipoGarantia();
+         listarGarantiasPrestamo(id_prestado);
         modalGarantia.show();
 }
 
@@ -466,23 +469,131 @@ function listarSociedades(){
 }
 
 
+window.subirGarantia = function(){
+
+      let formData = new FormData();
+  
+   formData.append('codigo_prestamo', document.getElementById("codigo_prestamo").value);
+   formData.append('tipo', document.getElementById("tipo_garantia").value);
+   
+    let archivo = document.getElementById("archivo").files[0];
+    formData.append('archivo', archivo);
+
+    fetch("/Creditos/view/garantia/subirGarantia.php",{
+        method:"POST",
+        body: formData
+    })
+    .then(res => res.text())
+    .then(data => {
+
+        listarGarantiasPrestamo(document.getElementById("codigo_prestamo").value);
+        alert(data);
+
+    })
+    .catch(error => console.error(error));
+
+};
+
+function listarTipoGarantia(){
+    fetch(`../garantia/listarTipoGarantia.php`, {
+        method: 'GET',
+    })
+    
+  .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
+    .then(data => {
+        const select = document.getElementById("tipo_garantia");
+        select.innerHTML = "";
+        const option = document.createElement("option");    
+            option.value = ""
+            option.textContent = "Seleccione un tipo de garantía";
+            select.appendChild(option);
+        data.forEach(tipo => {
+            const option = document.createElement("option");    
+            option.value = tipo.id_tipo_garantia;
+            option.textContent = tipo.nombre_tipo;
+            select.appendChild(option);
+        });
+    });
+}
+
+function listarGarantiasPrestamo(id_prestamo){
+    fetch(`../garantia/listarGarantiasPrestamo.php?id_prestamo=${id_prestamo}`, {
+        method: 'GET',
+    })  
+  .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
+    .then(data => {
+        const tabla = document.getElementById("tabla-garantias");
+        let tbody = tabla.querySelector('tbody');
+        if (!tbody) {
+            tbody = document.createElement('tbody');
+            tabla.appendChild(tbody);
+        }
+        tbody.innerHTML = "";
+        data.forEach(garantia => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${garantia.id_garantia}</td>
+                <td>${garantia.nombre_tipo}</td>
+                <td>
+                <a href="${garantia.ruta}" class="btn btn-primary" target="_blank">Ver</a>
+                <a onclick="eliminarGarantia(${garantia.id_garantia});" class="btn btn-danger">Eliminar</a>
+                
+                </td>
+            `;
+        });
+    });
+}
 
 
-// Exponer funciones globalmente para manejadores inline
-window.modalPrestamos = modalPrestamos;
-window.listaPrestamo = listaPrestamo;
-window.listaClientes = listaClientes;
-window.listarSociedades = listarSociedades;
-window.limpiarFormulario = limpiarFormulario;
-window.guardarPrestamo = guardarPrestamo;
-window.pagarCuota=pagarCuota;
-window.devolucionCuota=devolucionCuota;
-window.modalCuotasPrestamo = modalCuotasPrestamo;
+function eliminarGarantia(id_garantia){
+    if (!confirm('¿Eliminar esta garantía?')) return;
+      fetch(`../garantia/eliminarGarantia.php?id_garantia=${id_garantia}`, {
+        method: 'GET',
+    })
+      .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
+
+    .then(data => {
+     listarGarantiasPrestamo(document.getElementById("codigo_prestamo").value);
+    });
+}
+
+window.eliminarGarantia = eliminarGarantia;
 
 // Cargar lista cuando el documento esté listo
 document.addEventListener('DOMContentLoaded', function(){
    listaPrestamo();
- 
   
-    console.log('prestamos.js cargado. DataTable y modal listos.');
+ 
+   // Asignar evento al botón de subir garantía
+   const button = document.getElementById('btnSubirGarantia');
+   if (button) {
+       button.addEventListener('click', window.subirGarantia);
+       button.removeAttribute('onclick');
+   }
+
 });
+  

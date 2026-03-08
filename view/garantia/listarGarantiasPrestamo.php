@@ -1,0 +1,42 @@
+
+
+<?php
+require_once("../../controller/garantiaController.php");
+require_once("../../controller/autenticacionController.php");
+$controller_garantia = new garantiaController();
+
+
+
+ $controller_autenticacion = new autenticacionController();
+
+  session_start();
+    if(isset($_SESSION["token"])){
+            $usuario = $controller_autenticacion->validarToken($_SESSION['token']);
+            if (!json_encode($usuario) && !strlen(json_encode($usuario)) > 0) {
+        // echo json_encode($usuario );
+        http_response_code(401);
+        echo json_encode(['status' => 'error', 'message' => 'Token inválido o expirado']);
+        exit;
+    }
+    } else {
+        http_response_code(401);
+        echo json_encode(['status' => 'error', 'message' => 'Token no proporcionado']);
+        exit;
+    }
+
+
+        
+
+
+
+// Token válido, procesar solicitud
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $id_prestamo = $_GET['id_prestamo'];
+    $resultado = $controller_garantia->listarGarantiasPrestamo($id_prestamo);
+    echo json_encode($resultado);
+}
+
+
+?>
