@@ -7,8 +7,9 @@ require_once ("../head/head.php");
 
 <div class="container-fluid">
 
+<h4 class="text-center">Lista de Gastos</h4>
 <!-- Trigger button for Frm_procedimientos -->
-<button type="button" class="btn btn-secondary mb-3" onclick="modalGastos()">GASTO</button>
+<button type="button" class="btn btn-secondary mb-3" onclick="modalGastos()">Nuevo Gasto</button>
 
 <br>
 <table class="table" id="tabla-gastos">

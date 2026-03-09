@@ -18,7 +18,7 @@
 
 
 <div class="container-fluid">
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <nav class="navbar navbar-expand-lg  navbar-dark bg-dark">
             <div class="container-fluid">
 
           
@@ -62,7 +62,7 @@
                 </ul>
                 <form class="d-flex" role="search">
                     
-                    <button class="btn btn-outline-success" type="button" onclick="cerrarSesion()">Cerrar</button>
+                    <button class="btn btn-primary" type="button" onclick="cerrarSesion()">Cerrar</button>
                 </form>
                 </div>
             </div>

@@ -139,6 +139,7 @@ function listaPrestamo(){
                  <td>${prestamo.futuro}</td>
                  <td>${prestamo.pagado}</td>
                  <td>${prestamo.pendiente}</td>
+                  <td>${prestamo.estado}</td>
              
                 <td>
                 <button class="btn btn-sm btn-primary" onclick="buscarPrestamo(${prestamo.id_prestamo})">Actualizar</button>
@@ -179,6 +180,7 @@ function guardarPrestamo(){
     datos.append('interes',document.getElementById('interes').value);
     datos.append('tipo',document.getElementById('tipo').value);
     datos.append('fiador',document.getElementById('fiador').value);
+    datos.append('estado',document.getElementById('estado').value);
 
     fetch("./registrarPrestamo.php", {
         method: 'POST',
@@ -240,6 +242,7 @@ async function buscarPrestamo(id_prestamo){
         document.getElementById("interes").value=data.interes;
         document.getElementById("tipo").value=data.tipo;
         document.getElementById("fiador").value=data.fiador;
+        document.getElementById("estado").value=data.estado;
 
         const el = document.getElementById('modalPrestamo');
         modalPrestamo = new bootstrap.Modal(el, { keyboard: false });
@@ -267,6 +270,7 @@ function actualizarPrestamo(){
     datos.append('interes',document.getElementById('interes').value);
     datos.append('tipo',document.getElementById('tipo').value);
     datos.append('fiador',document.getElementById('fiador').value);
+    datos.append('estado',document.getElementById('estado').value);
 
     fetch("./actualizarPrestamo.php", {
         method: 'POST',

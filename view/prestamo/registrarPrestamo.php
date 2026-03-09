@@ -37,7 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         valor: $_POST["valor"],
         interes: $_POST["interes"],
         tipo: $_POST["tipo"],
-        fiador: $_POST["fiador"]
+        fiador: $_POST["fiador"],
+        estado: $_POST["estado"]
     );
     echo $resultado;
 }

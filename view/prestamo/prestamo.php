@@ -13,7 +13,7 @@ require_once ("../head/head.php");
 
 <h4 class="text-center">Lista de Creditos</h4>
 <!-- Trigger button for Frm_procedimientos -->
-<button type="button" class="btn btn-secondary mb-3" onclick="modalPrestamos()">NUEVO CREDITO</button>
+<button type="button" class="btn btn-secondary mb-3" onclick="modalPrestamos()">Nuevo Credito</button>
 
 <br>
 <table class="table" id="tabla-prestamos">
@@ -29,6 +29,7 @@ require_once ("../head/head.php");
       <th scope="col">V. Futuro</th>   
       <th scope="col">V. Pagado</th>
       <th scope="col">V. Pendiente</th>
+      <th scope="col">Estado</th>
         
       <th scope="col">Acciones</th>
     </tr>
@@ -131,20 +132,35 @@ require_once ("../head/head.php");
                         </div>
                     </div>
 
-                         <div class="mb-3">
-                            <label for="fiador" class="form-label">Fiador</label>
-                            <select class="form-select" name="fiador" id="fiador">
-                                    <option value="">Seleccione un fiador</option>
-                            </select>
-             
-                </div>
 
+              <div class="row">
+                       <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="fiador" class="form-label">Fiador</label>
+                                    <select class="form-select" name="fiador" id="fiador">
+                                            <option value="">Seleccione un fiador</option>
+                                    </select>
+                                </div>
+                        </div>
+
+                         <div class="col-6">
+                            <div class="mb-3">
+                              <label for="estados" class="form-label">Estado del Credito</label>
+                              <select id="estado" class="form-select">
+                                  <option value="aprobado">Aprobado</option>
+                                  <option value="negado">Negado</option>
+                                  <option value="finalizado">Finalizado</option>
+                              </select>
+                          </div>
+                      </div>
+            </div>
 
       </form>
       </div>
       <div class="modal-footer">
      
         <button type="button" name="btn_registrar" class="btn btn-primary" onclick="guardarPrestamo()">Registrar</button>
+     
         <button type="button" name="btn_actualizar" class="btn btn-primary" onclick="actualizarPrestamo()">Actualizar</button>
         
       </div>

@@ -10,8 +10,9 @@ require_once ("../head/head.php");
 <div class="container-fluid">
 
 
+<h4 class="text-center">Lista de Sociedades</h4>
 <!-- Trigger button for Frm_procedimientos -->
-<button type="button" class="btn btn-secondary mb-3" onclick="modalSociedades()">SOCIEDAD</button>
+<button type="button" class="btn btn-secondary mb-3" onclick="modalSociedades()">Nueva Sociedad</button>
 
 <br>
 <table class="table" id="tabla-sociedades">

@@ -14,8 +14,10 @@ require_once ("../head/head.php");
 <div class="container-fluid"> 
 
 
+<h4 class="text-center">Lista de clientes</h4>
 <!-- Trigger button for Frm_procedimientos -->
-<button type="button" class="btn btn-secondary mb-3" onclick="limpiarFormulario(); modalUsuario()">CLIENTES</button>
+
+<button type="button" class="btn btn-secondary mb-3" onclick="limpiarFormulario(); modalUsuario()">Nuevo Cliente</button>
 
 <br>
 <table class="table" id="tabla-usuarios">
