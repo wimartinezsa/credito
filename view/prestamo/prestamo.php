@@ -6,14 +6,26 @@ require_once ("../head/head.php");
 ?>
 
 
-
-
-
 <div class="container-fluid">
 
-<h4 class="text-center">Lista de Creditos</h4>
+<h4 class="text-center">Administrar Creditos</h4>
 <!-- Trigger button for Frm_procedimientos -->
-<button type="button" class="btn btn-secondary mb-3" onclick="modalPrestamos()">Nuevo Credito</button>
+
+<div class="row text-center m-3">
+        <div class="col-3">
+               <select class="form-select" name="sociedad" id="lista_sociedades" onchange="listarPrestamosId(this.value);disponibilidadSociedad(this.value);">
+               </select>
+         </div>
+        <div class="col-3">
+                   <button type="button" class="btn btn-secondary mb-3" onclick="modalPrestamos()">Nuevo Credito</button>
+
+       </div>   
+
+        <div class="col-6">
+          <h4 id="disponible">Disponiblidad: </h4>
+        </div> 
+ </div>
+
 
 <br>
 <table class="table" id="tabla-prestamos">
@@ -53,17 +65,22 @@ require_once ("../head/head.php");
                     <input type="number" name="id_prestamo" class="form-control" id="id_prestamo" hidden readonly> 
 
                 <div class="row">
-                       <div class="col-6">
-                             <div class="mb-3">
-                                <label class="form-label">Sociedad</label>
-                                <select class="form-select" name="sociedad" id="sociedad">
+
+
+
+                <div class="col-6">
+                           <div class="mb-3">
+                            <label for="ficha" class="form-label">Sociedad</label>
+                              <select class="form-select" name="sociedad" id="sociedad">
                               </select>
-                            </div>
                         </div>
+                </div>
+
+
                         <div class="col-6">
                            <div class="mb-3">
                                 <label for="ficha" class="form-label">Ficha</label>
-                                <input type="number" name="ficha" class="form-control" id="ficha">
+                                <input type="number" name="ficha" class="form-control" id="ficha" placeholder="Digite el codigo de">
                           </div>
                         </div>
                   </div>
@@ -121,8 +138,9 @@ require_once ("../head/head.php");
                         </div>
                         <div class="col-6">
                            <div class="mb-3">
-                            <label for="tipo" class="form-label">Tipo de Prestamo</label>
+                            <label for="tipo" class="form-label">Tipo de Credito</label>
                             <select class="form-select" name="tipo" id="tipo">
+                                    <option value="" selected disabled>Seleccione el tipo de credito</option>
                                     <option value="mensual">Mensual</option>
                                     <option value="financiado">Financiado</option>
                             </select>

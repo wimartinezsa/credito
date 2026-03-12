@@ -57,31 +57,47 @@ function modalAdminGarantia(id_prestado){
 
 let dataTableInstance = null;
 
-function listaClientes(){
+function listaClientes() {
+
+    const selectCliente = document.getElementById("cliente");
+    const selectFiador = document.getElementById("fiador");
+
+    // Limpiar opciones existentes
+    selectCliente.innerHTML = "";
+    selectFiador.innerHTML = "";
+
+    // Opción por defecto
+    const optionDefault1 = document.createElement("option");
+    optionDefault1.value = "";
+    optionDefault1.disabled = true;
+    optionDefault1.selected = true;
+    optionDefault1.textContent = "Seleccione un cliente";
+    selectCliente.appendChild(optionDefault1);
+
+    const optionDefault2 = optionDefault1.cloneNode(true);
+    selectFiador.appendChild(optionDefault2);
+
     fetch("../usuario/listarUsuario.php", {
         method: 'GET',
     })
     .then(response => response.json())
     .then(data => {
-        
-    
-        // Llenar filas con datos
+
         data.forEach(usuario => {
-            const selectCliente = document.getElementById("cliente");
-            const selectFiador = document.getElementById("fiador");
+
             const option = document.createElement("option");
             option.value = usuario.id_persona;
             option.textContent = `${usuario.nombres} - ${usuario.identificacion}`;
+
             selectCliente.appendChild(option);
             selectFiador.appendChild(option.cloneNode(true));
+
         });
-        
-      
-         
+
     })
     .catch(err => {
         console.error(err);
-       alert('Error al listar: ' + err);
+        alert('Error al listar: ' + err);
     });
 }
 
@@ -163,6 +179,10 @@ function listaPrestamo(){
         console.error(err);
        alert('Error al listar: ' + err);
     });
+
+
+
+
 }
 
 
@@ -445,6 +465,43 @@ if (!confirm('¿Confirma que desea hacer devolución de esta cuota?')) return;
 }
 
 
+function listarSociedadesPrincipal(){
+
+  
+
+
+    fetch(`../sociedad/listarSociedad.php`, {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+       
+        const select = document.getElementById("lista_sociedades");
+
+        // 🔹 Limpiar el select antes de llenarlo
+        select.innerHTML = "";
+
+    
+            const option = document.createElement("option");    
+            option.disabled = true;
+            option.selected=true;
+            option.textContent = "Seleccione una Sociedad";
+            select.appendChild(option);
+
+
+
+        data.forEach(sociedad => {
+            const option = document.createElement("option");    
+            option.value = sociedad.id_sociedad;
+            option.textContent = sociedad.sociedad;
+            select.appendChild(option);
+        });
+    });
+}
+
+
+
+
 function listarSociedades(){
     fetch(`../sociedad/listarSociedad.php`, {
         method: 'GET',
@@ -471,6 +528,130 @@ function listarSociedades(){
         });
     });
 }
+
+
+function listarPrestamosId(id_sociedad){
+   
+ fetch(`./listarPrestamosId.php?id_sociedad=${id_sociedad}`, {
+        method: 'GET',
+    })
+    .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
+    .then(data => {
+       //console.log(data);
+        if (!data) return;
+        
+      
+        
+        const tabla = document.getElementById("tabla-prestamos");
+        if (!tabla) return;
+        
+        // Destruir DataTable anterior si existe (ANTES de modificar el DOM)
+        if (dataTableInstance) {
+            dataTableInstance.destroy();
+            dataTableInstance = null;
+        }
+        
+        // Limpiar solo el tbody, no toda la tabla
+        let tbody = tabla.querySelector('tbody');
+        if (!tbody) {
+            tbody = document.createElement('tbody');
+            tabla.appendChild(tbody);
+        }
+        tbody.innerHTML = "";
+        
+        // Llenar filas con datos
+        data.forEach(prestamo => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${prestamo.ficha}</td>
+                <td>${prestamo.sociedad}</td>
+                <td>${prestamo.nombres}</td>
+                <td>${prestamo.tipo}</td>
+                <td>${prestamo.fecha_prestamo}</td>
+                <td>${prestamo.tiempo}</td>
+                <td>${prestamo.valor_prestado}</td>
+                 <td>${prestamo.futuro}</td>
+                 <td>${prestamo.pagado}</td>
+                 <td>${prestamo.pendiente}</td>
+                  <td>${prestamo.estado}</td>
+             
+                <td>
+                <button class="btn btn-sm btn-primary" onclick="buscarPrestamo(${prestamo.id_prestamo})">Actualizar</button>
+                <button class="btn btn-sm btn-success" onclick="verPagos(${prestamo.id_prestamo})">Pagos</button>
+                <button class="btn btn-sm btn-danger" onclick="modalAdminGarantia(${prestamo.id_prestamo})">Garantía</button>
+                
+                </td>
+            `;
+        });
+        
+        // Inicializar DataTable DESPUÉS de llenar los datos
+        dataTableInstance = $('#tabla-prestamos').DataTable({
+            pageLength: 10,
+            searching: true,
+            ordering: true,
+            paging: true
+        });
+         
+    })
+    .catch(err => {
+        console.error(err);
+       alert('Error al listar: ' + err);
+    });
+
+
+
+
+}
+
+
+function disponibilidadSociedad(id_sociedad){
+  
+ fetch(`./disponibleSociedad.php?id_sociedad=${id_sociedad}`, {
+        method: 'GET',
+    })
+    .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
+    .then(data => {
+       // console.log(data);
+        if (!data) return;
+        
+      
+        
+       document.getElementById("disponible").innerHTML= data.disponible!= null? "Disponible ="+data.disponible:"Disponible = 0";
+       
+        
+       
+         
+    })
+    .catch(err => {
+        console.error(err);
+       alert('Error al listar: ' + err);
+    });
+
+
+
+
+}
+
+
+
+
+
 
 
 window.subirGarantia = function(){
@@ -589,7 +770,8 @@ window.eliminarGarantia = eliminarGarantia;
 
 // Cargar lista cuando el documento esté listo
 document.addEventListener('DOMContentLoaded', function(){
-   listaPrestamo();
+    listarSociedadesPrincipal();
+    listaPrestamo();
   
  
    // Asignar evento al botón de subir garantía

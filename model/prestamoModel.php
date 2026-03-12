@@ -143,7 +143,7 @@ public function registrarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $v
         
 
 public function listarTodos(){
-            $stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.tipo,p.ficha, per.identificacion, per.nombres, p.fecha_prestamo, p.tiempo, p.valor_prestado,p.estado, 
+$stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.tipo,p.ficha, per.identificacion, per.nombres, p.fecha_prestamo, p.tiempo, p.valor_prestado,p.estado, 
 (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo ) AS futuro,
 (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pagado') AS pagado,
 (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pendiente') AS pendiente
@@ -154,6 +154,27 @@ public function listarTodos(){
             $stament->execute();
             return $stament->fetchAll(PDO::FETCH_ASSOC);
         }
+
+
+
+
+public function listarPrestamosId($id_sociedad){
+
+$stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.tipo,p.ficha, per.identificacion, per.nombres, p.fecha_prestamo, p.tiempo, p.valor_prestado,p.estado, 
+    (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo ) AS futuro,
+    (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pagado') AS pagado,
+    (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pendiente') AS pendiente
+    FROM personas per
+    JOIN prestamos p ON per.id_persona = p.persona
+    LEFT JOIN  sociedades s ON s.id_sociedad = p.sociedad
+    WHERE s.id_sociedad=?
+    ORDER BY p.id_prestamo ASC");
+    $stament->execute([$id_sociedad]);
+    return $stament->fetchAll(PDO::FETCH_ASSOC);
+
+}
+
+
 
 
 public function buscarPrestamo($id_prestamo){

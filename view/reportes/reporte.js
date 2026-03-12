@@ -125,6 +125,16 @@ estadosDiv += `
             `;
 
 
+            estadosDiv += `
+                    <div class="card text-bg-light mb-3" style="max-width: 18rem; border-success">
+              
+                        <div class="card-header" >SOCIEDAD:${data[0].sociedad}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">Valor Disponible</h5>
+                            <p class="card-text">Total: $${data[0].disponible}</p>
+                        </div>
+                    </div>
+            `;
 
           
             document.getElementById('estado-sociedad').innerHTML = estadosDiv;

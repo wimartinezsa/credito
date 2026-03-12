@@ -13,30 +13,67 @@ class reporteModel{
 //reporte numero 1
    public function listarEstadoSociedad($id_sociedad){
           
-            $stament = $this->PDO->prepare("SELECT s.sociedad,
-            (SELECT SUM(valor)  FROM sociedades so  WHERE  so.id_sociedad=s.id_sociedad)AS inicial,
-            (SELECT SUM(p.valor_prestado)  FROM prestamos p   WHERE  p.sociedad=s.id_sociedad AND p.estado!='negado')AS prestado,
+            $stament = $this->PDO->prepare("SELECT 
+    s.sociedad,
 
-            (SELECT SUM(cu.valor)
-             FROM prestamos p 
-             JOIN cuotas cu ON cu.prestamo=p.id_prestamo  
-             WHERE  p.sociedad=s.id_sociedad AND p.estado!='negado')AS futuro,
-            
-            (SELECT SUM(cu.valor)
-            FROM prestamos p  
-            JOIN cuotas cu ON cu.prestamo=p.id_prestamo
-            WHERE  p.sociedad=s.id_sociedad AND p.estado!='negado' AND cu.estado='pagado')AS recaudado,
+    IFNULL((SELECT SUM(valor) 
+        FROM sociedades so  
+        WHERE so.id_sociedad = s.id_sociedad),0) AS inicial,
 
-            (SELECT SUM(cu.valor)
+    IFNULL((SELECT SUM(p.valor_prestado)  
+        FROM prestamos p   
+        WHERE p.sociedad = s.id_sociedad 
+        AND p.estado != 'negado'),0) AS prestado,
+
+    IFNULL((SELECT SUM(cu.valor)
+        FROM prestamos p 
+        JOIN cuotas cu ON cu.prestamo = p.id_prestamo  
+        WHERE p.sociedad = s.id_sociedad 
+        AND p.estado != 'negado'),0) AS futuro,
+
+    IFNULL((SELECT SUM(cu.valor)
+        FROM prestamos p  
+        JOIN cuotas cu ON cu.prestamo = p.id_prestamo
+        WHERE p.sociedad = s.id_sociedad 
+        AND p.estado != 'negado' 
+        AND cu.estado = 'pagado'),0) AS recaudado,
+
+    IFNULL((SELECT SUM(cu.valor)
+        FROM prestamos p  
+        JOIN cuotas cu ON cu.prestamo = p.id_prestamo
+        WHERE p.sociedad = s.id_sociedad 
+        AND p.estado != 'negado' 
+        AND cu.estado = 'pendiente'),0) AS pendiente,
+
+    IFNULL((SELECT SUM(g.valor)  
+        FROM gastos g
+        WHERE g.sociedad = s.id_sociedad),0) AS gastos,
+
+    (
+        IFNULL((SELECT SUM(valor) 
+            FROM sociedades so  
+            WHERE so.id_sociedad = s.id_sociedad),0)
+        -
+        IFNULL((SELECT SUM(p.valor_prestado)  
+            FROM prestamos p   
+            WHERE p.sociedad = s.id_sociedad 
+            AND p.estado != 'negado'),0)
+        +
+        IFNULL((SELECT SUM(cu.valor)
             FROM prestamos p  
-            JOIN cuotas cu ON cu.prestamo=p.id_prestamo
-            WHERE  p.sociedad=s.id_sociedad AND p.estado!='negado' AND cu.estado='pendiente')AS pendiente,
-            
-            (SELECT SUM(g.valor)  FROM sociedades so  
-            JOIN gastos g ON g.sociedad= so.`id_sociedad`
-            WHERE  so.id_sociedad=s.id_sociedad) AS gastos
-            
-            FROM sociedades s  WHERE s.id_sociedad=:id_sociedad");
+            JOIN cuotas cu ON cu.prestamo = p.id_prestamo
+            WHERE p.sociedad = s.id_sociedad 
+            AND p.estado != 'negado' 
+            AND cu.estado = 'pagado'),0)
+        -
+        IFNULL((SELECT SUM(g.valor)  
+            FROM gastos g
+            WHERE g.sociedad = s.id_sociedad),0)
+    ) AS disponible
+
+FROM sociedades s  
+
+WHERE s.id_sociedad = :id_sociedad;"); 
 
             $stament->bindParam(':id_sociedad', $id_sociedad);
             $stament->execute();

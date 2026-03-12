@@ -23,6 +23,14 @@ class sociedadController{
     public function actualizarSociedad($id, $nombre, $valor){
         return $this->model->actualizarSociedad($id, $nombre, $valor);
     }   
+
+    public function disponibleSociedad($id_sociedad){
+        return $this->model->disponibleSociedad($id_sociedad);
+    }
+
+
+
+
 }
 
 ?>
