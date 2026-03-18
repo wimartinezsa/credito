@@ -8,8 +8,8 @@ class sociedadController{
         $this->model = new sociedadModel();
     }
 
-    public function listarSociedades(){
-        return $this->model->listarSociedades();
+    public function listarSociedadesEncargados(){
+        return $this->model->listarSociedadesEncargados();
     }
     
     public function registrarSociedades($nombre, $valor){

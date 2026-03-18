@@ -11,7 +11,7 @@ class prestamoModel{
 
  
 
-public function insertarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $valor, $interes, $tipo,$fiador,$estado){
+public function registrarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $valor, $interes, $tipo,$fiador,$estado){
 
     try {
 
@@ -21,20 +21,84 @@ public function insertarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $va
 
         $this->PDO->beginTransaction();
 
-        $stament = $this->PDO->prepare("
-            INSERT INTO prestamos 
-            (sociedad, ficha, persona, fecha_prestamo, tiempo, valor_prestado, interes, tipo,fiador,estado) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)
+        // =========================
+        // 1. OBTENER CAJA ACTUAL
+        // =========================
+        $stament_sociedad = $this->PDO->prepare("
+            SELECT caja FROM sociedades WHERE id_sociedad=?
         ");
 
-        $stament->execute([$sociedad,$ficha,$cliente, $fecha, $tiempo, $valor, $interes, $tipo,$fiador,$estado]);
+        $stament_sociedad->execute([$sociedad]);
+        $resultado = $stament_sociedad->fetch(PDO::FETCH_ASSOC);
+
+        if (!$resultado) {
+            throw new Exception("Sociedad no encontrada");
+        }
+
+        $caja = $resultado['caja'];
+
+        // Validar saldo disponible
+        if ($valor > $caja) {
+            throw new Exception("Saldo insuficiente en la sociedad");
+        }
+
+        // =========================
+        // 2. REGISTRAR MOVIMIENTO
+        // =========================
+        $stament_movimiento = $this->PDO->prepare("
+            INSERT INTO movimientos 
+            (fecha, sociedad, valor, caja, tipo) 
+            VALUES (?, ?, ?, ?, ?)
+        ");
+
+        $stament_movimiento->execute([
+            $fecha, 
+            $sociedad, 
+            $valor, 
+            $caja - $valor, 
+            "credito"
+        ]);
+
+        $id_movimiento = $this->PDO->lastInsertId();
+
+        // =========================
+        // 3. REGISTRAR PRÉSTAMO
+        // =========================
+        $stament_prestamo = $this->PDO->prepare("
+            INSERT INTO prestamos 
+            (ficha, persona, fecha_prestamo, tiempo, valor_prestado, interes, tipo, fiador, estado, movimiento) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+
+        $stament_prestamo->execute([
+            $ficha,
+            $cliente,
+            $fecha,
+            $tiempo,
+            $valor,
+            $interes,
+            $tipo,
+            $fiador,
+            $estado,
+            $id_movimiento
+        ]);
 
         $id_prestamo = $this->PDO->lastInsertId();
 
         // =========================
-        // CÁLCULO DEL PRÉSTAMO
+        // 4. ACTUALIZAR CAJA
         // =========================
+        $stament_update = $this->PDO->prepare("
+            UPDATE sociedades 
+            SET caja = caja - ? 
+            WHERE id_sociedad = ?
+        ");
 
+        $stament_update->execute([$valor, $sociedad]);
+
+        // =========================
+        // 5. CÁLCULO DEL PRÉSTAMO
+        // =========================
         if ($tipo == "financiado") {
 
             $tipo_cuota = "cuota_fija";
@@ -53,19 +117,15 @@ public function insertarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $va
         $valor_cuota = round($valor_cuota, 2);
 
         // =========================
-        // GENERAR CUOTAS MENSUALES
+        // 6. GENERAR CUOTAS
         // =========================
-
         $fecha_base = new DateTime($fecha);
-
-        // Primera cuota: un mes después del préstamo
         $fecha_base->modify('+1 month');
 
         for($mes = 1; $mes <= $tiempo; $mes++){
 
             $fecha_cuota = clone $fecha_base;
 
-            // Ajuste para meses con menos días (ej: febrero)
             $dia_original = (int)(new DateTime($fecha))->format('d');
             $ultimo_dia_mes = (int)$fecha_cuota->format('t');
 
@@ -83,6 +143,7 @@ public function insertarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $va
                 );
             }
 
+            // Insertar cuota
             $stament_cuota = $this->PDO->prepare("
                 INSERT INTO cuotas 
                 (fecha_cuota, mes, valor, tipo, prestamo, estado) 
@@ -98,31 +159,34 @@ public function insertarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $va
                 "pendiente"
             ]);
 
+            // Si es tipo mensual, última cuota incluye capital
+            if($mes == $tiempo && $tipo == "mensual"){
 
-            if($mes==$tiempo && $tipo == "mensual"){
-                $stament_cuota = $this->PDO->prepare("
-                INSERT INTO cuotas 
-                (fecha_cuota, mes, valor, tipo, prestamo, estado) 
-                VALUES (?, ?, ?, ?, ?, ?)
-            ");
+                $stament_capital = $this->PDO->prepare("
+                    INSERT INTO cuotas 
+                    (fecha_cuota, mes, valor, tipo, prestamo, estado) 
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ");
 
-            $stament_cuota->execute([
-                $fecha_cuota->format('Y-m-d'),
-                $mes,
-                $valor,
-                'capital',
-                $id_prestamo,
-                "pendiente"
-            ]);
-
+                $stament_capital->execute([
+                    $fecha_cuota->format('Y-m-d'),
+                    $mes,
+                    $valor,
+                    'capital',
+                    $id_prestamo,
+                    "pendiente"
+                ]);
             }
-            // Avanzar al siguiente mes
+
             $fecha_base->modify('+1 month');
         }
 
+        // =========================
+        // FINALIZAR TRANSACCIÓN
+        // =========================
         $this->PDO->commit();
 
-        return "Registro insertado correctamente";
+        return "Préstamo registrado correctamente";
 
     } catch (Exception $e) {
 
@@ -132,26 +196,30 @@ public function insertarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $va
 }
 
 
-
-
+/*
 public function registrarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo,$fiador,$estado){
         return $this->insertarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo,$fiador,$estado);
     }
 
-
+*/
 
         
 
-public function listarTodos(){
-$stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.tipo,p.ficha, per.identificacion, per.nombres, p.fecha_prestamo, p.tiempo, p.valor_prestado,p.estado, 
-(SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo ) AS futuro,
-(SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pagado') AS pagado,
-(SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pendiente') AS pendiente
- FROM personas per
- JOIN prestamos p ON per.id_persona = p.persona
- LEFT JOIN  sociedades s ON s.id_sociedad = p.sociedad
- ORDER BY p.id_prestamo ASC");
-            $stament->execute();
+public function listaPrestamoEncargado(){
+
+
+ $user = $_SESSION['usuario'];
+
+        $stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.tipo,p.ficha, per.identificacion, per.nombres, p.fecha_prestamo, p.tiempo, p.valor_prestado,p.estado, 
+        (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo ) AS futuro,
+        (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pagado') AS pagado,
+        (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pendiente') AS pendiente
+        FROM personas per
+        JOIN prestamos p ON per.id_persona = p.persona
+        JOIN   sociedades s ON s.encargado  = per.id_persona
+        WHERE s.encargado=?
+        ORDER BY p.id_prestamo ASC");
+                    $stament->execute([$user['id_persona']]);
             return $stament->fetchAll(PDO::FETCH_ASSOC);
         }
 
@@ -166,7 +234,7 @@ $stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.tipo,p.ficha, 
     (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pendiente') AS pendiente
     FROM personas per
     JOIN prestamos p ON per.id_persona = p.persona
-    LEFT JOIN  sociedades s ON s.id_sociedad = p.sociedad
+    JOIN   sociedades s ON s.encargado  = per.id_persona
     WHERE s.id_sociedad=?
     ORDER BY p.id_prestamo ASC");
     $stament->execute([$id_sociedad]);

@@ -102,11 +102,11 @@ function listaClientes() {
 }
 
 
+/*
+function listaPrestamoEncargado(){
 
-function listaPrestamo(){
 
-
-    fetch("./listarPrestamo.php", {
+    fetch("./listaPrestamoEncargado.php", {
         method: 'GET',
     })
     .then(response =>{
@@ -184,7 +184,7 @@ function listaPrestamo(){
 
 
 }
-
+*/
 
 
 
@@ -218,7 +218,7 @@ function guardarPrestamo(){
     .then(text => {
         console.log(text);
        //limpiarFormulario();
-      listaPrestamo();
+   
       modalPrestamo.hide();
     })
     .catch(err => {
@@ -308,7 +308,8 @@ function actualizarPrestamo(){
     .then(text => {
        // console.log(text);
        //limpiarFormulario();
-      listaPrestamo();
+   
+       
       modalPrestamo.hide();
     })
     .catch(err => {
@@ -432,7 +433,7 @@ function pagarCuota(id_cuota){
         return response.text();
     })
     .then(text => {
-        listaPrestamo();
+     
       listarCuotas(document.getElementById("cod_prestamo").value);
         alert(text);
     });
@@ -457,7 +458,7 @@ if (!confirm('¿Confirma que desea hacer devolución de esta cuota?')) return;
         return response.text();
     })
     .then(text => {
-      listaPrestamo();
+  
       listarCuotas(document.getElementById("cod_prestamo").value);
         alert(text);
     });
@@ -465,12 +466,9 @@ if (!confirm('¿Confirma que desea hacer devolución de esta cuota?')) return;
 }
 
 
-function listarSociedadesPrincipal(){
+function listarSociedadesEncargados(){
 
-  
-
-
-    fetch(`../sociedad/listarSociedad.php`, {
+    fetch(`../sociedad/listarSociedadesEncargados.php`, {
         method: 'GET',
     })
     .then(response => response.json())
@@ -503,7 +501,7 @@ function listarSociedadesPrincipal(){
 
 
 function listarSociedades(){
-    fetch(`../sociedad/listarSociedad.php`, {
+    fetch(`../sociedad/listarSociedadesEncargados.php`, {
         method: 'GET',
     })
     .then(response => response.json())
@@ -528,6 +526,7 @@ function listarSociedades(){
         });
     });
 }
+
 
 
 function listarPrestamosId(id_sociedad){
@@ -770,9 +769,8 @@ window.eliminarGarantia = eliminarGarantia;
 
 // Cargar lista cuando el documento esté listo
 document.addEventListener('DOMContentLoaded', function(){
-    listarSociedadesPrincipal();
-    listaPrestamo();
-  
+    listarSociedadesEncargados();
+
  
    // Asignar evento al botón de subir garantía
    const button = document.getElementById('btnSubirGarantia');

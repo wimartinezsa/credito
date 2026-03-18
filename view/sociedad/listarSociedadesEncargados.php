@@ -27,7 +27,7 @@
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 
-    $resultado = $controller->listarSociedades();
+    $resultado = $controller->listarSociedadesEncargados();
     echo json_encode($resultado);
 }
     

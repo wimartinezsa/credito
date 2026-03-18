@@ -9,12 +9,15 @@ class sociedadModel{
         $this->PDO = $con->conexion();
         }
 
-       
-        public function listarSociedades(){
-            $stament = $this->PDO->prepare("SELECT * FROM sociedades");
-            $stament->execute();
+       public function listarSociedadesEncargados(){
+
+           // session_start();
+            $user = $_SESSION['usuario'];
+            $stament = $this->PDO->prepare("SELECT * FROM sociedades WHERE encargado = ?");
+            $stament->execute([$user['id_persona']]);
+
             return $stament->fetchAll(PDO::FETCH_ASSOC);
-        }
+}
         
         public function registrarSociedades($nombre, $valor){
             $stament = $this->PDO->prepare("INSERT INTO sociedades (sociedad,valor) VALUES (:nombre,:valor)");
@@ -42,31 +45,9 @@ class sociedadModel{
 
         public function disponibleSociedad($id_sociedad){
 
-        $stament = $this->PDO->prepare("SELECT 
-(
-    IFNULL((SELECT SUM(valor) 
-        FROM sociedades 
-        WHERE id_sociedad = s.id_sociedad),0)
-    -
-    IFNULL((SELECT SUM(p.valor_prestado)  
-        FROM prestamos p   
-        WHERE p.sociedad = s.id_sociedad 
-        AND p.estado != 'negado'),0)
-    +
-    IFNULL((SELECT SUM(cu.valor)
-        FROM prestamos p  
-        JOIN cuotas cu ON cu.prestamo = p.id_prestamo
-        WHERE p.sociedad = s.id_sociedad 
-        AND p.estado != 'negado' 
-        AND cu.estado = 'pagado'),0)
-    -
-    IFNULL((SELECT SUM(g.valor)  
-        FROM gastos g
-        WHERE g.sociedad = s.id_sociedad),0)
-) AS disponible
-
-FROM sociedades s
-WHERE s.id_sociedad = :id_sociedad;");
+        $stament = $this->PDO->prepare("SELECT caja
+        FROM sociedades s
+        WHERE s.id_sociedad = :id_sociedad;");
         $stament->bindParam(':id_sociedad', $id_sociedad);
         $stament->execute();
         return $stament->fetch(PDO::FETCH_ASSOC);

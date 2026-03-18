@@ -12,7 +12,7 @@ function login(){
        console.log('Datos recibidos del servidor:', data);
       
         if (data && data.token) {
-            console.log('token:', data.token);
+           // console.log('token:', data.token);
             localStorage.setItem("token", data.token);
             // optionally store user info
             localStorage.setItem("usuario", JSON.stringify(data.usuario));

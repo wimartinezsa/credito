@@ -26,7 +26,7 @@ if(isset($_SESSION["token"])){
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $resultado = $controller_prestamo->listarTodos();
+    $resultado = $controller_prestamo->listaPrestamoEncargado();
     echo json_encode($resultado);
 }
 
