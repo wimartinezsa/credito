@@ -19,8 +19,9 @@ function modalGastos(){
 
 
 let dataTableInstance = null;
-function listaGastos(){
-    fetch("./listarGasto.php", {
+
+function listaGastosSociedad(id_sociedad){
+    fetch(`./listarGastoSociedad.php?id_sociedad=${id_sociedad}`, {
         method: 'GET',
     })
     .then(response => response.json())
@@ -51,10 +52,10 @@ function listaGastos(){
                 <td>${gasto.fecha}</td>
                 <td>${gasto.detalle}</td>
                 <td>${gasto.valor}</td>
-               
+               <td>${gasto.estado}</td>
              
-                <td>
-                <button class="btn btn-danger" onclick="eliminarGasto(${gasto.id_gasto})">Eliminar</button>
+                <td>${gasto.estado==="ejecutado"?`<button class="btn btn-danger" onclick="anularGasto(${gasto.id_gasto})">Anular</button>`:'Anulado'}
+                
               
                 </td>
             `;
@@ -75,26 +76,27 @@ function listaGastos(){
     });
 }
 
-function eliminarGasto(id) {
+function anularGasto(id) {
   
 
 
-    if (confirm("¿Estás seguro de eliminar este gasto?")) {
-        fetch(`./eliminarGasto.php?id=${id}`, {
+    if (confirm("¿Estás seguro de anular este gasto?")) {
+        fetch(`./anularGasto.php?id=${id}`, {
             method: 'DELETE',
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Gasto eliminado exitosamente');
-                listaGastos(); // Refrescar la lista después de eliminar
+                alert('Gasto anulado exitosamente');
+
+                listaGastosSociedad(document.getElementById('sociedad').value); // Refrescar la lista después de eliminar
             } else {
-                alert('Error al eliminar: ' + data.message);
+                alert('Error al anular: ' + data.message);
             }   
         })
         .catch(err => {
             console.error(err);
-            alert('Error al eliminar: ' + err);
+            alert('Error al anular: ' + err);
         });
     }
 
@@ -102,8 +104,8 @@ function eliminarGasto(id) {
 }
 
 
-function listarSociedades(){
-    fetch(`../sociedad/listarSociedad.php`, {
+function listarSociedadesEncargados(){
+    fetch(`../sociedad/listarSociedadesEncargados.php`, {
         method: 'GET',
     })
     .then(response => response.json())
@@ -115,10 +117,10 @@ function listarSociedades(){
         select.innerHTML = "";
 
         // 🔹 (Opcional) Agregar opción por defecto
-        //const optionDefault = document.createElement("option");
-        //optionDefault.value = "";
-        //optionDefault.textContent = "Seleccione una sociedad";
-        //select.appendChild(optionDefault);
+        const optionDefault = document.createElement("option");
+        optionDefault.value = "";
+        optionDefault.textContent = "Seleccione una sociedad";
+        select.appendChild(optionDefault);
 
         data.forEach(sociedad => {
             const option = document.createElement("option");    
@@ -149,7 +151,7 @@ function registrarGasto(){
             alert('Gasto registrado exitosamente');
             modalGasto.hide(); // Cerrar el modal después de registrar
            // document.getElementById("modalGasto").classList.remove("show");
-            listaGastos(); // Refrescar la lista después de registrar
+            listaGastosSociedad(document.getElementById('sociedad').value); // Refrescar la lista después de registrar
         } else {
             alert('Error al registrar el gasto: ' + data.message);
         }
@@ -162,15 +164,14 @@ function registrarGasto(){
 
 
 
-window.eliminarGasto = eliminarGasto;
-window.listaGastos = listaGastos;
-window.listarSociedades = listarSociedades;
+window.anularGasto = anularGasto;
+window.listaGastosSociedad = listaGastosSociedad;
+window.listarSociedadesEncargados = listarSociedadesEncargados;
 window.modalGasto = modalGasto;
 
 
 // Cargar lista cuando el documento esté listo
 document.addEventListener('DOMContentLoaded', function(){
-   listaGastos();
-   listarSociedades();
+   listarSociedadesEncargados();
     console.log('gastos.js cargado. DataTable y modal listos.');
 });

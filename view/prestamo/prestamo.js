@@ -527,7 +527,13 @@ function listarSociedades(){
     });
 }
 
-
+function formatearPesos(valor) {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 2
+  }).format(valor);
+}
 
 function listarPrestamosId(id_sociedad){
    
@@ -571,15 +577,15 @@ function listarPrestamosId(id_sociedad){
             const row = tbody.insertRow();
             row.innerHTML = `
                 <td>${prestamo.ficha}</td>
-                <td>${prestamo.sociedad}</td>
                 <td>${prestamo.nombres}</td>
                 <td>${prestamo.tipo}</td>
                 <td>${prestamo.fecha_prestamo}</td>
                 <td>${prestamo.tiempo}</td>
-                <td>${prestamo.valor_prestado}</td>
-                 <td>${prestamo.futuro}</td>
-                 <td>${prestamo.pagado}</td>
-                 <td>${prestamo.pendiente}</td>
+                <td>${formatearPesos(prestamo.valor_prestado)}</td>
+                <td>${prestamo.interes}</td>
+                 <td>${formatearPesos(prestamo.futuro===null?0:prestamo.futuro)}</td>
+                 <td>${formatearPesos(prestamo.pagado===null?0:prestamo.pagado)}</td>
+                 <td>${formatearPesos(prestamo.pendiente===null?0:prestamo.pendiente)}</td>
                   <td>${prestamo.estado}</td>
              
                 <td>
@@ -631,7 +637,7 @@ function disponibilidadSociedad(id_sociedad){
         
       
         
-       document.getElementById("disponible").innerHTML= data.disponible!= null? "Disponible ="+data.disponible:"Disponible = 0";
+       document.getElementById("disponible").innerHTML= data.caja!= null? "Disponible ="+data.caja:"Disponible = 0";
        
         
        

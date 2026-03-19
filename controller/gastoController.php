@@ -9,12 +9,12 @@ class gastoController{
         $this->model = new gastoModel();
     }
 
-    public function listarGastos(){
-        return $this->model->listarGastos();
+    public function listarGastoSociedad($id_sociedad){
+        return $this->model->listarGastos($id_sociedad);
     }
    
-    public function eliminarGasto($id){
-        return $this->model->eliminarGasto($id);
+    public function anularGasto($id){
+        return $this->model->anularGasto($id);
     }   
 
     public function registrarGasto($sociedad, $fecha, $detalle, $valor) {

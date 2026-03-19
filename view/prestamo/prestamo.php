@@ -32,12 +32,13 @@ require_once ("../head/head.php");
   <thead>
     <tr>
       <th scope="col">#</th>
-      <th scope="col">Sociedad</th>
+     
       <th scope="col">Cliente</th>
       <th scope="col">Tipo</th>
       <th scope="col">Fecha</th>
       <th scope="col">Tiempo</th>
       <th scope="col">V. Prestado</th>
+         <th scope="col">Interes</th>
       <th scope="col">V. Futuro</th>   
       <th scope="col">V. Pagado</th>
       <th scope="col">V. Pendiente</th>

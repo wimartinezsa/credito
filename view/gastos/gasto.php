@@ -9,7 +9,26 @@ require_once ("../head/head.php");
 
 <h4 class="text-center">Lista de Gastos</h4>
 <!-- Trigger button for Frm_procedimientos -->
-<button type="button" class="btn btn-secondary mb-3" onclick="modalGastos()">Nuevo Gasto</button>
+ <div class="row mt-4">
+      <div class="col-6">
+                                  
+                                    <select class="form-select" name="sociedad" id="sociedad" onchange="listaGastosSociedad(this.value);">
+                                    </select>
+
+      </div>
+        <div class="col-6">
+               <button type="button" class="btn btn-secondary mb-3" onclick="modalGastos()">Nuevo Gasto</button>
+         
+          </div>
+                                    
+
+      </div>
+  
+
+   
+                                
+                             
+
 
 <br>
 <table class="table" id="tabla-gastos">
@@ -20,6 +39,7 @@ require_once ("../head/head.php");
       <th scope="col">Fecha</th>
       <th scope="col">Detalle</th>
       <th scope="col">Valor</th>
+        <th scope="col">Estado</th>
       <th scope="col">Acciones</th>
     </tr>
   </thead>
@@ -41,11 +61,7 @@ require_once ("../head/head.php");
                 <form >
                     <input type="number" name="id_gasto" class="form-control" id="id_gasto" hidden readonly> 
 
-                            <div class="mb-3">
-                                <label class="form-label">Sociedad</label>
-                                <select class="form-select" name="sociedad" id="sociedad">
-                              </select>
-                            </div>
+                          
 
                         <div class="mb-3">
                                 <label for="fecha" class="form-label">Fecha</label>

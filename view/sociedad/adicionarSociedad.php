@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['success' => false, 'message' => 'El ID de la sociedad es requerido']);
             exit;
         }
-        $resultado = $controller->actualizarSociedad($id, $sociedad, $valor);
+        $resultado = $controller->adicionarSociedad($id, $sociedad, $valor);
         echo json_encode(['success' => $resultado]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Datos incompletos']);

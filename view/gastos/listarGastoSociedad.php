@@ -8,7 +8,8 @@
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-    $resultado = $controller->listarGastos();
+    $id_sociedad = $_GET['id_sociedad'] ?? null;
+    $resultado = $controller->listarGastoSociedad($id_sociedad);
     echo json_encode($resultado);
 }
     
