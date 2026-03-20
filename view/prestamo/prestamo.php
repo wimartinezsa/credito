@@ -55,7 +55,7 @@ require_once ("../head/head.php");
 
 <!-- Modal Registrar Usuario-->
 <div class="modal fade" id="modalPrestamo" data-bs-target="#modalPrestamo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="exampleModalLabel">Administrar Creditos</h1>
@@ -99,7 +99,7 @@ require_once ("../head/head.php");
                         <div class="col-6">
                             <div class="mb-3">
                           <div class="mb-3">
-                            <label for="fecha" class="form-label">Fecha</label>
+                            <label for="fecha" class="form-label">Fecha </label>
                             <input type="date" name="fecha" class="form-control" id="fecha">
                           </div>
                           </div>
@@ -192,7 +192,7 @@ require_once ("../head/head.php");
 
 <!-- Modal Cuotas-->
 <div class="modal fade" id="modalCuotas" data-bs-target="#modalCuotas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="exampleModalLabel">Administrar Pagos</h1>
@@ -200,12 +200,16 @@ require_once ("../head/head.php");
       </div>
       <div class="modal-body">
         <input type="number" id="cod_prestamo" hidden readonly>
-               <table class="table" id="tabla-cuotas">
+              
+        <div class="row">
+
+            <div class="col-8">
+              <table class="table" id="tabla-cuotas">
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>Mes</th>
-                          <th>Fecha</th>
+                          
+                          <th>Fecha Pago</th>
                           <th>Valor</th>
                           <th>Tipo de Pago</th>
                           <th>Estado</th>
@@ -214,7 +218,40 @@ require_once ("../head/head.php");
                       </thead>
                     
                       
-               </table>
+        </table>
+
+            </div>
+
+         <div class="col-4">
+           <div class="mb-2">
+                              <label for="ficha" class="form-label">Mes</label>
+                              <select class="form-select" name="sociedad" id="sociedad">
+                              </select>
+            </div>
+
+            <div class="mb-2">
+                              <label for="ficha" class="form-label">Valor</label>
+                            <input type="number" name="valor_cuota" class="form-control" id="valor_cuota" placeholder="Digite el Valor a Pagar">              
+            </div>
+
+            <div class="mb-2">
+                              <label for="tipo_pago" class="form-label">Tipo de Pago</label>
+                              <select class="form-select" name="tipo_pago" id="tipo_pago">
+                              </select>
+            </div>
+
+
+            <div class="mb-2">
+                              <button class="btn btn-primary">Registrar</button>
+            </div>
+                              
+          
+         </div>
+
+
+        </div>
+        
+        
                  
 
 

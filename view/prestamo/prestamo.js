@@ -216,9 +216,10 @@ function guardarPrestamo(){
         return response.text();
     })
     .then(text => {
-        console.log(text);
+       // console.log(text);
+        alert(text);
        //limpiarFormulario();
-   
+     listarPrestamosId(document.getElementById('lista_sociedades').value);
       modalPrestamo.hide();
     })
     .catch(err => {
@@ -306,9 +307,9 @@ function actualizarPrestamo(){
         return response.text();
     })
     .then(text => {
-       // console.log(text);
-       //limpiarFormulario();
-   
+        alert(text);
+      
+   listarPrestamosId(document.getElementById('lista_sociedades').value);
        
       modalPrestamo.hide();
     })
@@ -385,9 +386,8 @@ function listarCuotas(id_prestamo){
             const row = tbody.insertRow();
             valor_futuro +=cuota.valor;
             row.innerHTML = `
-                <td>${cuota.id_cuota}</td>
-                <td>${cuota.mes}</td>
-                <td>${cuota.fecha_cuota}</td>
+                <td>${cuota.nro_cuota}</td>
+                <td>${cuota.fecha_pago}</td>
                 <td>${cuota.valor}</td>
                 <td>${cuota.tipo}</td>
                 <td>
@@ -404,13 +404,14 @@ function listarCuotas(id_prestamo){
             `;
         });
         document.getElementById('valores').innerHTML='V. Futuro: $'+valor_futuro+ '  /  V. Pagado: $'+valor_pagado+ '  /  V. Pendiente: $'+valor_pendiente;
-
+/*
         dataTableInstance = $('#tabla-cuotas').DataTable({
             pageLength: 10,
             searching: true,
             ordering: true,
             paging: true
         }); 
+        */
     })
     .catch(err => {
         console.error(err);
@@ -589,10 +590,12 @@ function listarPrestamosId(id_sociedad){
                   <td>${prestamo.estado}</td>
              
                 <td>
-                <button class="btn btn-sm btn-primary" onclick="buscarPrestamo(${prestamo.id_prestamo})">Actualizar</button>
-                <button class="btn btn-sm btn-success" onclick="verPagos(${prestamo.id_prestamo})">Pagos</button>
-                <button class="btn btn-sm btn-danger" onclick="modalAdminGarantia(${prestamo.id_prestamo})">Garantía</button>
                 
+                    <button class="btn btn-sm btn-primary" onclick="buscarPrestamo(${prestamo.id_prestamo})">Actualizar</button>
+                    <button class="btn btn-sm btn-success" onclick="verPagos(${prestamo.id_prestamo})">Pagos</button>
+                    <button class="btn btn-sm btn-danger" onclick="modalAdminGarantia(${prestamo.id_prestamo})">Garantía</button>
+               
+               
                 </td>
             `;
         });
