@@ -508,6 +508,8 @@ public function actualizarPrestamo($sociedad, $ficha, $id_prestamo, $cliente, $f
 
 
 
+
+
 /*
 public function actualizarPrestamo($sociedad, $ficha, $id_prestamo, $cliente, $fecha, $tiempo, $valor, $interes, $tipo, $fiador, $estado){
 

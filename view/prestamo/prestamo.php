@@ -200,10 +200,9 @@ require_once ("../head/head.php");
       </div>
       <div class="modal-body">
         <input type="number" id="cod_prestamo" hidden readonly>
-              
+              <button class="btn btn-primary" onclick="adminNuevaCuota();">Nueva Cuota</button>
         <div class="row">
-
-            <div class="col-8">
+            <div class="col-12">
               <table class="table" id="tabla-cuotas">
                       <thead>
                         <tr>
@@ -222,27 +221,56 @@ require_once ("../head/head.php");
 
             </div>
 
-         <div class="col-4">
+        </div>
+        
+        
+                 
+
+
+      </div>
+      <div class="modal-footer">
+        <h4 id="valores"></h4>
+      
+       
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Pagar Cuotas-->
+<div class="modal fade" id="modalPagarCuotas" data-bs-target="#modalCuotas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="titleModalPagoCuota">Modificar Cuota</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="number" id="codigo_cuota" hidden readonly>
+              
+        <div class="row">
+
+
+         <div class="col-12">
            <div class="mb-2">
-                              <label for="ficha" class="form-label">Mes</label>
-                              <select class="form-select" name="sociedad" id="sociedad">
-                              </select>
+                              <label for="valor_pagado" class="form-label">Valor Pagao</label>
+                              <input type="number" name="valor_pagado" class="form-control" id="valor_pagado" placeholder="Digite el numero de cuota">              
+         
+            </div>
+            <div class="mb-2">
+                              <label for="fecha_pagado" class="form-label">Fecha de Recuado</label>
+                            <input type="date" name="fecha_pagado" class="form-control" id="fecha_pagado" placeholder="Digite la fecha de pago">              
             </div>
 
-            <div class="mb-2">
-                              <label for="ficha" class="form-label">Valor</label>
-                            <input type="number" name="valor_cuota" class="form-control" id="valor_cuota" placeholder="Digite el Valor a Pagar">              
-            </div>
-
-            <div class="mb-2">
-                              <label for="tipo_pago" class="form-label">Tipo de Pago</label>
-                              <select class="form-select" name="tipo_pago" id="tipo_pago">
-                              </select>
-            </div>
+           
 
 
             <div class="mb-2">
-                              <button class="btn btn-primary">Registrar</button>
+              <button class="btn btn-primary" onclick="adminregistrarPagoCuota()" id="btn_pagar_cuota">Modificar</button>
+             
             </div>
                               
           
@@ -264,6 +292,77 @@ require_once ("../head/head.php");
     </div>
   </div>
 </div>
+
+
+
+
+
+<!-- Modal Cuotas-->
+<div class="modal fade" id="modalAdminCuotas" data-bs-target="#modalCuotas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="titleModalAdminCuotas">Modificar Cuota</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="number" id="codigo_cuota" hidden readonly>
+              
+        <div class="row">
+
+
+         <div class="col-12">
+           <div class="mb-2">
+                              <label for="nro_pago" class="form-label">Nro. Pago</label>
+                              <input type="number" name="nro_pago" class="form-control" id="nro_pago" placeholder="Digite el numero de cuota">              
+         
+            </div>
+            <div class="mb-2">
+                              <label for="fecha" class="form-label">Fecha de Pago</label>
+                            <input type="date" name="fecha_pago" class="form-control" id="fecha_pago" placeholder="Digite la fecha de pago">              
+            </div>
+
+            <div class="mb-2">
+                              <label for="ficha" class="form-label">Valor</label>
+                            <input type="number" name="valor_pago" class="form-control" id="valor_pago" placeholder="Digite el Valor a Pagar">              
+            </div>
+
+            <div class="mb-2">
+                              <label for="tipo_pago" class="form-label">Tipo de Pago</label>
+                              <select class="form-select" name="tipo_pago" id="tipo_pago">
+                                <option value="cuota_fija">Cuota Fija</option>
+                                <option value="interes_mensual">Interes Mesual</option>
+                                  <option value="capital">Capital</option>
+                              </select>
+            </div>
+
+
+            <div class="mb-2">
+              <button class="btn btn-primary" onclick="modificarCuota()" id="btn_modificar_cuota">Modificar</button>
+              <button class="btn btn-primary" onclick="registarNuevaCuota()" id="btn_registrar_cuota">Registrar</button>
+            </div>
+                              
+          
+         </div>
+
+
+        </div>
+        
+        
+                 
+
+
+      </div>
+      <div class="modal-footer">
+        <h4 id="valores"></h4>
+      
+       
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 
 <!-- Modal Cuotas-->

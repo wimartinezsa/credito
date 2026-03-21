@@ -6,7 +6,6 @@
     $controller_autenticacion = new autenticacionController();
     $controller = new cuotaController();
 
-
     session_start();
     if(isset($_SESSION["token"])){
             $usuario = $controller_autenticacion->validarToken($_SESSION['token']);
@@ -24,17 +23,18 @@
 
 
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $id_prestamo = isset($_GET['id_prestamo']) ? $_GET['id_prestamo'] : null;
-     if ($id_prestamo === null) {
-        http_response_code(400);
-        echo json_encode(["error" => "ID no proporcionado"]);
-        exit;
-    }
-    $resultado = $controller->listarCuotas($id_prestamo);
-    echo json_encode($resultado);
+    $resultado = $controller->nuevaCuota(
+        $_POST["id_prestamo"],
+        $_POST["nro_pago"],
+        $_POST["fecha_pago"], 
+        $_POST["valor_pago"], 
+        $_POST["tipo_pago"]
+    );
+    echo $resultado;
 }
+
 
     
 ?>

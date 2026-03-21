@@ -55,6 +55,33 @@ function modalAdminGarantia(id_prestado){
 }
 
 
+
+
+let modalModificarCuotas= null;
+
+
+function modalModificarCuota(id_cuota,nro_cuota,fecha_pago,valor,tipo){
+        const el = document.getElementById('modalAdminCuotas');
+        modalAdminCuotas = new bootstrap.Modal(el, { keyboard: false });
+        document.getElementById("codigo_cuota").value=id_cuota;
+        document.getElementById("nro_pago").value=nro_cuota;
+        document.getElementById("valor_pago").value=valor;
+        document.getElementById("tipo_pago").value=tipo;
+        document.getElementById("fecha_pago").value=fecha_pago;
+        document.getElementById("titleModalAdminCuotas").innerHTML="Modificar Cuota";
+
+        
+         btn_modificar_cuota.style.display = 'block';
+        btn_registrar_cuota.style.display = 'none';
+        modalAdminCuotas.show();
+}
+
+
+
+
+
+
+
 let dataTableInstance = null;
 
 function listaClientes() {
@@ -100,6 +127,129 @@ function listaClientes() {
         alert('Error al listar: ' + err);
     });
 }
+
+
+function modificarCuota(){
+// Implementar lógica para guardar préstamo
+    let datos= new URLSearchParams();
+
+    datos.append('codigo_cuota',document.getElementById('codigo_cuota').value);
+    datos.append('nro_pago',document.getElementById('nro_pago').value);
+    datos.append('fecha_pago',document.getElementById('fecha_pago').value);
+    datos.append('valor_pago',document.getElementById('valor_pago').value);
+    datos.append('tipo_pago',document.getElementById('tipo_pago').value);
+
+    fetch("../cuota/actualizarCuota.php", {
+        method: 'POST',
+        body:datos,
+    })
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
+    .then(text => {
+         modalAdminCuotas.hide();
+        alert(text);
+        listarCuotas(document.getElementById("cod_prestamo").value);
+        
+
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error al guardar: ' + err);
+    });
+
+
+}
+
+
+function adminregistrarPagoCuota(Id_cuota){
+
+        const el = document.getElementById('modalPagarCuotas');
+        modalPagarCuotas = new bootstrap.Modal(el, { keyboard: false });
+        document.getElementById("codigo_cuota").value=Id_cuota;
+       
+
+        document.getElementById("titleModalPagoCuota").innerHTML="Registrar Pago de la cuota";
+
+
+
+
+        modalPagarCuotas.show();
+
+}
+
+
+
+function adminNuevaCuota(){
+
+      const el = document.getElementById('modalAdminCuotas');
+        modalAdminCuotas = new bootstrap.Modal(el, { keyboard: false });
+        document.getElementById("codigo_cuota").value="";
+        document.getElementById("nro_pago").value="";
+        document.getElementById("valor_pago").value="";
+        document.getElementById("tipo_pago").value="";
+        document.getElementById("fecha_pago").value="";
+
+        document.getElementById("titleModalAdminCuotas").innerHTML="Nueva Cuota";
+
+        btn_modificar_cuota.style.display = 'none';
+        btn_registrar_cuota.style.display = 'block';
+
+
+
+        modalAdminCuotas.show();
+
+
+
+}
+
+
+
+function registarNuevaCuota(){
+
+ let datos= new URLSearchParams();
+
+    datos.append('id_prestamo',document.getElementById("cod_prestamo").value);
+    datos.append('nro_pago',document.getElementById('nro_pago').value);
+    datos.append('fecha_pago',document.getElementById('fecha_pago').value);
+    datos.append('valor_pago',document.getElementById('valor_pago').value);
+    datos.append('tipo_pago',document.getElementById('tipo_pago').value);
+
+    fetch("../cuota/nuevaCuota.php", {
+        method: 'POST',
+        body:datos,
+    })
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
+    .then(text => {
+         modalAdminCuotas.hide();
+        alert(text);
+        listarCuotas(document.getElementById("cod_prestamo").value);
+        
+
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error al guardar: ' + err);
+    });
+
+
+
+}
+
 
 
 /*
@@ -228,9 +378,10 @@ function guardarPrestamo(){
     });
 }
 
-function verPagos(id_prestamo){
+async function verPagos(id_prestamo){
     document.getElementById("cod_prestamo").value=id_prestamo;
-    listarCuotas(id_prestamo);
+  
+  await listarCuotas(id_prestamo);
     modalCuotasPrestamo();
 }
 
@@ -335,9 +486,9 @@ function limpiarFormulario(){
 
 
 
-function listarCuotas(id_prestamo){
+async function listarCuotas(id_prestamo){
 
-    fetch(`../cuota/listarCuotas.php?id_prestamo=${id_prestamo}`, {
+  await  fetch(`../cuota/listarCuotas.php?id_prestamo=${id_prestamo}`, {
         method: 'GET',
     })
      .then(response =>{
@@ -360,11 +511,7 @@ function listarCuotas(id_prestamo){
         const tabla = document.getElementById("tabla-cuotas");
         if (!tabla) return; 
 
-        // Destruir DataTable anterior
-        if (typeof dataTableInstance !== "undefined" && dataTableInstance) {
-            dataTableInstance.destroy();
-            dataTableInstance = null;
-        }   
+       
 
         let tbody = tabla.querySelector('tbody');   
         if (!tbody) {
@@ -392,32 +539,41 @@ function listarCuotas(id_prestamo){
                 <td>${cuota.tipo}</td>
                 <td>
                     ${cuota.estado ==='pendiente' 
-                        ? `<a onclick="pagarCuota(${cuota.id_cuota})" alt="Pagar Cuota" class="btn btn-sm btn-warning">
-                             ${cuota.estado}
-                           </a>`
+                        ? `<a onclick="adminregistrarPagoCuota(${cuota.id_cuota})" alt="Pagar Cuota" class="btn btn-sm btn-warning">
+                             Pagar
+                             
+                           </a>
+                           <a  onclick="modalModificarCuota(${cuota.id_cuota},${cuota.nro_cuota},'${cuota.fecha_pago}',${cuota.valor},'${cuota.tipo}')" alt="Modificar Cuota" 
+                             class="btn btn-sm btn-success">
+                             Modificar
+                           </a>
+
+                           `
                         : `<a  onclick="devolucionCuota(${cuota.id_cuota})" alt="Devolución Cuota" 
                              class="btn btn-sm btn-success">
-                             ${cuota.estado}
+                             Devolución
                            </a>`
                     }
                 </td>
             `;
         });
         document.getElementById('valores').innerHTML='V. Futuro: $'+valor_futuro+ '  /  V. Pagado: $'+valor_pagado+ '  /  V. Pendiente: $'+valor_pendiente;
-/*
-        dataTableInstance = $('#tabla-cuotas').DataTable({
-            pageLength: 10,
-            searching: true,
-            ordering: true,
-            paging: true
-        }); 
-        */
+
     })
     .catch(err => {
         console.error(err);
         alert('Error al listar: ' + err);
     }); 
 }
+
+
+/*
+function mofificarCuota(id_cuota){
+
+alert('hola');
+
+}
+*/
 
 function pagarCuota(id_cuota){
     if (!confirm('¿Confirma que desea pagar esta cuota?')) return;
@@ -577,7 +733,7 @@ function listarPrestamosId(id_sociedad){
         data.forEach(prestamo => {
             const row = tbody.insertRow();
             row.innerHTML = `
-                <td>${prestamo.ficha}</td>
+                <td>${prestamo.id_prestamo}</td>
                 <td>${prestamo.nombres}</td>
                 <td>${prestamo.tipo}</td>
                 <td>${prestamo.fecha_prestamo}</td>
