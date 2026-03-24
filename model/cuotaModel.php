@@ -15,17 +15,48 @@ class cuotaModel{
             $stament->execute([$id_prestamo]);
             return $stament->fetchAll(PDO::FETCH_ASSOC);
         }
+  
         
-public function pagarCuota($id_prestamo){
+
+
+public function eliminarCuota($id_cuota){
     try {
 
  $this->PDO->beginTransaction();
 
         $stament = $this->PDO->prepare("
-            UPDATE cuotas SET estado = 'pagado' WHERE id_cuota = ? AND estado = 'pendiente'
+            DELETE FROM cuotas  WHERE id_cuota = ? 
         ");
 
-        $stament->execute([$id_prestamo]);
+        $stament->execute([$id_cuota]);
+
+     if($stament->rowCount() > 0){
+        $this->PDO->commit();
+        return "Cuota eliminada correctamente";
+
+        } else {
+            $this->PDO->rollBack();
+            return "No se pudo eliminar la cuota";
+        }
+
+
+    }catch(Exception $e) {
+        $this->PDO->rollBack();
+        return Err::err($e->getMessage());
+    }
+}
+
+
+public function pagarCuota($id_cuota_pago,$valor_pagado,$fecha_recaudo){
+    try {
+
+ $this->PDO->beginTransaction();
+
+        $stament = $this->PDO->prepare("
+            UPDATE cuotas SET estado = 'pagado',valor=?,fecha_recauda=? WHERE id_cuota = ? AND estado = 'pendiente'
+        ");
+
+        $stament->execute([$valor_pagado,$fecha_recaudo,$id_cuota_pago]);
 
      if($stament->rowCount() > 0){
         $this->PDO->commit();

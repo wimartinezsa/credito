@@ -212,6 +212,7 @@ require_once ("../head/head.php");
                           <th>Valor</th>
                           <th>Tipo de Pago</th>
                           <th>Estado</th>
+                          <th>Admin.</th>
                          
                         </tr>
                       </thead>
@@ -249,7 +250,7 @@ require_once ("../head/head.php");
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <input type="number" id="codigo_cuota" hidden readonly>
+        <input type="number" id="id_cuota_pago" >
               
         <div class="row">
 
@@ -261,15 +262,15 @@ require_once ("../head/head.php");
          
             </div>
             <div class="mb-2">
-                              <label for="fecha_pagado" class="form-label">Fecha de Recuado</label>
-                            <input type="date" name="fecha_pagado" class="form-control" id="fecha_pagado" placeholder="Digite la fecha de pago">              
+                              <label for="fecha_pagado" class="form-label">Fecha del Recuado</label>
+                            <input type="date" name="fecha_recaudo" class="form-control" id="fecha_recaudo" placeholder="Digite la fecha del recaudo">              
             </div>
 
            
 
 
             <div class="mb-2">
-              <button class="btn btn-primary" onclick="adminregistrarPagoCuota()" id="btn_pagar_cuota">Modificar</button>
+              <button class="btn btn-primary" onclick="registrarPagoCuota()" id="btn_pagar_cuota">Registrar</button>
              
             </div>
                               

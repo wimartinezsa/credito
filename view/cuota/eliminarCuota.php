@@ -22,18 +22,16 @@
     }
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $resultado = $controller->pagarCuota(
-        $_POST["id_cuota_pago"],
-        $_POST["valor_pagado"],
-        $_POST["fecha_recaudo"]
-    );
-    echo $resultado;
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $id = isset($_GET['id_cuota']) ? $_GET['id_cuota'] : null;
+     if ($id === null) {
+        http_response_code(400);
+        echo json_encode(["error" => "ID no proporcionado"]);
+        exit;
+    }
+    $resultado = $controller->eliminarCuota($id);
+    echo ($resultado);
 }
-
-
-
 
     
 ?>
