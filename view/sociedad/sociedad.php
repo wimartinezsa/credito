@@ -42,7 +42,10 @@ require_once ("../head/head.php");
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-                <form >
+
+     
+
+       <form >
                     <input type="number" name="id_sociedad" class="form-control" id="id_sociedad" hidden readonly > 
 
                             <div class="mb-3">
@@ -56,7 +59,12 @@ require_once ("../head/head.php");
                                 <input type="number" name="valor" class="form-control" id="valor" placeholder="Digite el valor"> 
                             </div>
 
-      </form>
+                </form>
+
+     
+
+
+                
       </div>
       <div class="modal-footer">
      
@@ -74,16 +82,33 @@ require_once ("../head/head.php");
 
 <!-- Modal Encargados Sociedad-->
 <div class="modal fade" id="modalEncargado" data-bs-target="#modalSociedad" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog ">
+  <div class="modal-dialog modal-lg ">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="exampleModalLabel">Encargado de la Sociedad</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-                <form >
+               
                     <input type="number" name="id_sociedad_encargado" class="form-control" id="id_sociedad_encargado" hidden readonly> 
 
+
+                       <div class="row">
+
+              <div class="col-8">
+                 <table class="table" id="tabla_encargados">
+                    <th scope="col">#</th>
+                    <th scope="col">Encargado</th>
+                    <th scope="col">Rol</th>
+                    <tbody >
+
+                    </tbody>
+                  </table>
+                
+              </div>
+              <div class="col-4">
+
+                     <form >
                             <div class="mb-3">
                                 <label class="form-label">Encargado</label>
                               <select id="encargado" class="form-control" >
@@ -97,16 +122,20 @@ require_once ("../head/head.php");
                                   <option value="Admin">Adminsitrador</option>
                                 </select>
 
-                              </div>
+                              </div> 
+                                    <div class="mb-3">
+                                          <button type="button" name="btn_registrar" class="btn btn-primary" onclick="asignarEncargadoSociedad()">Asignar</button>
+                                    </div> 
+                               
+                    </form>       
+              </div>
+      </div>
 
-                           
-
-      </form>
+             
       </div>
       <div class="modal-footer">
      
-        <button type="button" name="btn_registrar" class="btn btn-primary" onclick="asignarEncargadoSociedad()">Asignar</button>
-    
+     
       </div>
     </div>
   </div>

@@ -95,7 +95,9 @@ function asignarEncargadoSociedad(){
             window.location.href = '../../index.php';
             return null;
          }
-        return response.text();
+        listarEncargadosSociedadesId();
+        listarTodasSociedades();
+       alert(response.text());
     })
     .then(text => {
         alert(text);
@@ -106,6 +108,45 @@ function asignarEncargadoSociedad(){
 
 
 }
+
+
+function listarEncargadosSociedadesId(){
+   let id_sociedad_encargado=document.getElementById('id_sociedad_encargado').value;
+    fetch(`./listarEncargadosSociedadesId.php?id_sociedad=${id_sociedad_encargado}`, {
+        method: 'GET',
+        
+    })
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.json();
+    })
+    .then(data => {
+        const tableBody = document.querySelector("#tabla_encargados tbody");
+        tableBody.innerHTML = ""; // Limpiar tabla antes de llenarla
+        data.forEach((sociedad, index) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${sociedad.id_administrador}</td>
+                <td>${sociedad.nombres}</td>
+                <td>${sociedad.rol}</td>
+               
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="eliminarEncargadoSociedad(${sociedad.id_administrador})">Eliminar</button>
+                  
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    });
+}
+
+
+
 
 function listarTodasSociedades(){
    
@@ -131,7 +172,7 @@ function listarTodasSociedades(){
                 <td>${index + 1}</td>
                 <td>${sociedad.sociedad}</td>
                 <td>${formatearPesos(sociedad.caja)}</td>
-                <td>${sociedad.nombres}</td>
+                <td>${sociedad.administrador}</td>
                 <td>
                     <button class="btn btn-warning btn-sm" onclick="buscarSociedad(${sociedad.id_sociedad})">Adicionar</button>
                     <button class="btn btn-primary btn-sm" onclick="asignarEncargado(${sociedad.id_sociedad})">Encargado</button>
@@ -146,12 +187,13 @@ function listarTodasSociedades(){
 
 
 
-function asignarEncargado(id_sociedad){
+async function asignarEncargado(id_sociedad){
    
       const el = document.getElementById('modalEncargado');
         modalEncargado = new bootstrap.Modal(el, { keyboard: false });
         document.getElementById('id_sociedad_encargado').value = id_sociedad;
-       listarPerosnasEncargados();
+       await listarEncargadosSociedadesId();
+       await listarPerosnasEncargados();
         modalEncargado.show();
 
 
@@ -184,6 +226,38 @@ function buscarSociedad(id){
          
     });
 }
+
+
+function eliminarEncargadoSociedad(id_admin){
+
+   
+    fetch(`./eliminarEncargadoSociedad.php?id_admin=${id_admin}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+    })
+     .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
+    .then(text => {
+        if (data.success) {
+            alert(text);
+            listarEncargadosSociedadesId();
+           list
+        } else {
+            alert("Error al eliminar el encargado: " + text);
+        }
+    });
+
+}
+
 
 
 function registrarSociedad(){
