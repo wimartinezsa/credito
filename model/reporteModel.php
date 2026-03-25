@@ -13,65 +13,80 @@ class reporteModel{
 //reporte numero 1
    public function listarEstadoSociedad($id_sociedad){
           
-            $stament = $this->PDO->prepare("SELECT 
+            $stament = $this->PDO->prepare("
+
+            SELECT 
+    s.id_sociedad,
     s.sociedad,
 
-    IFNULL((SELECT SUM(valor) 
-        FROM sociedades so  
-        WHERE so.id_sociedad = s.id_sociedad),0) AS inicial,
+    -- Caja actual
+    IFNULL(s.caja, 0) AS inicial,
 
-    IFNULL((SELECT SUM(p.valor_prestado)  
-        FROM prestamos p   
-        WHERE p.sociedad = s.id_sociedad 
-        AND p.estado != 'negado'),0) AS prestado,
+    -- Prestado
+    IFNULL(p.prestado, 0) AS prestado,
 
-    IFNULL((SELECT SUM(cu.valor)
-        FROM prestamos p 
-        JOIN cuotas cu ON cu.prestamo = p.id_prestamo  
-        WHERE p.sociedad = s.id_sociedad 
-        AND p.estado != 'negado'),0) AS futuro,
+    -- Futuro
+    IFNULL(p.futuro, 0) AS futuro,
 
-    IFNULL((SELECT SUM(cu.valor)
-        FROM prestamos p  
-        JOIN cuotas cu ON cu.prestamo = p.id_prestamo
-        WHERE p.sociedad = s.id_sociedad 
-        AND p.estado != 'negado' 
-        AND cu.estado = 'pagado'),0) AS recaudado,
+    -- Recaudado
+    IFNULL(c.recaudado, 0) AS recaudado,
 
-    IFNULL((SELECT SUM(cu.valor)
-        FROM prestamos p  
-        JOIN cuotas cu ON cu.prestamo = p.id_prestamo
-        WHERE p.sociedad = s.id_sociedad 
-        AND p.estado != 'negado' 
-        AND cu.estado = 'pendiente'),0) AS pendiente,
+    -- Pendiente
+    IFNULL(c.pendiente, 0) AS pendiente,
 
-    IFNULL((SELECT SUM(g.valor)  
-        FROM gastos g
-        WHERE g.sociedad = s.id_sociedad),0) AS gastos,
+    -- Gastos
+    IFNULL(g.gastos, 0) AS gastos,
 
+    -- Disponible real
     (
-        IFNULL((SELECT SUM(valor) 
-            FROM sociedades so  
-            WHERE so.id_sociedad = s.id_sociedad),0)
-        -
-        IFNULL((SELECT SUM(p.valor_prestado)  
-            FROM prestamos p   
-            WHERE p.sociedad = s.id_sociedad 
-            AND p.estado != 'negado'),0)
-        +
-        IFNULL((SELECT SUM(cu.valor)
-            FROM prestamos p  
-            JOIN cuotas cu ON cu.prestamo = p.id_prestamo
-            WHERE p.sociedad = s.id_sociedad 
-            AND p.estado != 'negado' 
-            AND cu.estado = 'pagado'),0)
-        -
-        IFNULL((SELECT SUM(g.valor)  
-            FROM gastos g
-            WHERE g.sociedad = s.id_sociedad),0)
+        IFNULL(s.caja, 0)
+        - IFNULL(p.prestado, 0)
+        + IFNULL(c.recaudado, 0)
+        - IFNULL(g.gastos, 0)
     ) AS disponible
 
-FROM sociedades s  
+FROM sociedades s
+
+-- =========================
+-- PRESTAMOS (USANDO MOVIMIENTOS)
+-- =========================
+LEFT JOIN (
+    SELECT 
+        m.sociedad,
+        SUM(p.valor_prestado) AS prestado,
+        SUM(p.valor_futuro) AS futuro
+    FROM prestamos p
+    JOIN movimientos m ON m.id_movimiento = p.movimiento
+    WHERE p.estado != 'negado'
+    GROUP BY m.sociedad
+) p ON p.sociedad = s.id_sociedad
+
+-- =========================
+-- CUOTAS (USANDO RELACIÓN CORRECTA)
+-- =========================
+LEFT JOIN (
+    SELECT 
+        m.sociedad,
+        SUM(CASE WHEN c.estado = 'pagado' THEN c.valor ELSE 0 END) AS recaudado,
+        SUM(CASE WHEN c.estado = 'pendiente' THEN c.valor ELSE 0 END) AS pendiente
+    FROM cuotas c
+    JOIN prestamos p ON p.id_prestamo = c.prestamo
+    JOIN movimientos m ON m.id_movimiento = p.movimiento
+    WHERE p.estado != 'negado'
+    GROUP BY m.sociedad
+) c ON c.sociedad = s.id_sociedad
+
+-- =========================
+-- GASTOS (YA ESTÁ BIEN RELACIONADO)
+-- =========================
+LEFT JOIN (
+    SELECT 
+        m.sociedad,
+        SUM(g.valor) AS gastos
+    FROM gastos g
+    JOIN movimientos m ON m.id_movimiento = g.movimiento
+    GROUP BY m.sociedad
+) g ON g.sociedad = s.id_sociedad
 
 WHERE s.id_sociedad = :id_sociedad;"); 
 
@@ -84,95 +99,343 @@ WHERE s.id_sociedad = :id_sociedad;");
 
 
 
-        public function listarGastosPorFechas($fecha_inicio, $fecha_fin){
-            $stament = $this->PDO->prepare("SELECT g.id_gasto,g.fecha,g.detalle,g.valor,s.sociedad FROM gastos g
-            JOIN sociedades s ON g.sociedad = s.id_sociedad
-            WHERE g .fecha BETWEEN :fecha_inicio AND :fecha_fin");
-            $stament->bindParam(':fecha_inicio', $fecha_inicio);
-            $stament->bindParam(':fecha_fin', $fecha_fin);
-            $stament->execute();
-            return $stament->fetchAll(PDO::FETCH_ASSOC);
-        }
+      public function listarGastosPorFechas($fecha_inicio, $fecha_fin){
+
+    $stament = $this->PDO->prepare("
+        SELECT 
+            g.id_gasto,
+            g.fecha,
+            g.detalle,
+            g.valor,
+            s.sociedad
+        FROM gastos g
+        JOIN movimientos m ON m.id_movimiento = g.movimiento
+        JOIN sociedades s ON s.id_sociedad = m.sociedad
+        WHERE g.fecha BETWEEN :fecha_inicio AND :fecha_fin
+    ");
+
+    $stament->bindParam(':fecha_inicio', $fecha_inicio);
+    $stament->bindParam(':fecha_fin', $fecha_fin);
+
+    $stament->execute();
+
+    return $stament->fetchAll(PDO::FETCH_ASSOC);
+}
     
-        
-         public function listarPrestamosPorFechas($fecha_inicio, $fecha_fin){
-            $stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.ficha,p.fecha_prestamo,p.interes,p.tiempo,p.valor_prestado,p.tipo,p.estado,pr.nombres,
-            (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo ) AS futuro,
-            (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pagado') AS pagado,
-            (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pendiente') AS pendiente 
-            FROM prestamos p
-            JOIN sociedades s ON p.sociedad = s.id_sociedad
-            JOIN personas pr ON pr.id_persona=p.persona
-            WHERE p.fecha_prestamo BETWEEN :fecha_inicio AND :fecha_fin");
-            $stament->bindParam(':fecha_inicio', $fecha_inicio);
-            $stament->bindParam(':fecha_fin', $fecha_fin);
-            $stament->execute();
-            return $stament->fetchAll(PDO::FETCH_ASSOC);
-        }
+        public function listarPrestamosPorFechas($fecha_inicio, $fecha_fin){
 
-        public function listarReporteFicha($ficha){
-            $stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.ficha,p.fecha_prestamo,p.interes,p.tiempo,p.valor_prestado,p.tipo,p.estado,pr.nombres,
-            (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo ) AS futuro,
-            (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pagado') AS pagado,
-            (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pendiente') AS pendiente 
-            FROM prestamos p
-            JOIN sociedades s ON p.sociedad = s.id_sociedad
-            JOIN personas pr ON pr.id_persona=p.persona
-            WHERE p.ficha=:ficha");
-            $stament->bindParam(':ficha', $ficha);
-            $stament->execute();
-            return $stament->fetchAll(PDO::FETCH_ASSOC);
-        }   
+    $stament = $this->PDO->prepare("
+        SELECT 
+            p.id_prestamo,
+            s.sociedad,
+            p.ficha,
+            p.fecha_prestamo,
+            p.interes,
+            p.tiempo,
+            p.valor_prestado,
+            p.tipo,
+            p.estado,
+            pr.nombres,
+
+            -- Total futuro
+            IFNULL(SUM(c.valor), 0) AS futuro,
+
+            -- Total pagado
+            IFNULL(SUM(CASE 
+                WHEN c.estado = 'pagado' THEN c.valor 
+                ELSE 0 
+            END), 0) AS pagado,
+
+            -- Total pendiente
+            IFNULL(SUM(CASE 
+                WHEN c.estado = 'pendiente' THEN c.valor 
+                ELSE 0 
+            END), 0) AS pendiente
+
+        FROM prestamos p
+
+        JOIN movimientos m 
+            ON m.id_movimiento = p.movimiento
+
+        JOIN sociedades s 
+            ON s.id_sociedad = m.sociedad
+
+        JOIN personas pr 
+            ON pr.id_persona = p.persona
+
+        LEFT JOIN cuotas c 
+            ON c.prestamo = p.id_prestamo
+
+        WHERE p.fecha_prestamo BETWEEN :fecha_inicio AND :fecha_fin
+
+        GROUP BY p.id_prestamo
+    ");
+
+    $stament->bindParam(':fecha_inicio', $fecha_inicio);
+    $stament->bindParam(':fecha_fin', $fecha_fin);
+
+    $stament->execute();
+
+    return $stament->fetchAll(PDO::FETCH_ASSOC);
+}
+
+    
+       public function listarReporteFicha($ficha){
+
+    $stament = $this->PDO->prepare("
+        SELECT 
+            p.id_prestamo,
+            s.sociedad,
+            p.ficha,
+            p.fecha_prestamo,
+            p.interes,
+            p.tiempo,
+            p.valor_prestado,
+            p.tipo,
+            p.estado,
+            pr.nombres,
+
+            -- Total futuro
+            IFNULL(SUM(c.valor), 0) AS futuro,
+
+            -- Total pagado
+            IFNULL(SUM(CASE 
+                WHEN c.estado = 'pagado' THEN c.valor 
+                ELSE 0 
+            END), 0) AS pagado,
+
+            -- Total pendiente
+            IFNULL(SUM(CASE 
+                WHEN c.estado = 'pendiente' THEN c.valor 
+                ELSE 0 
+            END), 0) AS pendiente
+
+        FROM prestamos p
+
+        JOIN movimientos m 
+            ON m.id_movimiento = p.movimiento
+
+        JOIN sociedades s 
+            ON s.id_sociedad = m.sociedad
+
+        JOIN personas pr 
+            ON pr.id_persona = p.persona
+
+        LEFT JOIN cuotas c 
+            ON c.prestamo = p.id_prestamo
+
+        WHERE p.ficha = :ficha
+
+        GROUP BY p.id_prestamo
+    ");
+
+    $stament->bindParam(':ficha', $ficha);
+    $stament->execute();
+
+    return $stament->fetchAll(PDO::FETCH_ASSOC);
+} 
 
 
-        public function listarReporteCuotas($ficha){
-            $stament = $this->PDO->prepare("SELECT c.id_cuota,c.fecha_cuota,c.mes,c.valor,c.tipo,c.estado FROM cuotas c
-            JOIN prestamos p ON c.prestamo = p.id_prestamo
-            WHERE p.ficha=:ficha");
-            $stament->bindParam(':ficha', $ficha);
-            $stament->execute();
-            return $stament->fetchAll(PDO::FETCH_ASSOC);
-        }
+     public function listarReporteCuotas($ficha){
+
+    $stament = $this->PDO->prepare("
+        SELECT 
+            c.id_cuota,
+            c.fecha_pago,
+            c.nro_cuota,
+            c.valor,
+            c.tipo,
+            c.estado,
+            p.id_prestamo,
+            s.sociedad
+
+        FROM cuotas c
+
+        JOIN prestamos p 
+            ON p.id_prestamo = c.prestamo
+
+        JOIN movimientos m 
+            ON m.id_movimiento = p.movimiento
+
+        JOIN sociedades s 
+            ON s.id_sociedad = m.sociedad
+
+        WHERE p.ficha = :ficha
+
+        ORDER BY c.nro_cuota ASC
+    ");
+
+    $stament->bindParam(':ficha', $ficha);
+    $stament->execute();
+
+    return $stament->fetchAll(PDO::FETCH_ASSOC);
+}
 //reporte numero 5
-        public function listarCuotasVencidas(){
-            $stament = $this->PDO->prepare("SELECT p.ficha,pr.nombres,pr.telefono,p.valor_prestado,c.fecha_cuota,c.mes,c.valor,c.tipo,c.estado
-                                                    FROM cuotas c
-                                                    JOIN prestamos p ON c.prestamo = p.id_prestamo
-                                                    JOIN personas pr ON pr.id_persona=p.persona
-                                                    WHERE p.`estado`='aprobado' AND c.estado='pendiente' AND c.fecha_cuota < CURDATE() order by p.ficha asc") ;
-            $stament->execute();
-            return $stament->fetchAll(PDO::FETCH_ASSOC);
-        }
+      public function listarCuotasVencidas(){
+
+    $stament = $this->PDO->prepare("
+        SELECT 
+            p.ficha,
+            pr.nombres,
+            pr.telefono,
+            s.sociedad,
+            p.valor_prestado,
+            c.fecha_pago,
+            c.nro_cuota,
+            c.valor,
+            c.tipo,
+            c.estado
+
+        FROM cuotas c
+
+        JOIN prestamos p 
+            ON p.id_prestamo = c.prestamo
+
+        JOIN movimientos m 
+            ON m.id_movimiento = p.movimiento
+
+        JOIN sociedades s 
+            ON s.id_sociedad = m.sociedad
+
+        JOIN personas pr 
+            ON pr.id_persona = p.persona
+
+        WHERE 
+            p.estado != 'negado'
+            AND c.estado = 'pendiente'
+            AND c.fecha_pago < CURDATE()
+
+        ORDER BY c.fecha_pago ASC, p.ficha ASC
+    ");
+
+    $stament->execute();
+
+    return $stament->fetchAll(PDO::FETCH_ASSOC);
+}
 
         //REPORTE NUMERO 6
-         public function listarReportCliente($identificacion){
-            $stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.ficha,p.fecha_prestamo,p.interes,p.tiempo,p.valor_prestado,p.tipo,p.estado,pr.nombres,
-            (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo ) AS futuro,
-            (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pagado') AS pagado,
-            (SELECT SUM(c.valor) FROM cuotas c   WHERE c.prestamo=p.id_prestamo AND c.estado='pendiente') AS pendiente 
-            FROM prestamos p
-            JOIN sociedades s ON p.sociedad = s.id_sociedad
-            JOIN personas pr ON pr.id_persona=p.persona
-            WHERE pr.identificacion=:identificacion");
-            $stament->bindParam(':identificacion', $identificacion);
-            $stament->execute();
-            return $stament->fetchAll(PDO::FETCH_ASSOC);
-        } 
+        public function listarReportCliente($identificacion){
+
+    $stament = $this->PDO->prepare("
+        SELECT 
+            p.id_prestamo,
+            s.sociedad,
+            p.ficha,
+            p.fecha_prestamo,
+            p.interes,
+            p.tiempo,
+            p.valor_prestado,
+            p.tipo,
+            p.estado,
+            pr.nombres,
+
+            -- Total futuro
+            IFNULL(SUM(c.valor), 0) AS futuro,
+
+            -- Total pagado
+            IFNULL(SUM(CASE 
+                WHEN c.estado = 'pagado' THEN c.valor 
+                ELSE 0 
+            END), 0) AS pagado,
+
+            -- Total pendiente
+            IFNULL(SUM(CASE 
+                WHEN c.estado = 'pendiente' THEN c.valor 
+                ELSE 0 
+            END), 0) AS pendiente
+
+        FROM prestamos p
+
+        JOIN movimientos m 
+            ON m.id_movimiento = p.movimiento
+
+        JOIN sociedades s 
+            ON s.id_sociedad = m.sociedad
+
+        JOIN personas pr 
+            ON pr.id_persona = p.persona
+
+        LEFT JOIN cuotas c 
+            ON c.prestamo = p.id_prestamo
+
+        WHERE pr.identificacion = :identificacion
+
+        GROUP BY p.id_prestamo
+    ");
+
+    $stament->bindParam(':identificacion', $identificacion);
+    $stament->execute();
+
+    return $stament->fetchAll(PDO::FETCH_ASSOC);
+}
 
 
-
-        //REPORTE NUMERO 7
-         public function listarCreditoNegado(){
-            $stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.ficha,p.fecha_prestamo,p.interes,p.tiempo,p.valor_prestado,p.tipo,p.estado,pr.nombres
-            FROM prestamos p
-            JOIN sociedades s ON p.sociedad = s.id_sociedad
-            JOIN personas pr ON pr.id_persona=p.persona
-            WHERE p.estado='negado'");
-            $stament->execute();
-            return $stament->fetchAll(PDO::FETCH_ASSOC);
-        } 
+        //REPORTE NUMERO 7 de movientos
 
 
+public function listarMovimientosPorSociedad($id_sociedad){
+
+    $stament = $this->PDO->prepare("
+        SELECT 
+            m.id_movimiento,
+            m.fecha,
+            m.tipo,
+            m.valor,
+            m.caja,
+            s.sociedad,
+
+            CASE 
+                -- 🔹 PRÉSTAMO
+                WHEN p.id_prestamo IS NOT NULL 
+                    THEN CONCAT('Credito #', p.ficha, ' - ', pr.nombres)
+
+                -- 🔹 CUOTA
+                WHEN c.id_cuota IS NOT NULL 
+                    THEN CONCAT('Pago cuota #', c.id_cuota, ' (Credito #', p2.ficha, ')')
+
+                -- 🔹 GASTO
+                WHEN g.id_gasto IS NOT NULL 
+                    THEN CONCAT('Gasto: ', g.detalle)
+
+                -- 🔹 ADICIÓN (no pertenece a nada)
+                WHEN p.id_prestamo IS NULL 
+                     AND c.id_cuota IS NULL 
+                     AND g.id_gasto IS NULL
+                    THEN CONCAT('Adicion a caja - Sociedad ', s.sociedad)
+
+                ELSE 'Movimiento general'
+            END AS detalle
+
+        FROM movimientos m
+
+        JOIN sociedades s 
+            ON s.id_sociedad = m.sociedad
+
+        LEFT JOIN prestamos p 
+            ON p.movimiento = m.id_movimiento
+
+        LEFT JOIN personas pr 
+            ON pr.id_persona = p.persona
+
+        LEFT JOIN cuotas c 
+            ON c.movimiento = m.id_movimiento
+
+        LEFT JOIN prestamos p2 
+            ON p2.id_prestamo = c.prestamo
+
+        LEFT JOIN gastos g 
+            ON g.movimiento = m.id_movimiento
+
+        WHERE m.sociedad = :id_sociedad
+
+        ORDER BY m.fecha DESC, m.id_movimiento DESC
+    ");
+
+    $stament->bindParam(':id_sociedad', $id_sociedad);
+    $stament->execute();
+
+    return $stament->fetchAll(PDO::FETCH_ASSOC);
+}
 
         
         

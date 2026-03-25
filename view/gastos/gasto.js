@@ -15,6 +15,14 @@ function modalGastos(){
 
 
 
+function formatearPesos(valor) {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 2
+  }).format(valor);
+}
+
 
 
 
@@ -51,7 +59,7 @@ function listaGastosSociedad(id_sociedad){
                 <td>${gasto.sociedad}</td>
                 <td>${gasto.fecha}</td>
                 <td>${gasto.detalle}</td>
-                <td>${gasto.valor}</td>
+                <td>${formatearPesos(gasto.valor)}</td>
                <td>${gasto.estado}</td>
              
                 <td>${gasto.estado==="ejecutado"?`<button class="btn btn-danger" onclick="anularGasto(${gasto.id_gasto})">Anular</button>`:'Anulado'}

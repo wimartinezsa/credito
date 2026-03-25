@@ -15,8 +15,8 @@ class cuotaController{
         return $this->model->pagarCuota($id_cuota_pago,$valor_pagado,$fecha_recaudo);
     }
 
-    public function devolucionCuota($id){
-        return $this->model->devolucionCuota($id);
+    public function devolucionCuota($id_cuota,$valor_cuota){
+        return $this->model->devolucionCuota($id_cuota,$valor_cuota);
     }
 
 public function actualizarCuota($codigo_cuota,$nro_pago,$fecha_pago,$valor_pago,$tipo_pago){
@@ -35,7 +35,6 @@ public function nuevaCuota($id_prestamo,$nro_pago,$fecha_pago,$valor_pago,$tipo_
 public function eliminarCuota($id_cuota){
         return $this->model->eliminarCuota($id_cuota);
     }
-
 
 
 

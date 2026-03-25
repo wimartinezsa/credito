@@ -27,6 +27,10 @@ public function listarPrestamosId($id_sociedad){
     return $this->model->listarPrestamosId($id_sociedad);
 }
 
+public function finalizarPrestamo($id_prestamo){
+    return $this->model->finalizarPrestamo($id_prestamo);
+}
+
 
 
  

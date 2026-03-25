@@ -23,14 +23,39 @@
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $id = isset($_GET['id_cuota']) ? $_GET['id_cuota'] : null;
-     if ($id === null) {
+
+    header('Content-Type: application/json');
+
+    $id_cuota = isset($_GET['id_cuota']) ? (int) $_GET['id_cuota'] : 0;
+    $valor_cuota = isset($_GET['valor_cuota']) ? (float) $_GET['valor_cuota'] : 0;
+
+    // =========================
+    // VALIDACIONES
+    // =========================
+    if ($id_cuota <= 0) {
         http_response_code(400);
-        echo json_encode(["error" => "ID no proporcionado"]);
+        echo json_encode(["status" => false, "error" => "ID de cuota inválido"]);
         exit;
     }
-    $resultado = $controller->devolucionCuota($id);
-    echo ($resultado);
+
+    if ($valor_cuota <= 0) {
+        http_response_code(400);
+        echo json_encode(["status" => false, "error" => "Valor de cuota inválido"]);
+        exit;
+    }
+
+    // =========================
+    // EJECUTAR PROCESO
+    // =========================
+    $resultado = $controller->devolucionCuota($id_cuota, $valor_cuota);
+
+    // =========================
+    // RESPUESTA
+    // =========================
+    echo json_encode([
+        "status" => true,
+        "message" => $resultado
+    ]);
 }
 
     

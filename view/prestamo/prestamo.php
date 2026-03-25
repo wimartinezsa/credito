@@ -127,8 +127,6 @@ require_once ("../head/head.php");
                      </div>
 
 
-                
-
                   <div class="row">
                        <div class="col-6">
                           <div class="mb-3">
@@ -153,7 +151,7 @@ require_once ("../head/head.php");
 
 
               <div class="row">
-                       <div class="col-6">
+                       <div class="col-12">
                                 <div class="mb-3">
                                     <label for="fiador" class="form-label">Fiador</label>
                                     <select class="form-select" name="fiador" id="fiador">
@@ -161,17 +159,6 @@ require_once ("../head/head.php");
                                     </select>
                                 </div>
                         </div>
-
-                         <div class="col-6">
-                            <div class="mb-3">
-                              <label for="estados" class="form-label">Estado del Credito</label>
-                              <select id="estado" class="form-select">
-                                  <option value="aprobado">Aprobado</option>
-                                  <option value="negado">Negado</option>
-                                  <option value="finalizado">Finalizado</option>
-                              </select>
-                          </div>
-                      </div>
             </div>
 
       </form>
@@ -186,6 +173,8 @@ require_once ("../head/head.php");
     </div>
   </div>
 </div>
+
+
 
 
 
@@ -223,6 +212,13 @@ require_once ("../head/head.php");
             </div>
 
         </div>
+
+          <div class="row">
+            <div class="col-12 text-center" >
+              <button class="btn btn-primary" onclick="finalizarPrestamo()">Finalizar el Credito</button>
+            </div>
+            
+        </div>
         
         
                  
@@ -250,7 +246,7 @@ require_once ("../head/head.php");
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <input type="number" id="id_cuota_pago" >
+        <input type="number" id="id_cuota_pago" hidden readonly>
               
         <div class="row">
 
@@ -279,12 +275,14 @@ require_once ("../head/head.php");
 
 
         </div>
-        
-        
-                 
 
 
+      
       </div>
+
+     
+
+
       <div class="modal-footer">
         <h4 id="valores"></h4>
       
@@ -351,6 +349,7 @@ require_once ("../head/head.php");
         
         
                  
+       
 
 
       </div>

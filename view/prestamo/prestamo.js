@@ -267,7 +267,7 @@ function guardarPrestamo(){
     datos.append('interes',document.getElementById('interes').value);
     datos.append('tipo',document.getElementById('tipo').value);
     datos.append('fiador',document.getElementById('fiador').value);
-    datos.append('estado',document.getElementById('estado').value);
+    datos.append('estado',"aprobado");
 
     fetch("./registrarPrestamo.php", {
         method: 'POST',
@@ -287,6 +287,7 @@ function guardarPrestamo(){
         alert(text);
        //limpiarFormulario();
      listarPrestamosId(document.getElementById('lista_sociedades').value);
+      disponibilidadSociedad(document.getElementById("lista_sociedades").value);
       modalPrestamo.hide();
     })
     .catch(err => {
@@ -302,6 +303,45 @@ async function verPagos(id_prestamo){
     modalCuotasPrestamo();
 }
 
+
+
+function finalizarPrestamo(){
+
+
+     if (!confirm('¿Confirma que desea finalizar el credito?')) return;
+  let id_prestamo=  document.getElementById("cod_prestamo").value;
+ 
+     fetch(`./finalizarPrestamo.php?id_prestamo=${id_prestamo}`, {
+        method: 'GET',      
+    })
+    .then(response =>{
+        if(response.status === 401)
+        {
+            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+            window.location.href = '../../index.php';
+            return null;
+         }
+        return response.text();
+    })
+    .then(text =>  {
+
+      modalCuotas.hide();
+        listarPrestamosId(document.getElementById('lista_sociedades').value);
+
+      alert(text);
+       
+       
+    })
+    .catch(err => {
+        console.error(err);
+       alert('Error al buscar: ' + err);
+    });
+
+
+
+
+
+}
 
 async function buscarPrestamo(id_prestamo){
     document.getElementById("id_prestamo").value="";
@@ -331,7 +371,6 @@ async function buscarPrestamo(id_prestamo){
         document.getElementById("interes").value=data.interes;
         document.getElementById("tipo").value=data.tipo;
         document.getElementById("fiador").value=data.fiador;
-        document.getElementById("estado").value=data.estado;
 
         const el = document.getElementById('modalPrestamo');
         modalPrestamo = new bootstrap.Modal(el, { keyboard: false });
@@ -470,7 +509,7 @@ async function listarCuotas(id_prestamo){
                            </a>
 
                            `
-                        : `<a  onclick="devolucionCuota(${cuota.id_cuota})" alt="Devolución Cuota" 
+                        : `<a  onclick="devolucionCuota(${cuota.id_cuota},${cuota.valor})" alt="Devolución Cuota" 
                              class="btn btn-sm btn-success">
                              Devolución
                            </a>`
@@ -517,73 +556,54 @@ function eliminarCuota(id_cuota){
 
 
 
-function registrarPagoCuota(){
+function registrarPagoCuota() {
     if (!confirm('¿Confirma que desea registrar el pago de la cuota?')) return;
 
-    let datos= new URLSearchParams();
+    let id_cuota_pago = document.getElementById("id_cuota_pago").value;
+    let valor_pagado = document.getElementById('valor_pagado').value;
+    let fecha_recaudo = document.getElementById('fecha_recaudo').value;
 
-    datos.append('id_cuota_pago',document.getElementById("id_cuota_pago").value);
-    datos.append('valor_pagado',document.getElementById('valor_pagado').value);
-    datos.append('fecha_recaudo',document.getElementById('fecha_recaudo').value);
- 
+    // ✅ Validación básica
+    if (!id_cuota_pago || !valor_pagado || !fecha_recaudo) {
+        alert("Todos los campos son obligatorios");
+        return;
+    }
+
+    let datos = new URLSearchParams();
+    datos.append('id_cuota_pago', id_cuota_pago);
+    datos.append('valor_pagado', valor_pagado);
+    datos.append('fecha_recaudo', fecha_recaudo);
 
     fetch("../cuota/pagarCuota.php", {
         method: 'POST',
-        body:datos,
+        body: datos,
     })
-     .then(response =>{
-        if(response.status === 401)
-        {
+    .then(response => {
+        if (response.status === 401) {
             alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
             window.location.href = '../../index.php';
             return null;
-         }
+        }
         return response.text();
     })
     .then(text => {
-       //  modalAdminCuotas.hide();
+        if (!text) return;
+        modalPagarCuotas.hide();
         alert(text);
         listarCuotas(document.getElementById("cod_prestamo").value);
-        
-
+        disponibilidadSociedad(document.getElementById("lista_sociedades").value);
     })
     .catch(err => {
         console.error(err);
         alert('Error al guardar: ' + err);
     });
-
-
-
-
-
-
-
-    fetch(`../cuota/pagarCuota.php?id_cuota=${id_cuota_pago}`, {
-        method: 'POST',
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(text => {
-     
-      listarCuotas(document.getElementById("cod_prestamo").value);
-        alert(text);
-    });
-
- 
 }
 
-function devolucionCuota(id_cuota){
+function devolucionCuota(id_cuota,valor_cuota){
 
 if (!confirm('¿Confirma que desea hacer devolución de esta cuota?')) return;
 
-     fetch(`../cuota/devolucionCuota.php?id_cuota=${id_cuota}`, {
+     fetch(`../cuota/devolucionCuota.php?id_cuota=${id_cuota}&valor_cuota=${valor_cuota}`, {
         method: 'GET',
     })
      .then(response =>{
@@ -598,6 +618,7 @@ if (!confirm('¿Confirma que desea hacer devolución de esta cuota?')) return;
     .then(text => {
   
       listarCuotas(document.getElementById("cod_prestamo").value);
+      disponibilidadSociedad(document.getElementById("lista_sociedades").value);
         alert(text);
     });
     
@@ -673,46 +694,57 @@ function formatearPesos(valor) {
   }).format(valor);
 }
 
+
 function listarPrestamosId(id_sociedad){
-   
- fetch(`./listarPrestamosId.php?id_sociedad=${id_sociedad}`, {
-        method: 'GET',
-    })
-    .then(response =>{
-        if(response.status === 401)
-        {
+
+    fetch(`./listarPrestamosId.php?id_sociedad=${id_sociedad}`)
+    .then(response => {
+
+        if (response.status === 401) {
             alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
             window.location.href = '../../index.php';
             return null;
-         }
+        }
+
+        if (!response.ok) {
+            throw new Error("Error en la respuesta del servidor");
+        }
+
         return response.json();
     })
     .then(data => {
-       //console.log(data);
-        if (!data) return;
-        
-      
-        
+
+        if (!data || !Array.isArray(data)) {
+            console.warn("Datos inválidos:", data);
+            return;
+        }
+
         const tabla = document.getElementById("tabla-prestamos");
         if (!tabla) return;
-        
-        // Destruir DataTable anterior si existe (ANTES de modificar el DOM)
-        if (dataTableInstance) {
+
+        // =========================
+        // DESTRUIR DATATABLE
+        // =========================
+        if (typeof dataTableInstance !== "undefined" && dataTableInstance) {
             dataTableInstance.destroy();
             dataTableInstance = null;
         }
-        
-        // Limpiar solo el tbody, no toda la tabla
+
         let tbody = tabla.querySelector('tbody');
         if (!tbody) {
             tbody = document.createElement('tbody');
             tabla.appendChild(tbody);
         }
+
         tbody.innerHTML = "";
-        
-        // Llenar filas con datos
+
+        // =========================
+        // LLENAR TABLA
+        // =========================
         data.forEach(prestamo => {
+
             const row = tbody.insertRow();
+
             row.innerHTML = `
                 <td>${prestamo.id_prestamo}</td>
                 <td>${prestamo.nombres}</td>
@@ -721,40 +753,39 @@ function listarPrestamosId(id_sociedad){
                 <td>${prestamo.tiempo}</td>
                 <td>${formatearPesos(prestamo.valor_prestado)}</td>
                 <td>${prestamo.interes}</td>
-                 <td>${formatearPesos(prestamo.futuro===null?0:prestamo.futuro)}</td>
-                 <td>${formatearPesos(prestamo.pagado===null?0:prestamo.pagado)}</td>
-                 <td>${formatearPesos(prestamo.pendiente===null?0:prestamo.pendiente)}</td>
-                  <td>${prestamo.estado}</td>
-             
+                <td>${formatearPesos(prestamo.futuro ?? 0)}</td>
+                <td>${formatearPesos(prestamo.pagado ?? 0)}</td>
+                <td>${formatearPesos(prestamo.pendiente ?? 0)}</td>
+                <td>${prestamo.estado}</td>
                 <td>
-                
-                    <button class="btn btn-sm btn-primary" onclick="buscarPrestamo(${prestamo.id_prestamo})">Actualizar</button>
-                    <button class="btn btn-sm btn-success" onclick="verPagos(${prestamo.id_prestamo})">Pagos</button>
-                    <button class="btn btn-sm btn-danger" onclick="modalAdminGarantia(${prestamo.id_prestamo})">Garantía</button>
-               
-               
+                    ${prestamo.estado !== 'finalizado' ? `
+                        <button class="btn btn-sm btn-primary" onclick="buscarPrestamo(${prestamo.id_prestamo})">Actualizar</button>
+                        <button class="btn btn-sm btn-success" onclick="verPagos(${prestamo.id_prestamo})">Pagos</button>
+                        <button class="btn btn-sm btn-danger" onclick="modalAdminGarantia(${prestamo.id_prestamo})">Garantía</button>
+                    ` : ""}
                 </td>
             `;
         });
-        
-        // Inicializar DataTable DESPUÉS de llenar los datos
+
+        // =========================
+        // INICIALIZAR DATATABLE
+        // =========================
         dataTableInstance = $('#tabla-prestamos').DataTable({
             pageLength: 10,
             searching: true,
             ordering: true,
-            paging: true
+            paging: true,
+            destroy: true // 🔥 importante
         });
-         
+
     })
     .catch(err => {
         console.error(err);
-       alert('Error al listar: ' + err);
+        alert('Error al listar: ' + err.message);
     });
-
-
-
-
 }
+
+
 
 
 function disponibilidadSociedad(id_sociedad){

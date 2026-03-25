@@ -8,12 +8,24 @@
 
 let dataTableInstance = null;
 
+
+
+function formatearPesos(valor) {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 2
+  }).format(valor);
+}
+
+
+
 // Reporte numero 1
 
 function listarSociedades(){
     
 
-    fetch("../sociedad/listarSociedad.php", {
+    fetch("../sociedad/listarSociedadesEncargados.php", {
         method: 'GET'
     })
     .then(response => response.json())
@@ -185,7 +197,7 @@ function gastoPorFecha(){
                 <td>${usuario.sociedad}</td>
                 <td>${usuario.fecha}</td>
                 <td>${usuario.detalle}</td>
-                <td>${usuario.valor}</td>
+                <td>${formatearPesos(usuario.valor)}</td>
             `;
         });
 
@@ -263,10 +275,10 @@ function listarPrestamosPorFechas(){
                  <td>${usuario.tipo}</td>
                 <td>${usuario.interes}</td>
                 <td>${usuario.tiempo}</td>
-                <td>${usuario.valor_prestado}</td>
-                <td>${usuario.futuro}</td>
-                <td>${usuario.pagado}</td>
-                <td>${usuario.pendiente===null ? 0 : usuario.pendiente}</td>
+                <td>${formatearPesos(usuario.valor_prestado)}</td>
+                <td>${formatearPesos(usuario.futuro)}</td>
+                <td>${formatearPesos(usuario.pagado)}</td>
+                <td>${formatearPesos(usuario.pendiente===null ? 0 : usuario.pendiente)}</td>
                 <td>${usuario.estado}</td>
                
 
@@ -349,9 +361,9 @@ function listarReporteCuotas(ficha){
             valor_futuro +=cuota.valor;
             row.innerHTML = `
                 <td>${cuota.id_cuota}</td>
-                <td>${cuota.mes}</td>
-                <td>${cuota.fecha_cuota}</td>
-                <td>${cuota.valor}</td>
+                <td>${cuota.nro_cuota}</td>
+                <td>${cuota.fecha_pago}</td>
+                <td>${formatearPesos(cuota.valor)}</td>
                 <td>${cuota.tipo}</td>
                <td>${cuota.estado}</td>
             `;
@@ -413,10 +425,10 @@ function listarReporteFicha(ficha){
                  <td>${ficha.tipo}</td>
                 <td>${ficha.interes}</td>
                 <td>${ficha.tiempo}</td>
-                <td>${ficha.valor_prestado}</td>
-                <td>${ficha.futuro}</td>
-                <td>${ficha.pagado}</td>
-                <td>${ficha.pendiente===null ? 0 : ficha.pendiente}</td>
+                <td>${formatearPesos(ficha.valor_prestado)}</td>
+                <td>${formatearPesos(ficha.futuro)}</td>
+                <td>${formatearPesos(ficha.pagado)}</td>
+                <td>${formatearPesos(ficha.pendiente===null ? 0 : ficha.pendiente)}</td>
                 <td>${ficha.estado}</td>
                
 
@@ -476,10 +488,10 @@ function reporteCuotaVencidas(){
                 <td>${cuota.ficha}</td>
                 <td>${cuota.nombres}</td>
                   <td>${cuota.telefono}</td>
-                <td>${cuota.valor_prestado}</td>
-                <td>${cuota.mes}</td>
-                <td>${cuota.fecha_cuota}</td>
-                <td>${cuota.valor}</td>
+                <td>${formatearPesos(cuota.valor_prestado)}</td>
+                <td>${cuota.nro_cuota}</td>
+                <td>${cuota.fecha_pago}</td>
+                <td>${formatearPesos(cuota.valor)}</td>
                 <td>${cuota.tipo}</td>
                 <td>${cuota.estado}</td>
             `;
@@ -599,11 +611,15 @@ function reporteHistorialCliente(){
 
 
 
-function reporteCreditoNegado(){
+function listarMovimientosPorSociedad(){
 
-  
+  const idSociedad = document.getElementById('sociedad').value;
+   if (!idSociedad) {
+        alert('Por favor, seleccione una sociedad');
+        return;
+    }
 
-    fetch("./creditoNegado.php", {
+    fetch(`./listarMovimientosPorSociedad.php?id_sociedad=${idSociedad}`, {
         method: 'GET',
     })
     .then(response => response.json())
@@ -630,16 +646,13 @@ function reporteCreditoNegado(){
             const row = tbody.insertRow();
          
                 row.innerHTML = `
-                <td>${prestamo.id_prestamo}</td>
-                <td>${prestamo.sociedad}</td>
-                 <td>${prestamo.nombres}</td>
-                <td>${prestamo.ficha}</td>
-                <td>${prestamo.fecha_prestamo}</td>
+                <td>${prestamo.id_movimiento}</td>
+                <td>${prestamo.fecha}</td>
                  <td>${prestamo.tipo}</td>
-                <td>${prestamo.interes}</td>
-                <td>${prestamo.tiempo}</td>
-                <td>${prestamo.valor_prestado}</td>
-                <td>${prestamo.estado}</td>
+                <td>${formatearPesos(prestamo.valor)}</td>
+                <td>${formatearPesos(prestamo.caja)}</td>
+                 <td>${prestamo.sociedad}</td>
+                <td>${prestamo.detalle}</td>
             `;
 
 

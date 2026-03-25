@@ -61,7 +61,7 @@
             <li><a class="dropdown-item" href="/creditos/view/reportes/reporte4View.php">Reporte de Ficha</a></li>
              <li><a class="dropdown-item" href="/creditos/view/reportes/reporte5View.php">Cuotas Vencidas</a></li>
              <li><a class="dropdown-item" href="/creditos/view/reportes/reporte6View.php">Historial del Cliente</a></li>
-            <li><a class="dropdown-item" href="/creditos/view/reportes/reporte7View.php">Creditos Negados</a></li>
+            <li><a class="dropdown-item" href="/creditos/view/reportes/reporte7View.php">Historial de Movimientos</a></li>
           </ul>
         </li>
                    

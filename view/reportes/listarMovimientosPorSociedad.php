@@ -7,9 +7,9 @@
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-   $resultado = $controller->listarCuotasVencidas();
+    $resultado = $controller->listarMovimientosPorSociedad($_GET['id_sociedad']);
     echo json_encode($resultado);
 }
-        
+     
 
 ?>

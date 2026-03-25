@@ -13,12 +13,22 @@ require_once ("../head/head.php");
 <div class="container-fluid"> 
 
 
-<h4 class="text-center">INFORME DE CREDITOS NEGADOS</h4>
+<h4 class="text-center">INFORME DE MOVIMIENTOS</h4>
 <hr>
+<br>
+
+<br>
 <div class="row">
+  <div class="col-md-6 d-flex align-items-end">
+    <select id="sociedad"  class="form-control">
+    <option value="">Seleccionar Sociedad</option>
+   
+</select>
+
+  </div>
     
         <div class="col-md-6 d-flex align-items-end">
-            <button class="btn btn-primary" id="btn-generar-reporte" onclick="reporteCreditoNegado()">Generar Reporte</button>
+            <button class="btn btn-primary" id="btn-generar-reporte" onclick="listarMovimientosPorSociedad()">Generar Reporte</button>
         </div>  
 </div>
 <hr>
@@ -27,15 +37,13 @@ require_once ("../head/head.php");
   <thead>
     <tr>
       <th scope="col">#</th>
-      <th scope="col">Sociedad</th>
-      <th scope="col">Persona</th>
-      <th scope="col">Ficha</th>
       <th scope="col">Fecha</th>
-        <th scope="col">Tipo</th>
-        <th scope="col">Interes</th>
-        <th scope="col">Tiempo</th>
-        <th scope="col">Valor Prestado</th>
-        <th scope="col">Estado</th>
+      <th scope="col">Tipo</th>
+      <th scope="col">Valor</th>
+      <th scope="col">Caja</th>
+        <th scope="col">Sociedad</th>
+        <th scope="col">Detalle</th>
+      
     
     </tr>
   </thead>
@@ -54,3 +62,8 @@ require_once ("../head/footer.php");
 ?>
 
  <script src="../reportes/reporte.js"></script>
+
+ <script>
+
+  listarSociedades();
+ </script>

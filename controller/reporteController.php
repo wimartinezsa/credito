@@ -41,6 +41,15 @@ class reporteController{
         return $this->model->listarCreditoNegado();
     }
 
+
+
+    function listarMovimientosPorSociedad($id_sociedad){
+        return $this->model->listarMovimientosPorSociedad($id_sociedad);
+    }
+
+
+
+
  }
 
 ?>
