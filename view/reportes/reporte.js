@@ -48,6 +48,9 @@ function listarSociedades(){
 }
 
 
+
+
+
 function estadoSociedad(){
 
     const idSociedad = document.getElementById('sociedad').value;
@@ -161,10 +164,12 @@ function gastoPorFecha(){
 
     const fechaInicio = document.getElementById('fecha_inicio').value;
     const fechaFin = document.getElementById('fecha_fin').value;
+    const sociedad = document.getElementById('sociedad').value;
 
     const params = new URLSearchParams({
         fecha_inicio: fechaInicio,
-        fecha_fin: fechaFin
+        fecha_fin: fechaFin,
+        sociedad: sociedad
     });
 
     fetch("./gastosPorFechas.php?" + params.toString(), {
@@ -234,10 +239,12 @@ function listarPrestamosPorFechas(){
 
     const fechaInicio = document.getElementById('fecha_inicio').value;
     const fechaFin = document.getElementById('fecha_fin').value;
+    const sociedad = document.getElementById('sociedad').value;
 
     const params = new URLSearchParams({
         fecha_inicio: fechaInicio,
-        fecha_fin: fechaFin
+        fecha_fin: fechaFin,
+        sociedad: sociedad
     });
 
     fetch("./prestamosPorFecha.php?" + params.toString(), {
@@ -456,8 +463,9 @@ function listarReporteFicha(ficha){
 
 // Reporte numero 5
 function reporteCuotaVencidas(){
+    const sociedad = document.getElementById('sociedad').value;
 
-    fetch("./cuotaVencida.php", {
+    fetch("./cuotaVencida.php?sociedad=" + sociedad, {
         method: 'GET',
     })
     .then(response => response.json())

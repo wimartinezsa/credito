@@ -7,7 +7,7 @@
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-   $resultado = $controller->listarCreditoNegado();
+   $resultado = $controller->listarCuotasVencidas($_GET['sociedad']);
     echo json_encode($resultado);
 }
     

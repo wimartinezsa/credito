@@ -112,7 +112,7 @@ public function asignarEncargadoSociedad($id_sociedad, $encargado, $rol){
         $stmt_persona_update = $this->PDO->prepare("
             UPDATE personas 
             SET rol = ?, password = ?
-            WHERE id_persona = ?
+            WHERE id_persona = ? and rol != 'Admin'
         ");
 
         $stmt_persona_update->execute([
@@ -170,7 +170,7 @@ public function registrarSociedades($nombre, $valor){
             $stament->bindParam(':nombre', $nombre);
             $stament->bindParam(':valor', $valor);  
             $stament->execute();
-            return true;
+              return "Sociedad registrada con exito";
         }
 
         public function buscarSociedad($id){
@@ -191,7 +191,7 @@ public function eliminarEncargadoSociedad($id_admin){
     $stament->bindParam(':id', $id_admin, PDO::PARAM_INT);
     $stament->execute();
 
-    return "Encargado de la sociedad eliminado con éxito";
+    return "Encargado de la sociedad eliminado con exito";
 }
 
 

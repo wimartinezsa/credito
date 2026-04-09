@@ -20,7 +20,13 @@
     </style>
 </head>
 <body>
+<?php
+ if (session_status() === PHP_SESSION_NONE) {
+     session_start();
+ }
+ $role = isset($_SESSION['usuario']['rol']) ? $_SESSION['usuario']['rol'] : null;
 
+?>
 
 
 <div class="container-fluid">
@@ -46,9 +52,12 @@
                     <a class="nav-link" href="/creditos/view/gastos/gasto.php">Gastos</a>
                     </li>
 
-                       <li class="nav-item">
-                    <a class="nav-link" href="/creditos/view/sociedad/sociedad.php">Sociedad</a>
-                    </li>
+ 
+                       <?php if ($role == 'Admin'): ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/creditos/view/sociedad/sociedad.php">Sociedad</a>
+                            </li>
+                    <?php endif; ?>
 
                    <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -66,12 +75,12 @@
         </li>
                    
                 </ul>
-                <form class="d-flex" role="search">
-                    
-                    <button class="btn btn-primary" type="button" onclick="cerrarSesion()">Cerrar</button>
-                </form>
+                <form class="d-flex align-items-center" role="search">
+    <span id="nombreUsuario" class="text-white me-3"></span>
+    <button class="btn btn-primary" type="button" onclick="cerrarSesion()">Cerrar</button>
+</form>
                 </div>
             </div>
-        </nav>
+    </nav>
 
 </div>

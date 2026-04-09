@@ -56,7 +56,7 @@ require_once ("../head/head.php");
 
                             <div class="mb-3">
                                 <label for="valor" class="form-label">Valor</label>
-                                <input type="number" name="valor" class="form-control" id="valor" placeholder="Digite el valor"> 
+                                <input type="number" name="valor" class="form-control" id="valor"  > 
                             </div>
 
                 </form>
@@ -92,8 +92,7 @@ require_once ("../head/head.php");
                
                     <input type="number" name="id_sociedad_encargado" class="form-control" id="id_sociedad_encargado" hidden readonly> 
 
-
-                       <div class="row">
+                    <div class="row">
 
               <div class="col-8">
                  <table class="table" id="tabla_encargados">
@@ -115,14 +114,7 @@ require_once ("../head/head.php");
                               </select>
                             </div>
 
-                              <div class="mb-3">
-                                 <label class="form-label">Rol</label>
-                              <select id="rol" class="form-control" >
-                                  <option value="Socio">Socio</option>
-                                  <option value="Admin">Adminsitrador</option>
-                                </select>
-
-                              </div> 
+                             
                                     <div class="mb-3">
                                           <button type="button" name="btn_registrar" class="btn btn-primary" onclick="asignarEncargadoSociedad()">Asignar</button>
                                     </div> 

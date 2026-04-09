@@ -653,29 +653,53 @@ function listarSociedadesEncargados(){
             option.textContent = sociedad.sociedad;
             select.appendChild(option);
         });
+        
     });
 }
 
 
+function cerrarSesion(){
+    localStorage.clear(); // 🔥 limpiar sesión
+    window.location.href = "../../index.php";
+}
+
 
 
 function listarSociedades(){
-    fetch(`../sociedad/listarSociedadesEncargados.php`, {
-        method: 'GET',
+
+    const token = localStorage.getItem("token");
+
+    // 🔴 Validar si no hay token
+    if (!token) {
+        cerrarSesion();
+        return;
+    }
+
+    fetch(`../sociedad/listarSociedadesEncargados.php?token=${token}`)
+    .then(response => {
+
+        if (response.status === 401) {
+            cerrarSesion();
+            return Promise.reject("401");
+        }
+
+        return response.json();
     })
-    .then(response => response.json())
     .then(data => {
-       
+
+        console.log("Respuesta backend:", data); // 🔍 DEBUG
+
+        if (!data) return;
+
+        // 🔴 VALIDACIÓN FUERTE
+        if (data.status === "error") {
+            cerrarSesion();
+            return;
+        }
+
+        // ✅ Renderizar
         const select = document.getElementById("sociedad");
-
-        // 🔹 Limpiar el select antes de llenarlo
         select.innerHTML = "";
-
-        // 🔹 (Opcional) Agregar opción por defecto
-        //const optionDefault = document.createElement("option");
-        //optionDefault.value = "";
-        //optionDefault.textContent = "Seleccione una sociedad";
-        //select.appendChild(optionDefault);
 
         data.forEach(sociedad => {
             const option = document.createElement("option");    
@@ -683,8 +707,17 @@ function listarSociedades(){
             option.textContent = sociedad.sociedad;
             select.appendChild(option);
         });
+
+    })
+    .catch(error => {
+        console.warn("Sesión cerrada o error:", error);
     });
 }
+
+
+
+
+
 
 function formatearPesos(valor) {
   return new Intl.NumberFormat('es-CO', {

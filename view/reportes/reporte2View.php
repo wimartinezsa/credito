@@ -16,6 +16,14 @@ require_once ("../head/head.php");
 <h4 class="text-center">INFORME DETALLADO DE GASTOS POR INTERVALO DE FECHAS</h4>
 <hr>
 <div class="row">
+      <div class="col-md-12">
+        <select id="sociedad" onchange="estadoSociedad()" class="form-control">
+        <option value="">Seleccionar Sociedad</option>
+    </select>
+      </div>
+</div>
+
+<div class="row">
     <div class="col-md-4">
         <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
         <input type="date" id="fecha_inicio" class="form-control">
@@ -56,3 +64,9 @@ require_once ("../head/footer.php");
 ?>
 
  <script src="../reportes/reporte.js"></script>
+
+
+
+ <script>
+  listarSociedades();
+ </script>

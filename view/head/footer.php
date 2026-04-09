@@ -26,6 +26,20 @@
 
 </body>
 <script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    const nombre = localStorage.getItem("usuario");
+
+    if (nombre) {
+        document.getElementById("nombreUsuario").textContent = "👤 " + nombre;
+    } else {
+        document.getElementById("nombreUsuario").textContent = "Invitado";
+    }
+});
+
+
+
+
    function cerrarSesion() {
       // opcional alert de depuración
       // alert('cerrando sesión');
@@ -47,3 +61,5 @@
 
 }</script>
 </html>
+
+

@@ -13,12 +13,12 @@ class reporteController{
     public function listarEstadoSociedad($id_sociedad){
         return $this->model->listarEstadoSociedad($id_sociedad);
     }
-    public function listarGastosPorFechas($fecha_inicio, $fecha_fin){
-        return $this->model->listarGastosPorFechas($fecha_inicio, $fecha_fin);
+    public function listarGastosPorFechas($fecha_inicio, $fecha_fin,$sociedad){
+        return $this->model->listarGastosPorFechas($fecha_inicio, $fecha_fin,$sociedad);
     }
     
-    public function listarPrestamosPorFechas($fecha_inicio, $fecha_fin){
-        return $this->model->listarPrestamosPorFechas($fecha_inicio, $fecha_fin);
+    public function listarPrestamosPorFechas($fecha_inicio, $fecha_fin,$sociedad){
+        return $this->model->listarPrestamosPorFechas($fecha_inicio, $fecha_fin,$sociedad);
     }   
 
     function listarReporteFicha($ficha){
@@ -29,8 +29,8 @@ class reporteController{
         return $this->model->listarReporteCuotas($ficha);
     }   
 
-    function listarCuotasVencidas(){
-        return $this->model->listarCuotasVencidas();
+    function listarCuotasVencidas($sociedad){
+        return $this->model->listarCuotasVencidas($sociedad);
     }   
 
     function listarReportCliente($identificacion){

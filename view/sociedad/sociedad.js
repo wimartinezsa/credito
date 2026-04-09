@@ -8,7 +8,8 @@ function modalSociedades(){
         modalSociedad = new bootstrap.Modal(el, { keyboard: false });
         document.getElementById('id_sociedad').value = '';
         document.getElementById('sociedad').value = '';
-        document.getElementById('valor').value = '';
+        document.getElementById('valor').value = '0';
+        document.getElementById('valor').disabled = true;
         actualizarBotonesModal();
         modalSociedad.show();
 }
@@ -19,11 +20,15 @@ function actualizarBotonesModal(){
     const id_sociedad = document.getElementById('id_sociedad').value;
     const btnRegistrar = document.querySelector('button[name="btn_registrar"]');
     const btnActualizar = document.querySelector('button[name="btn_actualizar"]');
+
+    
+     document.getElementById('valor').value = '0';
     
     if(id_sociedad && id_sociedad.trim() !== ''){
         // Estamos actualizando
         btnRegistrar.style.display = 'none';
         btnActualizar.style.display = 'block';
+         document.getElementById('valor').disabled = false;
       
     } else {
         // Estamos registrando
@@ -82,27 +87,27 @@ function asignarEncargadoSociedad(){
     let datos= new URLSearchParams();
     datos.append('id_sociedad',document.getElementById('id_sociedad_encargado').value);
     datos.append('encargado',document.getElementById('encargado').value);
-    datos.append('rol',document.getElementById('rol').value);
+    datos.append('rol',"Socio");
 
     fetch(`./asignarEncargadoSociedad.php`, {
         method: 'POST',
         body:datos,
     })
-     .then(response =>{
+    .then(response =>{
         if(response.status === 401)
         {
             alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
             window.location.href = '../../index.php';
             return null;
          }
-        listarEncargadosSociedadesId();
-        listarTodasSociedades();
-       alert(response.text());
+        return response.json();
     })
     .then(text => {
-        alert(text);
+       
         listarTodasSociedades();
+      listarTodasSociedades();
          modalEncargado.hide();
+            alert(text);
        
     });
 
@@ -230,7 +235,7 @@ function buscarSociedad(id){
 
 function eliminarEncargadoSociedad(id_admin){
 
-   
+
     fetch(`./eliminarEncargadoSociedad.php?id_admin=${id_admin}`, {
         method: 'GET',
         headers: {
@@ -247,13 +252,10 @@ function eliminarEncargadoSociedad(id_admin){
         return response.text();
     })
     .then(text => {
-        if (data.success) {
-            alert(text);
+    
             listarEncargadosSociedadesId();
-           list
-        } else {
-            alert("Error al eliminar el encargado: " + text);
-        }
+           alert(text);
+        
     });
 
 }
@@ -280,14 +282,13 @@ function registrarSociedad(){
          }
         return response.text();
     })
-    .then(data => {
-        if (data.success) {
-            alert("Sociedad registrada exitosamente.");
+    .then(resp => {
+      
+            
             modalSociedad.hide();
             listarTodasSociedades(); // Actualizar la lista de sociedades
-        } else {
-            alert("Error al registrar la sociedad: " + data.message);
-        }
+            alert(resp);
+        
     });
 
 }

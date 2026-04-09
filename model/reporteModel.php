@@ -19,8 +19,8 @@ class reporteModel{
     s.id_sociedad,
     s.sociedad,
 
-    -- Caja actual
-    IFNULL(s.caja, 0) AS inicial,
+    -- Inicial (adiciones)
+    IFNULL(a.inicial, 0) AS inicial,
 
     -- Prestado
     IFNULL(p.prestado, 0) AS prestado,
@@ -40,16 +40,19 @@ class reporteModel{
     -- Disponible real
     (
         IFNULL(s.caja, 0)
-        - IFNULL(p.prestado, 0)
-        + IFNULL(c.recaudado, 0)
-        - IFNULL(g.gastos, 0)
     ) AS disponible
 
 FROM sociedades s
 
--- =========================
--- PRESTAMOS (USANDO MOVIMIENTOS)
--- =========================
+LEFT JOIN (
+    SELECT 
+        m.sociedad,
+        SUM(m.valor) AS inicial
+    FROM movimientos m
+    WHERE m.tipo = 'adicion'
+    GROUP BY m.sociedad
+) a ON a.sociedad = s.id_sociedad
+
 LEFT JOIN (
     SELECT 
         m.sociedad,
@@ -61,9 +64,6 @@ LEFT JOIN (
     GROUP BY m.sociedad
 ) p ON p.sociedad = s.id_sociedad
 
--- =========================
--- CUOTAS (USANDO RELACIÓN CORRECTA)
--- =========================
 LEFT JOIN (
     SELECT 
         m.sociedad,
@@ -76,9 +76,6 @@ LEFT JOIN (
     GROUP BY m.sociedad
 ) c ON c.sociedad = s.id_sociedad
 
--- =========================
--- GASTOS (YA ESTÁ BIEN RELACIONADO)
--- =========================
 LEFT JOIN (
     SELECT 
         m.sociedad,
@@ -99,7 +96,7 @@ WHERE s.id_sociedad = :id_sociedad;");
 
 
 
-      public function listarGastosPorFechas($fecha_inicio, $fecha_fin){
+      public function listarGastosPorFechas($fecha_inicio, $fecha_fin,$sociedad){
 
     $stament = $this->PDO->prepare("
         SELECT 
@@ -111,18 +108,19 @@ WHERE s.id_sociedad = :id_sociedad;");
         FROM gastos g
         JOIN movimientos m ON m.id_movimiento = g.movimiento
         JOIN sociedades s ON s.id_sociedad = m.sociedad
-        WHERE g.fecha BETWEEN :fecha_inicio AND :fecha_fin
+        WHERE  s.id_sociedad = :sociedad AND g.fecha BETWEEN :fecha_inicio AND :fecha_fin
     ");
 
     $stament->bindParam(':fecha_inicio', $fecha_inicio);
     $stament->bindParam(':fecha_fin', $fecha_fin);
+    $stament->bindParam(':sociedad', $sociedad);
 
     $stament->execute();
 
     return $stament->fetchAll(PDO::FETCH_ASSOC);
 }
     
-        public function listarPrestamosPorFechas($fecha_inicio, $fecha_fin){
+        public function listarPrestamosPorFechas($fecha_inicio, $fecha_fin,$sociedad){
 
     $stament = $this->PDO->prepare("
         SELECT 
@@ -166,13 +164,14 @@ WHERE s.id_sociedad = :id_sociedad;");
         LEFT JOIN cuotas c 
             ON c.prestamo = p.id_prestamo
 
-        WHERE p.fecha_prestamo BETWEEN :fecha_inicio AND :fecha_fin
+        WHERE  p.fecha_prestamo BETWEEN :fecha_inicio AND :fecha_fin AND s.id_sociedad = :sociedad
 
         GROUP BY p.id_prestamo
     ");
 
     $stament->bindParam(':fecha_inicio', $fecha_inicio);
     $stament->bindParam(':fecha_fin', $fecha_fin);
+    $stament->bindParam(':sociedad', $sociedad);
 
     $stament->execute();
 
@@ -260,7 +259,7 @@ WHERE s.id_sociedad = :id_sociedad;");
         JOIN sociedades s 
             ON s.id_sociedad = m.sociedad
 
-        WHERE p.ficha = :ficha
+        WHERE p.ficha = :ficha 
 
         ORDER BY c.nro_cuota ASC
     ");
@@ -271,7 +270,7 @@ WHERE s.id_sociedad = :id_sociedad;");
     return $stament->fetchAll(PDO::FETCH_ASSOC);
 }
 //reporte numero 5
-      public function listarCuotasVencidas(){
+      public function listarCuotasVencidas($sociedad){
 
     $stament = $this->PDO->prepare("
         SELECT 
@@ -304,10 +303,12 @@ WHERE s.id_sociedad = :id_sociedad;");
             p.estado != 'negado'
             AND c.estado = 'pendiente'
             AND c.fecha_pago < CURDATE()
+            AND s.id_sociedad = :sociedad
 
         ORDER BY c.fecha_pago ASC, p.ficha ASC
     ");
 
+    $stament->bindParam(':sociedad', $sociedad);
     $stament->execute();
 
     return $stament->fetchAll(PDO::FETCH_ASSOC);

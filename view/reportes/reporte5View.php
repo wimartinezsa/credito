@@ -15,7 +15,14 @@ require_once ("../head/head.php");
 
 <h4 class="text-center">INFORME DE CUOTAS VENCIDAS</h4>
 <hr>
+
+
 <div class="row">
+    <div class="col-md-6">
+        <select id="sociedad" onchange="estadoSociedad()" class="form-control">
+        <option value="">Seleccionar Sociedad</option>
+    </select>
+      </div>
     <div class="col-md-6">
         <div class="col-md-6 d-flex align-items-end">
             <button class="btn btn-primary" id="btn-generar-reporte" onclick="reporteCuotaVencidas()">Generar Reporte</button>
@@ -58,3 +65,6 @@ require_once ("../head/footer.php");
 ?>
 
  <script src="../reportes/reporte.js"></script>
+  <script>
+  listarSociedades();
+ </script>
