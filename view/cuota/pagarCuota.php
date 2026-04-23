@@ -6,30 +6,65 @@
     $controller_autenticacion = new autenticacionController();
     $controller = new cuotaController();
 
-    session_start();
-    if(isset($_SESSION["token"])){
-            $usuario = $controller_autenticacion->validarToken($_SESSION['token']);
-            if (!json_encode($usuario) && !strlen(json_encode($usuario)) > 0) {
-        // echo json_encode($usuario );
-        http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => 'Token inválido o expirado']);
-        exit;
-    }
-    } else {
-        http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => 'Token no proporcionado']);
-        exit;
-    }
+   
+    header("Content-Type: application/json");
+
+// =========================
+// 🔐 VALIDAR TOKEN
+// =========================
+$headers = getallheaders();
+$headers = array_change_key_case($headers, CASE_LOWER);
+
+$authHeader = $headers['authorization'] ?? $_SERVER['HTTP_AUTHORIZATION'] ?? null;
+
+if (!$authHeader) {
+    http_response_code(401);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Token no enviado"
+    ]);
+    exit;
+}
+
+$token = str_replace('Bearer ', '', $authHeader);
+
+$usuario = $controller_autenticacion->validarToken($token);
+
+if (!$usuario) {
+    http_response_code(401);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Token inválido o expirado"
+    ]);
+    exit;
+}
+// =========================
+// 📦 LEER JSON DEL FRONTEND
+// =========================
+$input = json_decode(file_get_contents("php://input"), true);
+
+if (!$input) {
+    http_response_code(400);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Datos inválidos o vacíos"
+    ]);
+    exit;
+}
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $resultado = $controller->pagarCuota(
-        $_POST["id_cuota_pago"],
-        $_POST["valor_pagado"],
-        $_POST["fecha_recaudo"]
+       id_cuota_pago: $input["id_cuota_pago"]?? null,
+       valor_pagado: $input["valor_pagado"]?? null,
+       fecha_recaudo: $input["fecha_recaudo"]?? null
     );
-    echo $resultado;
+    
+    // =========================
+// 📤 RESPUESTA FINAL
+// =========================
+echo json_encode($resultado);
 }
 
 

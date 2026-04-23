@@ -17,10 +17,6 @@ class autenticacionController{
         if ($user) {
             // Si la autenticación es exitosa, puedes iniciar una sesión o devolver un token de autenticación.
              $token = bin2hex(random_bytes(32));
-            
-            session_start();
-            $_SESSION['usuario'] = $user;
-            $_SESSION['token'] = $token;
             $this->model->guardarToken($user['id_persona'], $token );
             // return as array; let caller encode to JSON
             return array('token' => $token, 'usuario' => $user['nombres']);
@@ -30,15 +26,27 @@ class autenticacionController{
         }
     }
 
-     public function validarToken($token) {
-    return $this->model->validarToken($token);
+    public function validarToken($token) {
+        if (!$token) {
+                return false;
+            }
+
+    $usuario = $this->model->validarToken($token);
+
+    if (!$usuario) {
+        return false;
+    }
+
+    return $usuario; // 🔥 devolver datos reales del usuario
 }
+
 
       public function eliminarToken($token) {
        
         $estado=$this->model->eliminarToken($token);
         if($estado) {
             if (session_status() === PHP_SESSION_NONE) {
+                ini_set('session.cookie_path', '/');
                 session_start();
             }
             unset($_SESSION['token']);

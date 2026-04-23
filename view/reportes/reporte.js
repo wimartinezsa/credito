@@ -22,29 +22,45 @@ function formatearPesos(valor) {
 
 // Reporte numero 1
 
-function listarSociedades(){
-    
+async function listarSociedades(){
 
-    fetch("../sociedad/listarSociedadesEncargados.php", {
-        method: 'GET'
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
+    try {
+
+        const response = await peticionConsulta(
+            BASE_URL + "view/sociedad/listarSociedadesEncargados.php",
+            'GET'
+        );
+
+        console.log("RESPUESTA BACKEND:", response);
+
+        if (!response) {
+            alert("Sin respuesta del servidor");
+            return;
+        }
+
+        if (response.status !== "success") {
+            alert(response.message || "Error al cargar sociedades");
+            return;
+        }
+
+        const data = response.data;
+
         const select = document.getElementById('sociedad');
+        if (!select) return;
+
         select.innerHTML = '<option value="">Seleccionar Sociedad</option>';
+
         data.forEach(sociedad => {
             const option = document.createElement('option');
             option.value = sociedad.id_sociedad;
             option.textContent = sociedad.sociedad;
             select.appendChild(option);
         });
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al listar: ' + err);
-    });
-    
+
+    } catch (error) {
+        console.error("ERROR REAL:", error);
+        alert("Error al cargar sociedades");
+    }
 }
 
 
@@ -58,14 +74,11 @@ function estadoSociedad(){
         alert('Por favor, seleccione una sociedad');
         return;
     }
-    fetch(`./estadoSociedad.php?id_sociedad=${idSociedad}`, {
-        method: 'GET'
-    })
-    .then(response => response.json())
-    .then(data => {
 
-     
-       let  estadosDiv = '';
+    peticionConsulta(BASE_URL + `view/reportes/estadoSociedad.php?id_sociedad=${idSociedad}`, 'GET')
+    .then(data => {
+        
+        let  estadosDiv = '';
       
         estadosDiv += `
                  <div class="card text-bg-light mb-3" style="max-width: 18rem; border-success">
@@ -153,8 +166,10 @@ estadosDiv += `
 
           
             document.getElementById('estado-sociedad').innerHTML = estadosDiv;
-       
+
     });
+
+    
 }
 
 
@@ -172,7 +187,7 @@ function gastoPorFecha(){
         sociedad: sociedad
     });
 
-    fetch("./gastosPorFechas.php?" + params.toString(), {
+    fetch(BASE_URL + "./gastosPorFechas.php?" + params.toString(), {
         method: 'GET'
     })
     .then(response => response.json())
@@ -247,7 +262,7 @@ function listarPrestamosPorFechas(){
         sociedad: sociedad
     });
 
-    fetch("./prestamosPorFecha.php?" + params.toString(), {
+    fetch(BASE_URL + "./prestamosPorFecha.php?" + params.toString(), {
         method: 'GET'
     })
     .then(response => response.json())
@@ -332,7 +347,7 @@ const ficha = document.getElementById('ficha').value;
 
 function listarReporteCuotas(ficha){
 
-    fetch(`./reporteCuotas.php?ficha=${ficha}`, {
+    fetch(BASE_URL + `./reporteCuotas.php?ficha=${ficha}`, {
         method: 'GET',
     })
     .then(response => response.json())
@@ -397,7 +412,7 @@ function listarReporteFicha(ficha){
         ficha: ficha
     });
 
-    fetch("./reportePorFicha.php?" + params.toString(), {
+    fetch(BASE_URL + "./reportePorFicha.php?" + params.toString(), {
         method: 'GET'
     })
     .then(response => response.json())
@@ -465,7 +480,7 @@ function listarReporteFicha(ficha){
 function reporteCuotaVencidas(){
     const sociedad = document.getElementById('sociedad').value;
 
-    fetch("./cuotaVencida.php?sociedad=" + sociedad, {
+    fetch(BASE_URL + "./cuotaVencida.php?sociedad=" + sociedad, {
         method: 'GET',
     })
     .then(response => response.json())
@@ -543,7 +558,7 @@ function reporteHistorialCliente(){
         identificacion: identificacion
     });
 
-    fetch("./historialCliente.php?" + params.toString(), {
+    fetch(BASE_URL + "./historialCliente.php?" + params.toString(), {
         method: 'GET',
     })
     .then(response => response.json())
@@ -627,7 +642,7 @@ function listarMovimientosPorSociedad(){
         return;
     }
 
-    fetch(`./listarMovimientosPorSociedad.php?id_sociedad=${idSociedad}`, {
+    fetch(BASE_URL + `./listarMovimientosPorSociedad.php?id_sociedad=${idSociedad}`, {
         method: 'GET',
     })
     .then(response => response.json())

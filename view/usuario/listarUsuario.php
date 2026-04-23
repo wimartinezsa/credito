@@ -1,4 +1,6 @@
 <?php
+ini_set('session.cookie_path', '/');
+
 session_start();
 
 require_once("../../controller/usuarioController.php");
@@ -7,29 +9,40 @@ require_once("../../controller/autenticacionController.php");
 $controller_autenticacion = new autenticacionController();
 $controller = new usuarioController();
 
-// 🔐 VALIDAR SESIÓN
-if (!isset($_SESSION["token"])) {
-    http_response_code(401);
-    echo json_encode([
-        "status" => "error",
-        "message" => "Sesión no iniciada"
-    ]);
-    exit;
-}
+// 🔴 OBTENER HEADERS (FALTABA ESTO)
+    $headers = getallheaders();
 
-// 🔐 VALIDAR TOKEN
-$usuario = $controller_autenticacion->validarToken($_SESSION["token"]);
+    // 🔴 NORMALIZAR (MUY IMPORTANTE)
+    $headers = array_change_key_case($headers, CASE_LOWER);
 
-if (!$usuario) {
-    session_destroy(); // 🔥 destruir sesión inválida
+    $authHeader = $headers['authorization'] ?? null;
 
-    http_response_code(401);
-    echo json_encode([
-        "status" => "error",
-        "message" => "Token inválido o expirado"
-    ]);
-    exit;
-}
+    // 🔴 VALIDAR TOKEN
+    if (!$authHeader) {
+        http_response_code(401);
+        echo json_encode([
+            "status" => "error",
+            "message" => "Token no enviado"
+        ]);
+        exit;
+    }
+
+    // 🔹 Extraer token
+    $token = str_replace('Bearer ', '', $authHeader);
+
+    // 🔹 Validar token
+    $usuario = $controller_autenticacion->validarToken($token);
+
+    if (!$usuario) {
+        http_response_code(401);
+        echo json_encode([
+            "status" => "error",
+            "message" => "Token inválido o expirado"
+        ]);
+        exit;
+    }
+
+
 
 // ✅ PETICIÓN
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {

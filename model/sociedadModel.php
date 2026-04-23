@@ -19,12 +19,12 @@ public function listarTodasSociedades(){
     s.id_sociedad,
     s.caja,
     s.sociedad,
-    GROUP_CONCAT(p.nombres SEPARATOR ', ') AS administrador
-FROM sociedades s
-LEFT JOIN administradores a ON a.sociedad = s.id_sociedad
-LEFT JOIN personas p ON p.id_persona = a.persona
-GROUP BY 
-    s.id_sociedad, s.caja, s.sociedad");
+        GROUP_CONCAT(p.nombres SEPARATOR ', ') AS administrador
+        FROM sociedades s
+        LEFT JOIN administradores a ON a.sociedad = s.id_sociedad
+        LEFT JOIN personas p ON p.id_persona = a.persona
+        GROUP BY 
+        s.id_sociedad, s.caja, s.sociedad");
             $stament->execute();
 
             return $stament->fetchAll(PDO::FETCH_ASSOC);
@@ -49,15 +49,15 @@ public function listarEncargadosSociedadesId($id_sociedad){
 
 
 
-public function listarSociedadesEncargados(){
+public function listarSociedadesEncargados($usuario){
 
-           // session_start();
-            $user = $_SESSION['usuario'];
+         
+           
             $stament = $this->PDO->prepare("
             SELECT s.id_sociedad,s.sociedad FROM sociedades s
             JOIN administradores a ON a.sociedad=s.id_sociedad
             WHERE a.persona=?");
-            $stament->execute([$user['id_persona']]);
+            $stament->execute([$usuario['id_persona']]);
 
             return $stament->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -80,11 +80,11 @@ public function listarPerosnasEncargados(){
 
 
 
-public function asignarEncargadoSociedad($id_sociedad, $encargado, $rol){
+public function asignarEncargadoSociedad($id_sociedad, $encargado, $rol, $password){
 
     try {     
 
-        if (empty($id_sociedad) || empty($encargado) || empty($rol)) {
+        if (empty($id_sociedad) || empty($encargado) || empty($rol) || empty($password)) {
             throw new Exception("Datos incompletos");
         }
 
@@ -117,7 +117,7 @@ public function asignarEncargadoSociedad($id_sociedad, $encargado, $rol){
 
         $stmt_persona_update->execute([
             $rol,
-            $persona['identificacion'], // 🔐 buena práctica
+            $password, // 🔐 buena práctica
             $encargado
         ]);
 

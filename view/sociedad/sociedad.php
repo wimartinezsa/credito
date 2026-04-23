@@ -1,7 +1,7 @@
 <?php   
 $headers = getallheaders();
 
-
+require_once '../../config.php'; 
 require_once ("../head/head.php");
 ?>
 
@@ -113,6 +113,10 @@ require_once ("../head/head.php");
                               <select id="encargado" class="form-control" >
                               </select>
                             </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                              <input type="password" name="password" class="form-control" id="password" placeholder="Digite la contraseña del encargado">
+                            </div>
 
                              
                                     <div class="mb-3">
@@ -143,4 +147,9 @@ require_once ("../head/head.php");
 require_once ("../head/footer.php");
 ?>
 
-<script src="../sociedad/sociedad.js"></script>
+<script>
+    const BASE_URL = "<?= BASE_URL?>";
+</script>
+
+<script src="<?= BASE_URL ?>view/sociedad/sociedad.js"></script>
+

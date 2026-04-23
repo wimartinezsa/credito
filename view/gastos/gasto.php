@@ -1,4 +1,5 @@
 <?php   
+require_once '../../config.php'; 
 require_once ("../head/head.php");
 ?>
 
@@ -98,5 +99,9 @@ require_once ("../head/head.php");
 <?php   
 require_once ("../head/footer.php");
 ?>
+<script>
+    const BASE_URL = "<?= BASE_URL?>";
+</script>
 
-<script src="../gastos/gasto.js"></script>
+<script src="<?= BASE_URL ?>view/js/peticiones.js"></script>
+<script src="<?= BASE_URL ?>view/gastos/gasto.js"></script>

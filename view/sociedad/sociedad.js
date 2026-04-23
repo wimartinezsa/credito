@@ -51,7 +51,7 @@ function formatearPesos(valor) {
 
 
 function listarPerosnasEncargados(){
-          fetch(`../sociedad/listarPerosnasEncargados.php`, {
+          fetch(BASE_URL + `view/sociedad/listarPerosnasEncargados.php`, {
         method: 'GET',
     })
     
@@ -87,9 +87,10 @@ function asignarEncargadoSociedad(){
     let datos= new URLSearchParams();
     datos.append('id_sociedad',document.getElementById('id_sociedad_encargado').value);
     datos.append('encargado',document.getElementById('encargado').value);
+    datos.append('password',document.getElementById('password').value);
     datos.append('rol',"Socio");
 
-    fetch(`./asignarEncargadoSociedad.php`, {
+    fetch(BASE_URL + `view/sociedad/asignarEncargadoSociedad.php`, {
         method: 'POST',
         body:datos,
     })
@@ -117,7 +118,7 @@ function asignarEncargadoSociedad(){
 
 function listarEncargadosSociedadesId(){
    let id_sociedad_encargado=document.getElementById('id_sociedad_encargado').value;
-    fetch(`./listarEncargadosSociedadesId.php?id_sociedad=${id_sociedad_encargado}`, {
+    fetch(BASE_URL + `view/sociedad/listarEncargadosSociedadesId.php?id_sociedad=${id_sociedad_encargado}`, {
         method: 'GET',
         
     })
@@ -155,7 +156,7 @@ function listarEncargadosSociedadesId(){
 
 function listarTodasSociedades(){
    
-    fetch(`./listarTodasSociedades.php`, {
+    fetch(BASE_URL + `view/sociedad/listarTodasSociedades.php`, {
         method: 'GET',
         
     })
@@ -211,7 +212,7 @@ async function asignarEncargado(id_sociedad){
 
 function buscarSociedad(id){
   
-    fetch(`./buscarSociedad.php?id_sociedad=${id}`, {
+    fetch(BASE_URL + `view/sociedad/buscarSociedad.php?id_sociedad=${id}`, {
         method: 'GET',
     })
     .then(response => response.json())
@@ -236,7 +237,7 @@ function buscarSociedad(id){
 function eliminarEncargadoSociedad(id_admin){
 
 
-    fetch(`./eliminarEncargadoSociedad.php?id_admin=${id_admin}`, {
+    fetch(BASE_URL + `view/sociedad/eliminarEncargadoSociedad.php?id_admin=${id_admin}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -266,7 +267,7 @@ function registrarSociedad(){
 
     const nombre = document.getElementById('sociedad').value;
     const valor = document.getElementById('valor').value;
-    fetch(`./registrarSociedad.php`, {
+    fetch(BASE_URL + `view/sociedad/registrarSociedad.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -298,7 +299,7 @@ function adicionarSociedad(){
     const id = document.getElementById('id_sociedad').value;
     const nombre = document.getElementById('sociedad').value;
     const valor = document.getElementById('valor').value;
-    fetch(`./adicionarSociedad.php`, {
+    fetch(BASE_URL + `view/sociedad/adicionarSociedad.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

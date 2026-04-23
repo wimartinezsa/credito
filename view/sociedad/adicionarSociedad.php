@@ -9,6 +9,7 @@ $controller = new sociedadController();
 
 
 
+ini_set('session.cookie_path', '/');
 
     session_start();
     if(isset($_SESSION["token"])){

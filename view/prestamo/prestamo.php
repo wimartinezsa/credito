@@ -1,7 +1,7 @@
 
 <?php  
 
-
+require_once '../../config.php'; 
 require_once ("../head/head.php");
 ?>
 
@@ -421,4 +421,9 @@ require_once ("../head/head.php");
 require_once ("../head/footer.php");
 ?>
 
-<script src="/Creditos/view/prestamo/prestamo.js?v=2"></script>
+<script>
+    const BASE_URL = "<?= BASE_URL?>";
+</script>
+
+<script src="<?= BASE_URL ?>view/js/peticiones.js"></script>
+<script src="<?= BASE_URL ?>view/prestamo/prestamo.js"></script>

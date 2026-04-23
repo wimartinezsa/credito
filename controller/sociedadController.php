@@ -12,8 +12,8 @@ class sociedadController{
         return $this->model->listarTodasSociedades();
     }
     
- public function listarSociedadesEncargados(){
-        return $this->model->listarSociedadesEncargados();
+ public function listarSociedadesEncargados($usuario){
+        return $this->model->listarSociedadesEncargados($usuario);
     }
 
     public function listarEncargadosSociedadesId($id_sociedad){
@@ -44,8 +44,8 @@ public function listarPerosnasEncargados(){
     }
 
 
-public function asignarEncargadoSociedad( $id_sociedad, $encargado, $rol){
-        return $this->model->asignarEncargadoSociedad( $id_sociedad, $encargado, $rol);
+public function asignarEncargadoSociedad( $id_sociedad, $encargado, $rol, $password){
+        return $this->model->asignarEncargadoSociedad( $id_sociedad, $encargado, $rol, $password);
     }
 
 

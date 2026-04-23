@@ -1,48 +1,80 @@
 <?php
 
-   
+require_once("../../controller/prestamoController.php");
+require_once("../../controller/autenticacionController.php");
 
-    require_once("../../controller/prestamoController.php");
-    require_once("../../controller/autenticacionController.php");
-    $controller_autenticacion = new autenticacionController();
-    $controller = new prestamoController();
+$controller_autenticacion = new autenticacionController();
+$controller = new prestamoController();
 
-    session_start();
-    if(isset($_SESSION["token"])){
-            $usuario = $controller_autenticacion->validarToken($_SESSION['token']);
-            if (!json_encode($usuario) && !strlen(json_encode($usuario)) > 0) {
-        // echo json_encode($usuario );
-        http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => 'Token inválido o expirado']);
-        exit;
-    }
-    } else {
-        http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => 'Token no proporcionado']);
-        exit;
-    }
-     
+header("Content-Type: application/json");
 
+// =========================
+// 🔐 VALIDAR TOKEN
+// =========================
+$headers = getallheaders();
+$headers = array_change_key_case($headers, CASE_LOWER);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$authHeader = $headers['authorization'] ?? $_SERVER['HTTP_AUTHORIZATION'] ?? null;
 
-    $resultado = $controller->actualizarPrestamo(
-        id_prestamo: $_POST["id_prestamo"],
-        sociedad:$_POST["sociedad"],
-        ficha: $_POST["ficha"],
-        cliente: $_POST["cliente"], 
-        fecha: $_POST["fecha"], 
-        tiempo: $_POST["tiempo"], 
-        valor: $_POST["valor"],
-        interes: $_POST["interes"],
-        tipo: $_POST["tipo"],
-        fiador: $_POST["fiador"],
-        estado: $_POST["estado"]
-        
-    );
-    echo $resultado;
+if (!$authHeader) {
+    http_response_code(401);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Token no enviado"
+    ]);
+    exit;
 }
 
- 
+$token = str_replace('Bearer ', '', $authHeader);
 
+$usuario = $controller_autenticacion->validarToken($token);
+
+if (!$usuario) {
+    http_response_code(401);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Token inválido o expirado"
+    ]);
+    exit;
+}
+
+// =========================
+// 📦 LEER JSON
+// =========================
+$input = json_decode(file_get_contents("php://input"), true);
+
+if (!$input) {
+    http_response_code(400);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Datos inválidos o vacíos"
+    ]);
+    exit;
+}
+
+// =========================
+// 🔄 ACTUALIZAR
+// =========================
+if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+
+    $resultado = $controller->actualizarPrestamo(
+        id_prestamo: $input["id_prestamo"] ?? null,
+        sociedad: $input["sociedad"] ?? null,
+        ficha: $input["ficha"] ?? null,
+        cliente: $input["cliente"] ?? null,
+        fecha: $input["fecha"] ?? null,
+        tiempo: $input["tiempo"] ?? null,
+        valor: $input["valor"] ?? null,
+        interes: $input["interes"] ?? null,
+        tipo: $input["tipo"] ?? null,
+        fiador: $input["fiador"] ?? null,
+        estado: $input["estado"] ?? null   
+    );
+
+    echo json_encode([
+        "status" => "success",
+        "message" => "Crédito actualizado exitosamente",
+        "data" => $resultado
+    ]);
+}
 ?>

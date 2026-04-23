@@ -84,7 +84,7 @@ function modalModificarCuota(id_cuota,nro_cuota,fecha_pago,valor,tipo){
 
 let dataTableInstance = null;
 
-function listaClientes() {
+async function listaClientes() {
 
     const selectCliente = document.getElementById("cliente");
     const selectFiador = document.getElementById("fiador");
@@ -104,67 +104,59 @@ function listaClientes() {
     const optionDefault2 = optionDefault1.cloneNode(true);
     selectFiador.appendChild(optionDefault2);
 
-    fetch("../usuario/listarUsuario.php", {
-        method: 'GET',
-    })
-    .then(response => response.json())
+    await peticionConsulta(BASE_URL + "view/usuario/listarUsuario.php","GET")
     .then(data => {
 
-        data.forEach(usuario => {
+         data.forEach(usuario => {
 
             const option = document.createElement("option");
             option.value = usuario.id_persona;
             option.textContent = `${usuario.nombres} - ${usuario.identificacion}`;
-
             selectCliente.appendChild(option);
             selectFiador.appendChild(option.cloneNode(true));
-
         });
 
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al listar: ' + err);
     });
+
 }
 
 
-function modificarCuota(){
-// Implementar lógica para guardar préstamo
-    let datos= new URLSearchParams();
+async function modificarCuota() {
 
-    datos.append('codigo_cuota',document.getElementById('codigo_cuota').value);
-    datos.append('nro_pago',document.getElementById('nro_pago').value);
-    datos.append('fecha_pago',document.getElementById('fecha_pago').value);
-    datos.append('valor_pago',document.getElementById('valor_pago').value);
-    datos.append('tipo_pago',document.getElementById('tipo_pago').value);
+    let datos = {
+        codigo_cuota: document.getElementById('codigo_cuota').value,
+        nro_pago: document.getElementById('nro_pago').value,
+        fecha_pago: document.getElementById('fecha_pago').value,
+        valor_pago: document.getElementById('valor_pago').value,
+        tipo_pago: document.getElementById('tipo_pago').value
+    };
 
-    fetch("../cuota/actualizarCuota.php", {
-        method: 'POST',
-        body:datos,
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(text => {
-         modalAdminCuotas.hide();
-        alert(text);
-        listarCuotas(document.getElementById("cod_prestamo").value);
-        
+    try {
 
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al guardar: ' + err);
-    });
+        const response = await peticionCRUD(
+            BASE_URL + "view/cuota/actualizarCuota.php",
+            'POST',
+            datos
+        );
 
+        console.log("RESPUESTA BACKEND:", response);
 
+        if (response?.status === "success") {
+
+            alert(response.message);
+
+            modalAdminCuotas.hide();
+
+            listarCuotas(document.getElementById("cod_prestamo").value);
+
+        } else {
+            alert(response?.message || "Error al actualizar cuota");
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Error al actualizar cuota");
+    }
 }
 
 
@@ -212,89 +204,98 @@ function adminNuevaCuota(){
 
 
 
-function registarNuevaCuota(){
+async function registarNuevaCuota() {
 
- let datos= new URLSearchParams();
+    let datos = {
+        id_prestamo: document.getElementById("cod_prestamo").value,
+        nro_pago: document.getElementById('nro_pago').value,
+        fecha_pago: document.getElementById('fecha_pago').value,
+        valor_pago: document.getElementById('valor_pago').value,
+        tipo_pago: document.getElementById('tipo_pago').value
+    };
 
-    datos.append('id_prestamo',document.getElementById("cod_prestamo").value);
-    datos.append('nro_pago',document.getElementById('nro_pago').value);
-    datos.append('fecha_pago',document.getElementById('fecha_pago').value);
-    datos.append('valor_pago',document.getElementById('valor_pago').value);
-    datos.append('tipo_pago',document.getElementById('tipo_pago').value);
+    try {
 
-    fetch("../cuota/nuevaCuota.php", {
-        method: 'POST',
-        body:datos,
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(text => {
-         modalAdminCuotas.hide();
-        alert(text);
-        listarCuotas(document.getElementById("cod_prestamo").value);
-        
+        const response = await peticionCRUD(
+            BASE_URL + "view/cuota/nuevaCuota.php",
+            'POST',
+            datos
+        );
 
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al guardar: ' + err);
-    });
+        console.log("RESPUESTA BACKEND:", response);
 
+        if (response?.status === "success") {
 
+            alert(response.message);
 
+            modalAdminCuotas.hide();
+
+            listarCuotas(document.getElementById("cod_prestamo").value);
+
+        } 
+        else if (response?.status === "error") {
+
+            alert(response.message);
+
+        } 
+        else {
+
+            alert("Respuesta inesperada del servidor");
+
+        }
+
+    } catch (error) {
+        console.error("ERROR:", error);
+        alert("Error al registrar cuota");
+    }
 }
 
 
 
 
 
-function guardarPrestamo(){
-    // Implementar lógica para guardar préstamo
-    let datos= new URLSearchParams();
-    datos.append('sociedad',document.getElementById('sociedad').value);
-    datos.append('ficha',document.getElementById('ficha').value);
-    datos.append('cliente',document.getElementById('cliente').value);
-    datos.append('fecha',document.getElementById('fecha').value);
-    datos.append('tiempo',document.getElementById('tiempo').value);
-    datos.append('valor',document.getElementById('valor_prestado').value);
-    datos.append('interes',document.getElementById('interes').value);
-    datos.append('tipo',document.getElementById('tipo').value);
-    datos.append('fiador',document.getElementById('fiador').value);
-    datos.append('estado',"aprobado");
+ async function guardarPrestamo() {
 
-    fetch("./registrarPrestamo.php", {
-        method: 'POST',
-        body:datos,
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(text => {
-       // console.log(text);
-        alert(text);
-       //limpiarFormulario();
-     listarPrestamosId(document.getElementById('lista_sociedades').value);
-      disponibilidadSociedad(document.getElementById("lista_sociedades").value);
-      modalPrestamo.hide();
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al guardar: ' + err);
-    });
+    // 🔥 CREAR OBJETO JSON DIRECTO
+    let datos = {
+        sociedad: document.getElementById('sociedad').value,
+        ficha: document.getElementById('ficha').value,
+        cliente: document.getElementById('cliente').value,
+        fecha: document.getElementById('fecha').value,
+        tiempo: document.getElementById('tiempo').value,
+        valor: document.getElementById('valor_prestado').value,
+        interes: document.getElementById('interes').value,
+        tipo: document.getElementById('tipo').value,
+        fiador: document.getElementById('fiador').value,
+        estado: "aprobado"
+    };
+
+ 
+
+    try {
+
+        const response = await peticionCRUD(
+            BASE_URL + "view/prestamo/registrarPrestamo.php",
+            'POST',
+            datos
+        );
+
+       
+
+        alert(response.message || "Préstamo guardado correctamente");
+
+        listarPrestamosId(document.getElementById('lista_sociedades').value);
+        disponibilidadSociedad(document.getElementById("lista_sociedades").value);
+        modalPrestamo.hide();
+
+    } catch (error) {
+        console.error(error);
+        alert("Error al guardar préstamo");
+    }
 }
+
+
+
 
 async function verPagos(id_prestamo){
     document.getElementById("cod_prestamo").value=id_prestamo;
@@ -305,126 +306,133 @@ async function verPagos(id_prestamo){
 
 
 
-function finalizarPrestamo(){
+async function finalizarPrestamo() {
 
+    if (!confirm('¿Confirma que desea finalizar el crédito?')) return;
 
-     if (!confirm('¿Confirma que desea finalizar el credito?')) return;
-  let id_prestamo=  document.getElementById("cod_prestamo").value;
- 
-     fetch(`./finalizarPrestamo.php?id_prestamo=${id_prestamo}`, {
-        method: 'GET',      
-    })
-    .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(text =>  {
+    const id_prestamo = document.getElementById("cod_prestamo").value;
 
-      modalCuotas.hide();
-        listarPrestamosId(document.getElementById('lista_sociedades').value);
+    try {
 
-      alert(text);
-       
-       
-    })
-    .catch(err => {
-        console.error(err);
-       alert('Error al buscar: ' + err);
-    });
+        const respuesta = await peticionCRUD(
+            BASE_URL + `view/prestamo/finalizarPrestamo.php?id_prestamo=${id_prestamo}`,
+            "GET",
+            null
+        );
 
+        console.log("RESPUESTA BACKEND:", respuesta);
 
+        // =========================
+        // VALIDACIÓN ROBUSTA
+        // =========================
+        if (respuesta?.status === "success") {
 
+            alert(respuesta.message);
 
+            modalCuotas.hide();
 
+            listarPrestamosId(
+                document.getElementById('lista_sociedades').value
+            );
+
+        } 
+        else if (respuesta?.status === "error") {
+
+            alert(respuesta.message);
+
+        } 
+        else {
+
+            // fallback por si backend viejo responde string
+            alert("Respuesta inesperada del servidor");
+
+        }
+
+    } catch (error) {
+        console.error("ERROR FRONT:", error);
+        alert("Error al finalizar el préstamo");
+    }
 }
 
 async function buscarPrestamo(id_prestamo){
     document.getElementById("id_prestamo").value="";
-   await  listarSociedades();
+    await  listarSociedades();
     await listaClientes();
-    fetch(`./buscarPrestamo.php?id_prestamo=${id_prestamo}`, {
-        method: 'GET',      
-    })
-    .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.json();
-    })
-    .then(data =>  {
-      
-        document.getElementById("id_prestamo").value=data.id_prestamo;
-        document.getElementById("sociedad").value=data.sociedad;
-        document.getElementById("ficha").value=data.ficha;
-        document.getElementById("cliente").value=data.persona;
-        document.getElementById("fecha").value=data.fecha_prestamo;
-        document.getElementById("tiempo").value=data.tiempo;
-        document.getElementById("valor_prestado").value=data.valor_prestado;
-        document.getElementById("interes").value=data.interes;
-        document.getElementById("tipo").value=data.tipo;
-        document.getElementById("fiador").value=data.fiador;
 
-        const el = document.getElementById('modalPrestamo');
-        modalPrestamo = new bootstrap.Modal(el, { keyboard: false });
+    const data = await peticionConsulta(BASE_URL +`view/prestamo/buscarPrestamo.php?id_prestamo=${id_prestamo}`,"GET");
+
+  
+      
+    document.getElementById("id_prestamo").value=data.id_prestamo;
+    document.getElementById("sociedad").value=data.sociedad;
+    document.getElementById("ficha").value=data.ficha;
+    document.getElementById("cliente").value=data.persona;
+    document.getElementById("fecha").value=data.fecha_prestamo;
+    document.getElementById("tiempo").value=data.tiempo;
+    document.getElementById("valor_prestado").value=data.valor_prestado;
+    document.getElementById("interes").value=data.interes;
+    document.getElementById("tipo").value=data.tipo;
+    document.getElementById("fiador").value=data.fiador;
+
+    const el = document.getElementById('modalPrestamo');
+    modalPrestamo = new bootstrap.Modal(el, { keyboard: false });
        
 
-        actualizarBotonesModal();
-        modalPrestamo.show();
-    })
-    .catch(err => {
-        console.error(err);
-       alert('Error al buscar: ' + err);
-    });
+    actualizarBotonesModal();
+    modalPrestamo.show();
+   
 }
 
 
-function actualizarPrestamo(){
-    let datos= new URLSearchParams();
-    datos.append('id_prestamo',document.getElementById('id_prestamo').value);
-    datos.append('sociedad',document.getElementById('sociedad').value);
-    datos.append('ficha',document.getElementById('ficha').value);
-    datos.append('cliente',document.getElementById('cliente').value);
-    datos.append('fecha',document.getElementById('fecha').value);
-    datos.append('tiempo',document.getElementById('tiempo').value);
-    datos.append('valor',document.getElementById('valor_prestado').value);
-    datos.append('interes',document.getElementById('interes').value);
-    datos.append('tipo',document.getElementById('tipo').value);
-    datos.append('fiador',document.getElementById('fiador').value);
-    datos.append('estado',document.getElementById('estado').value);
+async function actualizarPrestamo() {
 
-    fetch("./actualizarPrestamo.php", {
-        method: 'POST',
-        body:datos,
-    })
-    .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(text => {
-        alert(text);
-      
-   listarPrestamosId(document.getElementById('lista_sociedades').value);
-       
-      modalPrestamo.hide();
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al actualizar: ' + err);
-    });
+    let datos = {
+        id_prestamo: document.getElementById('id_prestamo').value,
+        sociedad: document.getElementById('sociedad').value,
+        ficha: document.getElementById('ficha').value,
+        cliente: document.getElementById('cliente').value,
+        fecha: document.getElementById('fecha').value,
+        tiempo: document.getElementById('tiempo').value,
+        valor: document.getElementById('valor_prestado').value,
+        interes: document.getElementById('interes').value,
+        tipo: document.getElementById('tipo').value,
+        fiador: document.getElementById('fiador').value,
+        estado: "aprobado"
+    };
+
+    try {
+
+        const response = await peticionCRUD(
+            BASE_URL + "view/prestamo/actualizarPrestamo.php",
+            'PUT',
+            datos
+        );
+
+        console.log("RESPUESTA BACKEND:", response);
+
+        if (response?.status === "success") {
+
+            alert(response.message);
+
+            await listarPrestamosId(
+                document.getElementById('lista_sociedades').value
+            );
+
+            modalPrestamo.hide();
+
+        } else {
+            alert(response?.message || "Error al actualizar préstamo");
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Error en la actualización");
+    }
 }
+
+
+
+
 
 function limpiarFormulario(){
     document.getElementById("id_prestamo").value="";
@@ -444,30 +452,11 @@ function limpiarFormulario(){
 
 async function listarCuotas(id_prestamo){
 
-  await  fetch(`../cuota/listarCuotas.php?id_prestamo=${id_prestamo}`, {
-        method: 'GET',
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.json();
-    })
-    .then(data => {
-        // early checks
-        if (!data) return;
-        if (!Array.isArray(data)) {
-            console.warn('Respuesta inesperada de listarCuotas.php', data);
-            return;
-        }
+   const data = await peticionConsulta(BASE_URL + `view/cuota/listarCuotas.php?id_prestamo=${id_prestamo}`,"GET")
+   .then(data => {
 
-        const tabla = document.getElementById("tabla-cuotas");
+    const tabla = document.getElementById("tabla-cuotas");
         if (!tabla) return; 
-
-       
 
         let tbody = tabla.querySelector('tbody');   
         if (!tbody) {
@@ -519,39 +508,48 @@ async function listarCuotas(id_prestamo){
         });
         document.getElementById('valores').innerHTML='V. Futuro: '+formatearPesos(valor_futuro)+ '  /  V. Pagado: '+formatearPesos(valor_pagado)+ '  /  V. Pendiente: '+formatearPesos(valor_pendiente);
 
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al listar: ' + err);
-    }); 
+  
+
+
+   });
+
+ 
+   
+
+    
+
 }
 
 
 
-function eliminarCuota(id_cuota){
-      if (!confirm('¿Confirma que desea eliminar la cuota?')) return;
+async function eliminarCuota(id_cuota) {
 
-    
-    fetch(`../cuota/eliminarCuota.php?id_cuota=${id_cuota}`, {
-        method: 'GET',
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(text => {
-     
-      listarCuotas(document.getElementById("cod_prestamo").value);
-        alert(text);
-    });
+    if (!confirm('¿Confirma que desea eliminar la cuota?')) return;
 
+    try {
 
+        const response = await peticionCRUD(
+            BASE_URL + `view/cuota/eliminarCuota.php?id_cuota=${id_cuota}`,
+            'GET',
+            null
+        );
 
+        console.log("RESPUESTA BACKEND:", response);
+
+        if (response?.status === "success") {
+
+            alert(response.message);
+
+            listarCuotas(document.getElementById("cod_prestamo").value);
+
+        } else {
+            alert(response?.message || "Error al eliminar cuota");
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Error al eliminar cuota");
+    }
 }
 
 
@@ -569,93 +567,96 @@ function registrarPagoCuota() {
         return;
     }
 
-    let datos = new URLSearchParams();
-    datos.append('id_cuota_pago', id_cuota_pago);
-    datos.append('valor_pagado', valor_pagado);
-    datos.append('fecha_recaudo', fecha_recaudo);
 
-    fetch("../cuota/pagarCuota.php", {
-        method: 'POST',
-        body: datos,
-    })
-    .then(response => {
-        if (response.status === 401) {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-        }
-        return response.text();
-    })
-    .then(text => {
-        if (!text) return;
+
+    let datos={
+    id_cuota_pago: id_cuota_pago,
+    valor_pagado: valor_pagado,
+    fecha_recaudo: fecha_recaudo
+    };
+
+
+
+    peticionCRUD(BASE_URL + "view/cuota/pagarCuota.php", 'POST', datos)
+        .then(text => {
+             if (!text) return;
         modalPagarCuotas.hide();
         alert(text);
         listarCuotas(document.getElementById("cod_prestamo").value);
         disponibilidadSociedad(document.getElementById("lista_sociedades").value);
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al guardar: ' + err);
-    });
-}
-
-function devolucionCuota(id_cuota,valor_cuota){
-
-if (!confirm('¿Confirma que desea hacer devolución de esta cuota?')) return;
-
-     fetch(`../cuota/devolucionCuota.php?id_cuota=${id_cuota}&valor_cuota=${valor_cuota}`, {
-        method: 'GET',
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(text => {
-  
-      listarCuotas(document.getElementById("cod_prestamo").value);
-      disponibilidadSociedad(document.getElementById("lista_sociedades").value);
-        alert(text);
-    });
-    
-}
-
-
-function listarSociedadesEncargados(){
-
-    fetch(`../sociedad/listarSociedadesEncargados.php`, {
-        method: 'GET',
-    })
-    .then(response => response.json())
-    .then(data => {
-       
-        const select = document.getElementById("lista_sociedades");
-
-        // 🔹 Limpiar el select antes de llenarlo
-        select.innerHTML = "";
-
-    
-            const option = document.createElement("option");    
-            option.disabled = true;
-            option.selected=true;
-            option.textContent = "Seleccione una Sociedad";
-            select.appendChild(option);
-
-
-
-        data.forEach(sociedad => {
-            const option = document.createElement("option");    
-            option.value = sociedad.id_sociedad;
-            option.textContent = sociedad.sociedad;
-            select.appendChild(option);
         });
-        
+
+}
+
+
+async function devolucionCuota(id_cuota, valor_cuota) {
+
+    if (!confirm('¿Confirma que desea hacer devolución de esta cuota?')) return;
+
+    try {
+
+        const response = await peticionCRUD(
+            BASE_URL + `view/cuota/devolucionCuota.php?id_cuota=${id_cuota}&valor_cuota=${valor_cuota}`,
+            'GET',
+            null
+        );
+
+        console.log("RESPUESTA BACKEND:", response);
+
+        if (response?.status === "success") {
+
+            alert(response.message);
+
+            listarCuotas(document.getElementById("cod_prestamo").value);
+            disponibilidadSociedad(document.getElementById("lista_sociedades").value);
+
+        } else {
+            alert(response?.message || "Error en la devolución");
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Error al procesar la devolución");
+    }
+}
+
+
+
+async function listarSociedadesEncargados() {
+
+    const token = localStorage.getItem("token");
+
+    const data = await peticionConsulta(
+        BASE_URL + `view/sociedad/listarSociedadesEncargados.php`,
+        "GET",
+        null
+    );
+
+    console.log("DATA:", data);
+
+    if (!data || !Array.isArray(data)) {
+        console.error("La respuesta no es un arreglo:", data);
+        return;
+    }
+
+    const select = document.getElementById("lista_sociedades");
+    select.innerHTML = "";
+
+    const option = document.createElement("option");    
+    option.disabled = true;
+    option.selected = true;
+    option.textContent = "Seleccione una Sociedad";
+    select.appendChild(option);
+
+    data.forEach(sociedad => {
+        const option = document.createElement("option");    
+        option.value = sociedad.id_sociedad;
+        option.textContent = sociedad.sociedad;
+        select.appendChild(option);
     });
 }
+
+
 
 
 function cerrarSesion(){
@@ -665,38 +666,10 @@ function cerrarSesion(){
 
 
 
-function listarSociedades(){
+async function listarSociedades(){
 
-    const token = localStorage.getItem("token");
-
-    // 🔴 Validar si no hay token
-    if (!token) {
-        cerrarSesion();
-        return;
-    }
-
-    fetch(`../sociedad/listarSociedadesEncargados.php?token=${token}`)
-    .then(response => {
-
-        if (response.status === 401) {
-            cerrarSesion();
-            return Promise.reject("401");
-        }
-
-        return response.json();
-    })
-    .then(data => {
-
-        console.log("Respuesta backend:", data); // 🔍 DEBUG
-
-        if (!data) return;
-
-        // 🔴 VALIDACIÓN FUERTE
-        if (data.status === "error") {
-            cerrarSesion();
-            return;
-        }
-
+  const data=  await peticionConsulta(BASE_URL + `view/sociedad/listarSociedadesEncargados.php`,"GET")
+  
         // ✅ Renderizar
         const select = document.getElementById("sociedad");
         select.innerHTML = "";
@@ -707,11 +680,7 @@ function listarSociedades(){
             option.textContent = sociedad.sociedad;
             select.appendChild(option);
         });
-
-    })
-    .catch(error => {
-        console.warn("Sesión cerrada o error:", error);
-    });
+   
 }
 
 
@@ -728,24 +697,15 @@ function formatearPesos(valor) {
 }
 
 
-function listarPrestamosId(id_sociedad){
+async function listarPrestamosId(id_sociedad) {
+    try {
 
-    fetch(`./listarPrestamosId.php?id_sociedad=${id_sociedad}`)
-    .then(response => {
+        const data = await peticionConsulta(
+            BASE_URL + `view/prestamo/listarPrestamosId.php?id_sociedad=${id_sociedad}`,
+            "GET"
+        );
 
-        if (response.status === 401) {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-        }
-
-        if (!response.ok) {
-            throw new Error("Error en la respuesta del servidor");
-        }
-
-        return response.json();
-    })
-    .then(data => {
+        console.log("DATA:", data);
 
         if (!data || !Array.isArray(data)) {
             console.warn("Datos inválidos:", data);
@@ -808,52 +768,25 @@ function listarPrestamosId(id_sociedad){
             searching: true,
             ordering: true,
             paging: true,
-            destroy: true // 🔥 importante
+            destroy: true
         });
 
-    })
-    .catch(err => {
-        console.error(err);
+    } catch (err) {
+        console.error("Error real:", err);
         alert('Error al listar: ' + err.message);
-    });
+    }
 }
 
 
-
-
-function disponibilidadSociedad(id_sociedad){
+async function disponibilidadSociedad(id_sociedad){
   
- fetch(`./disponibleSociedad.php?id_sociedad=${id_sociedad}`, {
-        method: 'GET',
-    })
-    .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.json();
-    })
-    .then(data => {
-       // console.log(data);
-        if (!data) return;
-        
-      
-        
-       document.getElementById("disponible").innerHTML= data.caja!= null? "Disponible ="+formatearPesos(data.caja):"Disponible = 0";
-       
-        
-       
-         
-    })
-    .catch(err => {
-        console.error(err);
-       alert('Error al listar: ' + err);
-    });
-
-
-
+const data=  await peticionConsulta(BASE_URL + `view/prestamo/disponibleSociedad.php?id_sociedad=${id_sociedad}`,"GET")
+{
+    if (!data) return;
+    document.getElementById("disponible").innerHTML= data.caja!= null? "Disponible ="+formatearPesos(data.caja):"Disponible = 0";
+   
+}
+    
 
 }
 
@@ -873,7 +806,7 @@ window.subirGarantia = function(){
     let archivo = document.getElementById("archivo").files[0];
     formData.append('archivo', archivo);
 
-    fetch("/Creditos/view/garantia/subirGarantia.php",{
+    fetch(BASE_URL + "view/garantia/subirGarantia.php",{
         method:"POST",
         body: formData
     })
@@ -889,21 +822,10 @@ window.subirGarantia = function(){
 };
 
 function listarTipoGarantia(){
-    fetch(`../garantia/listarTipoGarantia.php`, {
-        method: 'GET',
-    })
-    
-  .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.json();
-    })
+
+    peticionConsulta(BASE_URL + `view/garantia/listarTipoGarantia.php`,"GET")
     .then(data => {
-        const select = document.getElementById("tipo_garantia");
+         const select = document.getElementById("tipo_garantia");
         select.innerHTML = "";
         const option = document.createElement("option");    
             option.value = ""
@@ -915,23 +837,17 @@ function listarTipoGarantia(){
             option.textContent = tipo.nombre_tipo;
             select.appendChild(option);
         });
+  
     });
+
+ 
 }
 
 function listarGarantiasPrestamo(id_prestamo){
-    fetch(`../garantia/listarGarantiasPrestamo.php?id_prestamo=${id_prestamo}`, {
-        method: 'GET',
-    })  
-  .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.json();
-    })
-    .then(data => {
+
+peticionConsulta(BASE_URL + `view/garantia/listarGarantiasPrestamo.php?id_prestamo=${id_prestamo}`,"GET")
+    .then(response =>{
+
         const tabla = document.getElementById("tabla-garantias");
         let tbody = tabla.querySelector('tbody');
         if (!tbody) {
@@ -947,31 +863,21 @@ function listarGarantiasPrestamo(id_prestamo){
                 <td>
                 <a href="${garantia.ruta}" class="btn btn-primary" target="_blank">Ver</a>
                 <a onclick="eliminarGarantia(${garantia.id_garantia});" class="btn btn-danger">Eliminar</a>
-                
                 </td>
             `;
         });
-    });
+     });
+
 }
 
 
 function eliminarGarantia(id_garantia){
     if (!confirm('¿Eliminar esta garantía?')) return;
-      fetch(`../garantia/eliminarGarantia.php?id_garantia=${id_garantia}`, {
-        method: 'GET',
-    })
-      .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
 
-    .then(data => {
-     listarGarantiasPrestamo(document.getElementById("codigo_prestamo").value);
+peticionCRUD(BASE_URL + `view/garantia/eliminarGarantia.php?id_garantia=${id_garantia}`, 'GET', null)
+    .then(text => {
+        listarGarantiasPrestamo(document.getElementById("codigo_prestamo").value);
+        alert(text);
     });
 }
 

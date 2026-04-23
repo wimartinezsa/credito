@@ -222,13 +222,27 @@ public function nuevaCuota($id_prestamo, $nro_pago, $fecha_pago, $valor_pago, $t
 
     try {
 
-        // Validaciones básicas
-        if ($id_prestamo <= 0 || $nro_pago <= 0 || $valor_pago < 0 || empty($fecha_pago) || empty($tipo_pago)) {
-            return "Datos inválidos";
+        // =========================
+        // VALIDACIONES
+        // =========================
+        if (
+            $id_prestamo <= 0 ||
+            $nro_pago <= 0 ||
+            $valor_pago < 0 ||
+            empty($fecha_pago) ||
+            empty($tipo_pago)
+        ) {
+            return [
+                "status" => "error",
+                "message" => "Datos inválidos"
+            ];
         }
 
         $this->PDO->beginTransaction();
 
+        // =========================
+        // INSERTAR CUOTA
+        // =========================
         $stament = $this->PDO->prepare("
             INSERT INTO cuotas (prestamo, fecha_pago, nro_cuota, valor, tipo, estado) 
             VALUES (?, ?, ?, ?, ?, ?)
@@ -243,8 +257,22 @@ public function nuevaCuota($id_prestamo, $nro_pago, $fecha_pago, $valor_pago, $t
             'pendiente'
         ]);
 
+        $id_insertado = $this->PDO->lastInsertId();
+
         $this->PDO->commit();
-        return "Cuota registrada correctamente";
+
+        // =========================
+        // RESPUESTA EXITOSA
+        // =========================
+        return [
+            "status" => "success",
+            "message" => "Cuota registrada correctamente",
+            "data" => [
+                "id_cuota" => $id_insertado,
+                "id_prestamo" => $id_prestamo,
+                "nro_pago" => $nro_pago
+            ]
+        ];
 
     } catch (Exception $e) {
 
@@ -252,7 +280,10 @@ public function nuevaCuota($id_prestamo, $nro_pago, $fecha_pago, $valor_pago, $t
             $this->PDO->rollBack();
         }
 
-        return "Error: " . $e->getMessage();
+        return [
+            "status" => "error",
+            "message" => "Error: " . $e->getMessage()
+        ];
     }
 }
 

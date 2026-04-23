@@ -9,6 +9,7 @@
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    ini_set('session.cookie_path', '/');
     session_start();
     $token = isset($_SESSION['token']) ? $_SESSION['token'] : null;
     $resultado = $controller->eliminarToken( $token);

@@ -1,46 +1,108 @@
 <?php
+
 require_once("../../controller/usuarioController.php");
 require_once("../../controller/autenticacionController.php");
+
 $controller_autenticacion = new autenticacionController();
 $controller = new usuarioController();
 
+header("Content-Type: application/json");
 
+// =========================
+// 🔐 VALIDAR TOKEN
+// =========================
+$headers = getallheaders();
+$headers = array_change_key_case($headers, CASE_LOWER);
 
-    session_start();
-    if(isset($_SESSION["token"])){
-            $usuario = $controller_autenticacion->validarToken($_SESSION['token']);
-            if (!json_encode($usuario) && !strlen(json_encode($usuario)) > 0) {
-        // echo json_encode($usuario );
-        http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => 'Token inválido o expirado']);
-        exit;
-    }
-    } else {
-        http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => 'Token no proporcionado']);
-        exit;
-    }
-   
+$authHeader = $headers['authorization'] ?? null;
 
-
-// Capturamos desde la URL (query string)
-$id = isset($_GET['id_usuario']) ? $_GET['id_usuario'] : null;
-
-// expected POST: id_persona, identificacion, nombres, direccion, telefono, calificacion, observacion
-
-$ident = isset($_POST['identificacion']) ? $_POST['identificacion'] : null;
-$nombre = isset($_POST['nombres']) ? $_POST['nombres'] : null;
-$direccion = isset($_POST['direccion']) ? $_POST['direccion'] : null;
-$telefono = isset($_POST['telefono']) ? $_POST['telefono'] : null;
-$calificacion = isset($_POST['calificacion']) ? $_POST['calificacion'] : null;
-$observacion = isset($_POST['observacion']) ? $_POST['observacion'] : null;
-
-if($id === null){
-    echo "Falta el id del registro";
+if (!$authHeader) {
+    http_response_code(401);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Token no enviado"
+    ]);
     exit;
 }
 
-$result = $controller->actualizarUsuario($id, $ident, $nombre, $direccion, $telefono, $calificacion, $observacion);
-echo $result;
+$token = str_replace('Bearer ', '', $authHeader);
 
-?>
+$usuario = $controller_autenticacion->validarToken($token);
+
+if (!$usuario) {
+    http_response_code(401);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Token inválido o expirado"
+    ]);
+    exit;
+}
+
+// =========================
+// 📦 LEER JSON (IMPORTANTE)
+// =========================
+$input = json_decode(file_get_contents("php://input"), true);
+
+if (!$input) {
+    http_response_code(400);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Datos inválidos o vacíos"
+    ]);
+    exit;
+}
+
+// =========================
+// 🔄 CAPTURA DE DATOS
+// =========================
+$id = $_GET['id_usuario'] ?? null;
+
+$ident = $input['identificacion'] ?? null;
+$nombre = $input['nombres'] ?? null;
+$direccion = $input['direccion'] ?? null;
+$telefono = $input['telefono'] ?? null;
+$calificacion = $input['calificacion'] ?? null;
+$observacion = $input['observacion'] ?? null;
+
+// =========================
+// ⚠️ VALIDACIONES
+// =========================
+if (!$id) {
+    http_response_code(400);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Falta el id del usuario"
+    ]);
+    exit;
+}
+
+if (!$ident || !$nombre) {
+    http_response_code(400);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Datos obligatorios incompletos"
+    ]);
+    exit;
+}
+
+// =========================
+// 🔄 PROCESO
+// =========================
+$result = $controller->actualizarUsuario(
+    $id,
+    $ident,
+    $nombre,
+    $direccion,
+    $telefono,
+    $calificacion,
+    $observacion
+);
+
+// =========================
+// 📤 RESPUESTA ESTÁNDAR
+// =========================
+echo json_encode([
+    "status" => "success",
+    "message" => "Usuario actualizado correctamente",
+    "data" => $result
+]);

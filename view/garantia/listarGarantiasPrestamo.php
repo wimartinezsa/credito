@@ -8,7 +8,7 @@ $controller_garantia = new garantiaController();
 
 
  $controller_autenticacion = new autenticacionController();
-
+  ini_set('session.cookie_path', '/');
   session_start();
     if(isset($_SESSION["token"])){
             $usuario = $controller_autenticacion->validarToken($_SESSION['token']);

@@ -8,6 +8,7 @@ $controller_autenticacion = new autenticacionController();
 
 $controller = new sociedadController();
 
+ini_set('session.cookie_path', '/');
 
     session_start();
     if(isset($_SESSION["token"])){
@@ -29,11 +30,12 @@ $controller = new sociedadController();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_sociedad = $_POST['id_sociedad'] ?? null;
     $encargado = $_POST['encargado'] ?? null;
+    $password = $_POST['password'] ?? null;
     $rol = $_POST['rol'] ?? null;
   
    
-        $resultado = $controller->asignarEncargadoSociedad( $id_sociedad, $encargado, $rol);
-         echo json_encode($resultado);
+        $resultado = $controller->asignarEncargadoSociedad($id_sociedad, $encargado, $rol, $password);
+        echo json_encode($resultado);
    
 }
 

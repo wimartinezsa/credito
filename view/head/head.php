@@ -20,8 +20,14 @@
     </style>
 </head>
 <body>
+
+
+<?php require_once '../../config.php'; ?>
+
 <?php
  if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_path', '/');
+ini_set('session.cookie_domain', 'confianzacontratualsas.com');
      session_start();
  }
  $role = isset($_SESSION['usuario']['rol']) ? $_SESSION['usuario']['rol'] : null;
@@ -41,21 +47,21 @@
                   
                    
                     <li class="nav-item">
-                        <a class="nav-link" href="/creditos/view/prestamo/prestamo.php">Creditos</a>
+                        <a class="nav-link" href="<?= BASE_URL ?>view/prestamo/prestamo.php">Creditos</a>
                     </li>
 
                    <li class="nav-item">
-                    <a class="nav-link" href="/creditos/view/usuario/usuario.php">Clientes</a>
+                     <a class="nav-link" href="<?= BASE_URL ?>view/usuario/usuario.php">Clientes</a>
                     </li>
 
                       <li class="nav-item">
-                    <a class="nav-link" href="/creditos/view/gastos/gasto.php">Gastos</a>
+                    <a class="nav-link" href="<?= BASE_URL ?>view/gastos/gasto.php">Gastos</a>
                     </li>
 
  
                        <?php if ($role == 'Admin'): ?>
                             <li class="nav-item">
-                                <a class="nav-link" href="/creditos/view/sociedad/sociedad.php">Sociedad</a>
+                                <a class="nav-link" href="<?= BASE_URL ?>view/sociedad/sociedad.php">Sociedad</a>
                             </li>
                     <?php endif; ?>
 
@@ -64,13 +70,13 @@
             Reportes
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/creditos/view/reportes/reporte1View.php">Estado de la Sociedad</a></li>
-            <li><a class="dropdown-item" href="/creditos/view/reportes/reporte2View.php">Reporte de Gastos</a></li>
-            <li><a class="dropdown-item" href="/creditos/view/reportes/reporte3View.php">Reporte de Prestamos</a></li>
-            <li><a class="dropdown-item" href="/creditos/view/reportes/reporte4View.php">Reporte de Ficha</a></li>
-             <li><a class="dropdown-item" href="/creditos/view/reportes/reporte5View.php">Cuotas Vencidas</a></li>
-             <li><a class="dropdown-item" href="/creditos/view/reportes/reporte6View.php">Historial del Cliente</a></li>
-            <li><a class="dropdown-item" href="/creditos/view/reportes/reporte7View.php">Historial de Movimientos</a></li>
+            <li><a class="dropdown-item" href="<?= BASE_URL ?>view/reportes/reporte1View.php">Estado de la Sociedad</a></li>
+            <li><a class="dropdown-item" href="<?= BASE_URL ?>view/reportes/reporte2View.php">Reporte de Gastos</a></li>
+            <li><a class="dropdown-item" href="<?= BASE_URL ?>view/reportes/reporte3View.php">Reporte de Prestamos</a></li>
+            <li><a class="dropdown-item" href="<?= BASE_URL ?>view/reportes/reporte4View.php">Reporte de Ficha</a></li>
+             <li><a class="dropdown-item" href="<?= BASE_URL ?>view/reportes/reporte5View.php">Cuotas Vencidas</a></li>
+             <li><a class="dropdown-item" href="<?= BASE_URL ?>view/reportes/reporte6View.php">Historial del Cliente</a></li>
+            <li><a class="dropdown-item" href="<?= BASE_URL ?>view/reportes/reporte7View.php">Historial de Movimientos</a></li>
           </ul>
         </li>
                    

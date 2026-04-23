@@ -1,5 +1,4 @@
-
-
+<?php require_once 'config.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,7 +30,10 @@
 
 
 
-<script src="./view/autenticacion/autenticacion.js"></script>
+<script>
+    const BASE_URL = "<?= BASE_URL ?>";
+</script>
 
+<script src="<?= BASE_URL ?>view/autenticacion/autenticacion.js"></script>
 </body>
 </html>

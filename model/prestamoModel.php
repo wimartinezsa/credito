@@ -150,10 +150,10 @@ public function registrarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $v
 
         
 
-public function listaPrestamoEncargado(){
+public function listaPrestamoEncargado($usuario){
 
 
- $user = $_SESSION['usuario'];
+
 
         $stament = $this->PDO->prepare("SELECT p.id_prestamo,s.sociedad,p.tipo,p.ficha, per.identificacion, per.nombres, p.fecha_prestamo, p.tiempo, p.valor_prestado,p.estado, 
         p.valor_futuro as futuro,
@@ -164,7 +164,7 @@ public function listaPrestamoEncargado(){
         JOIN   sociedades s ON s.encargado  = per.id_persona
         WHERE s.encargado=?
         ORDER BY p.id_prestamo ASC");
-                    $stament->execute([$user['id_persona']]);
+                    $stament->execute([$usuario['id_persona']]);
             return $stament->fetchAll(PDO::FETCH_ASSOC);
         }
 
@@ -192,20 +192,21 @@ $stament = $this->PDO->prepare("
 
 
 
-public function finalizarPrestamo($id_prestamo){
-    try{
+public function finalizarPrestamo($id_prestamo) {
 
-        // =========================
-        // 0. VALIDACIÓN INICIAL
-        // =========================
+    try {
+
         if ($id_prestamo <= 0) {
-            return "ID inválido";
+            return [
+                "status" => "error",
+                "message" => "ID inválido"
+            ];
         }
 
         $this->PDO->beginTransaction();
 
         // =========================
-        // 1. OBTENER VALORES
+        // 1. OBTENER DATOS
         // =========================
         $stmt = $this->PDO->prepare("
             SELECT 
@@ -224,54 +225,44 @@ public function finalizarPrestamo($id_prestamo){
         $prestamo = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$prestamo) {
-            throw new Exception("Prestamo no encontrado");
+            throw new Exception("Préstamo no encontrado");
         }
 
         // =========================
         // 2. VALIDAR ESTADO
         // =========================
         if ($prestamo['estado'] === 'finalizado') {
-            throw new Exception("El prestamo ya esta finalizado");
+            throw new Exception("El préstamo ya está finalizado");
         }
 
-        $valor_futuro = (float)$prestamo['valor_futuro'];
-        $total_pagado   = (float)$prestamo['total_pagado'];
+        $valor_futuro = (float)($prestamo['valor_futuro'] ?? 0);
+        $total_pagado  = (float)($prestamo['total_pagado'] ?? 0);
 
         // =========================
-        // 3. DEBUG (puedes quitarlo luego)
+        // 3. VALIDACIÓN FINANCIERA
         // =========================
-        
-        /*
-        echo "Prestado: $valor_futuro <br>";
-        echo "Pagado: $total_pagado <br>";
-        exit;
-        */
-
-        // =========================
-        // 4. VALIDACIÓN PRINCIPAL
-        // =========================
-        // Se usa tolerancia por decimales
         if (abs($valor_futuro - $total_pagado) > 0.01) {
-            throw new Exception("El valor prestado no coincide con lo pagado");
+            throw new Exception("El valor del préstamo no coincide con lo pagado");
         }
 
         // =========================
-        // 5. VALIDAR QUE NO HAY CUOTAS PENDIENTES
+        // 4. VALIDAR CUOTAS PENDIENTES
         // =========================
         $stmt = $this->PDO->prepare("
             SELECT COUNT(*) as pendientes
             FROM cuotas
             WHERE prestamo = ? AND estado = 'pendiente'
         ");
+
         $stmt->execute([$id_prestamo]);
-        $pendientes = $stmt->fetch(PDO::FETCH_ASSOC)['pendientes'];
+        $pendientes = $stmt->fetchColumn();
 
         if ($pendientes > 0) {
-            throw new Exception("Aun existen cuotas pendientes");
+            throw new Exception("Aún existen cuotas pendientes");
         }
 
         // =========================
-        // 6. FINALIZAR PRÉSTAMO
+        // 5. FINALIZAR PRÉSTAMO
         // =========================
         $stmt = $this->PDO->prepare("
             UPDATE prestamos 
@@ -282,15 +273,18 @@ public function finalizarPrestamo($id_prestamo){
         $stmt->execute([$id_prestamo]);
 
         if ($stmt->rowCount() == 0) {
-            throw new Exception("No se pudo finalizar el prestamo");
+            throw new Exception("No se pudo finalizar el préstamo");
         }
 
-        // =========================
-        // 7. COMMIT
-        // =========================
         $this->PDO->commit();
 
-        return "Credito finalizado con exito";
+        return [
+            "status" => "success",
+            "message" => "Crédito finalizado con éxito",
+            "data" => [
+                "id_prestamo" => $id_prestamo
+            ]
+        ];
 
     } catch (Exception $e) {
 
@@ -298,10 +292,12 @@ public function finalizarPrestamo($id_prestamo){
             $this->PDO->rollBack();
         }
 
-        return "Error: " . $e->getMessage();
+        return [
+            "status" => "error",
+            "message" => $e->getMessage()
+        ];
     }
 }
-
 
 
 

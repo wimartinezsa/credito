@@ -29,81 +29,101 @@ function actualizarBotonesModal(){
 
 
 
-function guardarUsuario(){
-   
-    let datos= new URLSearchParams();
-    datos.append('identificacion',document.getElementById('identificacion').value);
-    datos.append('nombres',document.getElementById('nombres').value);
-    datos.append('direccion',document.getElementById('direccion').value);
-    datos.append('telefono',document.getElementById('telefono').value);
-    datos.append('calificacion',document.getElementById('calificacion').value);
-    datos.append('observacion',document.getElementById('observacion').value);
+async function guardarUsuario() {
 
-    fetch("./registrarUsuario.php", {
-        method: 'POST',
-        body:datos,
-    })
-    .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(text => {
-        alert(text);
-       limpiarFormulario();
-      listarUsuario();
-      modalCliente.hide();
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al guardar: ' + err);
-    });
+    let datos = {
+        identificacion: document.getElementById('identificacion').value,
+        nombres: document.getElementById('nombres').value,
+        direccion: document.getElementById('direccion').value,
+        telefono: document.getElementById('telefono').value,
+        calificacion: document.getElementById('calificacion').value,
+        observacion: document.getElementById('observacion').value
+    };
+
+    try {
+
+        const response = await peticionCRUD(
+            BASE_URL + "view/usuario/registrarUsuario.php",
+            'POST',
+            datos
+        );
+
+        console.log("RESPUESTA BACKEND:", response);
+
+        if (response?.status === "success") {
+
+            alert(response.message);
+
+            limpiarFormulario();
+            listarUsuario();
+            modalCliente.hide();
+
+        } 
+        else if (response?.status === "error") {
+
+            alert(response.message);
+
+        } 
+        else {
+
+            alert("Respuesta inesperada del servidor");
+
+        }
+
+    } catch (error) {
+        console.error("ERROR:", error);
+        alert("Error al guardar usuario");
+    }
 }
 
 
 
+async function actualizarUsuario() {
 
-function actualizarUsuario(){
-   
-    let datos= new URLSearchParams();
-    let id_usuario=document.getElementById('id_persona').value;
-   
-    datos.append('id_persona',id_usuario);
-    datos.append('identificacion',document.getElementById('identificacion').value);
-    datos.append('nombres',document.getElementById('nombres').value);
-    datos.append('direccion',document.getElementById('direccion').value);
-    datos.append('telefono',document.getElementById('telefono').value);
-    datos.append('calificacion',document.getElementById('calificacion').value);
-    datos.append('observacion',document.getElementById('observacion').value);
+    let datos = {
+        id_persona: document.getElementById('id_persona').value,
+        identificacion: document.getElementById('identificacion').value,
+        nombres: document.getElementById('nombres').value,
+        direccion: document.getElementById('direccion').value,
+        telefono: document.getElementById('telefono').value,
+        calificacion: document.getElementById('calificacion').value,
+        observacion: document.getElementById('observacion').value
+    };
 
-    fetch(`./actualizarUsuario.php?id_usuario=${id_usuario}`, {
-        method: 'POST',
-        body:datos,
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(text => {
-        console.log(text);
-        alert(text);
-       limpiarFormulario();
-      listarUsuario();
-      modalCliente.hide();
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al guardar: ' + err);
-    });
+    try {
+
+        const response = await peticionCRUD(
+            BASE_URL + `view/usuario/actualizarUsuario.php?id_usuario=${datos.id_persona}`,
+            'POST',
+            datos
+        );
+
+        console.log("RESPUESTA BACKEND:", response);
+
+        if (response?.status === "success") {
+
+            alert(response.message);
+
+            limpiarFormulario();
+            listarUsuario();
+            modalCliente.hide();
+
+        } 
+        else if (response?.status === "error") {
+
+            alert(response.message);
+
+        } 
+        else {
+
+            alert("Respuesta inesperada del servidor");
+
+        }
+
+    } catch (error) {
+        console.error("ERROR:", error);
+        alert("Error al actualizar usuario");
+    }
 }
 
 
@@ -112,20 +132,11 @@ function actualizarUsuario(){
 let dataTableInstance = null;
 
 function listarUsuario(){
-    fetch("./listarUsuario.php", {
-        method: 'GET',
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.json();
-    })
-    .then(data => {
-        const tabla = document.getElementById("tabla-usuarios");
+
+    peticionConsulta(BASE_URL +"view/usuario/listarUsuario.php", 'GET')
+        .then(data => {
+         
+             const tabla = document.getElementById("tabla-usuarios");
         if (!tabla) return;
         
         // Destruir DataTable anterior si existe (ANTES de modificar el DOM)
@@ -155,11 +166,13 @@ function listarUsuario(){
                 <td>${usuario.observacion || '-'}</td>
                 <td>
                 <button class="btn btn-sm btn-primary" onclick="buscarUsuario(${usuario.id_persona})">Actualizar</button>
-                   <button class="btn btn-sm btn-danger" onclick="desactivarUsuario(${usuario.id_persona})">Desactivar</button>
+                
                 </td>
             `;
-        });
+
+            //   <button class="btn btn-sm btn-danger" onclick="desactivarUsuario(${usuario.id_persona})">Desactivar</button>
         
+        });
         // Inicializar DataTable DESPUÉS de llenar los datos
         dataTableInstance = $('#tabla-usuarios').DataTable({
             pageLength: 10,
@@ -167,30 +180,18 @@ function listarUsuario(){
             ordering: true,
             paging: true
         });
-         
-    })
-    .catch(err => {
-        console.error(err);
-       alert('Error al listar: ' + err);
-    });
+        
+        });
+
 }
 
 
 
 function buscarUsuario(id_usuario){
-    fetch(`./buscarUsuario.php?id_usuario=${id_usuario}`, {
-        method: 'GET',
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.json();
-    })
-    .then(data => {
+
+peticionConsulta(BASE_URL + `view/usuario/buscarUsuario.php?id_usuario=${id_usuario}`, 'GET')
+     .then(data => {
+        
         if(data.length>0){
             document.getElementById('identificacion').value = data[0].identificacion;
             document.getElementById('nombres').value = data[0].nombres;
@@ -200,37 +201,49 @@ function buscarUsuario(id_usuario){
             document.getElementById('observacion').value = data[0].observacion;           
             document.getElementById('id_persona').value = data[0].id_persona;
             modalUsuario();
-        } else {
-            alert('Usuario no encontrado');
         }
-    })
-    .catch(err => alert('Error: ' + err));
+           
+        });
+
+    
 }
 
 
 
-function desactivarUsuario(id_usuario){
-    if(confirm('¿Deseas desactivar este registro?')){
+async function desactivarUsuario(id_usuario) {
 
-      
-        fetch(`./eliminarUsuario.php?id_usuario=${id_usuario}`, {
-            method: 'DELETE'
-         
-        })
-         .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-        .then(text => {
-            alert(text);
-            //listar();
-        })
-        .catch(err => alert('Error: ' + err));
+    if (!confirm('¿Deseas desactivar este registro?')) return;
+
+    try {
+
+        const response = await peticionCRUD(
+            BASE_URL + `view/usuario/eliminarUsuario.php?id_usuario=${id_usuario}`,
+            'DELETE'
+        );
+
+        console.log("RESPUESTA BACKEND:", response);
+
+        if (response?.status === "success") {
+
+            alert(response.message);
+
+            listarUsuario(); // 🔥 refrescar tabla
+
+        } 
+        else if (response?.status === "error") {
+
+            alert(response.message);
+
+        } 
+        else {
+
+            alert("Respuesta inesperada del servidor");
+
+        }
+
+    } catch (error) {
+        console.error("ERROR:", error);
+        alert("Error al desactivar usuario");
     }
 }
 

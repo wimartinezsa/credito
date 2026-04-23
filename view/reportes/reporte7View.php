@@ -1,8 +1,10 @@
 
 <?php  
+ini_set('session.cookie_path', '/');
+
 session_start();
 if(!isset($_SESSION['token'])){
-    header("Location: http://localhost/creditos/index.php");
+    header("Location:" . BASE_URL . "creditos/index.php");
     exit;
 } 
 require_once ("../head/head.php");

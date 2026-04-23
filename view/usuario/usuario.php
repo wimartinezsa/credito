@@ -1,11 +1,7 @@
 
 
 <?php  
-session_start();
-if(!isset($_SESSION['token'])){
-    header("Location: http://localhost/creditos/index.php");
-    exit;
-} 
+require_once '../../config.php'; 
 require_once ("../head/head.php");
 ?>
 
@@ -116,7 +112,13 @@ require_once ("../head/head.php");
 require_once ("../head/footer.php");
 ?>
 
- <script src="../usuario/usuario.js"></script>
+<script>
+    const BASE_URL = "<?= BASE_URL?>";
+</script>
+
+<script src="<?= BASE_URL ?>view/js/peticiones.js"></script>
+
+ <script src="<?= BASE_URL ?>view/usuario/usuario.js"></script>
  <script>
 
   // Cargar lista cuando el documento esté listo

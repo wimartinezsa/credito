@@ -11,8 +11,8 @@ class prestamoController{
    public function registrarPrestamo($sociedad,$ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo, $fiador,$estado){
         return $this->model->registrarPrestamo($sociedad,   $ficha,$cliente, $fecha, $tiempo, $valor,$interes,$tipo, $fiador,$estado);
     }
-    public function listaPrestamoEncargado(){
-        return $this->model->listaPrestamoEncargado();
+    public function listaPrestamoEncargado($usuario){
+        return $this->model->listaPrestamoEncargado($usuario);
     }
 
     public function buscarPrestamo($id_prestamo){

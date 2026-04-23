@@ -29,102 +29,139 @@ function formatearPesos(valor) {
 let dataTableInstance = null;
 
 function listaGastosSociedad(id_sociedad){
-    fetch(`./listarGastoSociedad.php?id_sociedad=${id_sociedad}`, {
-        method: 'GET',
-    })
-    .then(response => response.json())
-    .then(data => {
+
+    peticionConsulta(
+        BASE_URL + `view/gastos/listarGastoSociedad.php?id_sociedad=${id_sociedad}`,
+        "GET"
+    )
+    .then(response => {
+
+        console.log("RESPUESTA BACKEND:", response);
+
+        // 🔴 Validar respuesta
+        if (!response) {
+            alert("Sin respuesta del servidor");
+            return;
+        }
+
+        if (response.status && response.status !== "success") {
+            alert(response.message || "Error al cargar gastos");
+            return;
+        }
+
+        // 🔥 Soporta backend con o sin estándar
+        const data = response.data || response;
+
+        if (!Array.isArray(data)) {
+            console.warn("No es arreglo:", data);
+            return;
+        }
+
         const tabla = document.getElementById("tabla-gastos");
         if (!tabla) return;
-        
-        // Destruir DataTable anterior si existe (ANTES de modificar el DOM)
-        if (dataTableInstance) {
+
+        // 🔴 Destruir DataTable
+        if (typeof dataTableInstance !== "undefined" && dataTableInstance) {
             dataTableInstance.destroy();
             dataTableInstance = null;
         }
-        
-        // Limpiar solo el tbody, no toda la tabla
+
         let tbody = tabla.querySelector('tbody');
         if (!tbody) {
             tbody = document.createElement('tbody');
             tabla.appendChild(tbody);
         }
+
         tbody.innerHTML = "";
-        
-        // Llenar filas con datos
+
+        // 🔥 Llenar tabla
         data.forEach(gasto => {
             const row = tbody.insertRow();
+
             row.innerHTML = `
                 <td>${gasto.id_gasto}</td>
                 <td>${gasto.sociedad}</td>
                 <td>${gasto.fecha}</td>
                 <td>${gasto.detalle}</td>
                 <td>${formatearPesos(gasto.valor)}</td>
-               <td>${gasto.estado}</td>
-             
-                <td>${gasto.estado==="ejecutado"?`<button class="btn btn-danger" onclick="anularGasto(${gasto.id_gasto})">Anular</button>`:'Anulado'}
-                
-              
+                <td>${gasto.estado}</td>
+                <td>
+                    ${
+                        gasto.estado === "ejecutado"
+                        ? `<button class="btn btn-danger" onclick="anularGasto(${gasto.id_gasto})">Anular</button>`
+                        : 'Anulado'
+                    }
                 </td>
             `;
         });
-        
-        // Inicializar DataTable DESPUÉS de llenar los datos
-        dataTableInstance = $('#tabla-gastos').DataTable({
-            pageLength: 10,
-            searching: true,
-            ordering: true,
-            paging: true
-        });
-         
+
     })
-    .catch(err => {
-        console.error(err);
-       alert('Error al listar: ' + err);
+    .catch(error => {
+        console.error("ERROR REAL:", error);
+        alert("Error al cargar gastos");
     });
 }
 
+
+
+
 function anularGasto(id) {
-  
 
+    if (!confirm("¿Estás seguro de anular este gasto?")) return;
 
-    if (confirm("¿Estás seguro de anular este gasto?")) {
-        fetch(`./anularGasto.php?id=${id}`, {
-            method: 'DELETE',
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Gasto anulado exitosamente');
+    peticionCRUD(
+        BASE_URL + `view/gastos/anularGasto.php?id=${id}`,
+        "DELETE",
+        null
+    )
+    .then(response => {
 
-                listaGastosSociedad(document.getElementById('sociedad').value); // Refrescar la lista después de eliminar
-            } else {
-                alert('Error al anular: ' + data.message);
-            }   
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Error al anular: ' + err);
-        });
-    }
+        console.log("RESPUESTA BACKEND:", response);
 
+        if (!response) {
+            alert("Sin respuesta del servidor");
+            return;
+        }
 
+        // 🔥 SOPORTA AMBOS FORMATOS
+        const ok = response.status === "success" || response.success;
+
+        if (ok) {
+
+            alert(response.message || response.success);
+
+            listaGastosSociedad(
+                document.getElementById('sociedad').value
+            );
+
+        } else {
+            alert(response.message || "Error al anular gasto");
+        }
+
+    })
+    .catch(error => {
+        console.error("ERROR REAL:", error);
+        alert("Error al anular gasto");
+    });
 }
 
-
 function listarSociedadesEncargados(){
-    fetch(`../sociedad/listarSociedadesEncargados.php`, {
-        method: 'GET',
-    })
-    .then(response => response.json())
-    .then(data => {
-       
-        const select = document.getElementById("sociedad");
 
-        // 🔹 Limpiar el select antes de llenarlo
+    peticionConsulta(BASE_URL + `view/sociedad/listarSociedadesEncargados.php`, "GET")
+    .then(response => {
+
+        if (response?.status !== "success") {
+            alert(response?.message || "Error al cargar sociedades");
+            return;
+        }
+
+        const data = response.data;
+
+        const select = document.getElementById("sociedad");
+        if (!select) return;
+
         select.innerHTML = "";
 
-        // 🔹 (Opcional) Agregar opción por defecto
         const optionDefault = document.createElement("option");
         optionDefault.value = "";
         optionDefault.textContent = "Seleccione una sociedad";
@@ -136,40 +173,59 @@ function listarSociedadesEncargados(){
             option.textContent = sociedad.sociedad;
             select.appendChild(option);
         });
+
+    })
+    .catch(error => {
+        console.error(error);
+        alert("Error al cargar sociedades");
     });
 }
 
 
-function registrarGasto(){
-    const sociedad = document.getElementById("sociedad").value;
-    const fecha = document.getElementById("fecha").value;
-    const detalle = document.getElementById("detalle").value;
-    const valor = document.getElementById("valor").value;
-    
-    fetch(`./registrarGasto.php`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `sociedad=${encodeURIComponent(sociedad)}&fecha=${encodeURIComponent(fecha)}&detalle=${encodeURIComponent(detalle)}&valor=${encodeURIComponent(valor)}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Gasto registrado exitosamente');
-            modalGasto.hide(); // Cerrar el modal después de registrar
-           // document.getElementById("modalGasto").classList.remove("show");
-            listaGastosSociedad(document.getElementById('sociedad').value); // Refrescar la lista después de registrar
-        } else {
-            alert('Error al registrar el gasto: ' + data.message);
+
+async function registrarGasto(){
+
+    let datos = {
+        sociedad: document.getElementById("sociedad").value,
+        fecha: document.getElementById("fecha").value,
+        detalle: document.getElementById("detalle").value,
+        valor: document.getElementById("valor").value
+    };
+
+    try {
+
+        const response = await peticionCRUD(
+            BASE_URL + `view/gastos/registrarGasto.php`,
+            "POST",
+            datos
+        );
+
+        console.log("RESPUESTA BACKEND:", response);
+
+        if (!response) {
+            alert("Sin respuesta del servidor");
+            return;
         }
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Error al registrar el gasto: ' + err);
-    });
-}
 
+        if (response.status === "success") {
+
+            alert(response.message);
+
+            modalGasto.hide();
+
+            listaGastosSociedad(
+                document.getElementById('sociedad').value
+            );
+
+        } else {
+            alert(response.message || "Error al registrar el gasto");
+        }
+
+    } catch (error) {
+        console.error("ERROR REAL:", error);
+        alert("Error al registrar el gasto");
+    }
+}
 
 
 window.anularGasto = anularGasto;

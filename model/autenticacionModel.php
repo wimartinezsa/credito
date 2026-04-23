@@ -9,11 +9,7 @@ class autenticacionModel{
         $this->PDO = $con->conexion();
         }
        
-
-       
-  
-
-        
+ 
 
 
 public function login($identificacion, $password){
