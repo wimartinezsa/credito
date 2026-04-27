@@ -64,6 +64,7 @@ require_once ("../head/footer.php");
 </script>
 
 <script src="<?= BASE_URL ?>view/js/peticiones.js"></script>
+
  <script src="<?= BASE_URL ?>view/reportes/reporte.js"></script>
 
 

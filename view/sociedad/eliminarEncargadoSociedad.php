@@ -6,28 +6,39 @@
     require_once("../../controller/autenticacionController.php");
     $controller_autenticacion = new autenticacionController();
     $controller = new sociedadController();
+    header("Content-Type: application/json");
+    $headers = getallheaders();
 
+    // 🔴 NORMALIZAR (MUY IMPORTANTE)
+    $headers = array_change_key_case($headers, CASE_LOWER);
 
-    ini_set('session.cookie_path', '/');
+    $authHeader = $headers['authorization'] ?? null;
 
-    session_start();
-    if(isset($_SESSION["token"])){
-            $usuario = $controller_autenticacion->validarToken($_SESSION['token']);
-            if (!json_encode($usuario) && !strlen(json_encode($usuario)) > 0) {
-        // echo json_encode($usuario );
+    // 🔴 VALIDAR TOKEN
+    if (!$authHeader) {
         http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => 'Token inválido o expirado']);
+        echo json_encode([
+            "status" => "error",
+            "message" => "Token no enviado"
+        ]);
         exit;
     }
-    } else {
+
+    // 🔹 Extraer token
+    $token = str_replace('Bearer ', '', $authHeader);
+
+    // 🔹 Validar token
+    $usuario = $controller_autenticacion->validarToken($token);
+
+    if (!$usuario) {
         http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => 'Token no proporcionado']);
+        echo json_encode([
+            "status" => "error",
+            "message" => "Token inválido o expirado"
+        ]);
         exit;
     }
-   
-
-
-
+    
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {

@@ -50,104 +50,137 @@ function formatearPesos(valor) {
 
 
 
-function listarPerosnasEncargados(){
-          fetch(BASE_URL + `view/sociedad/listarPerosnasEncargados.php`, {
+function listarPerosnasEncargados() {
+
+
+    fetch(BASE_URL + "view/sociedad/listarPerosnasEncargados.php", {
         method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('token') // si estás usando token
+        }
     })
-    
-  .then(response =>{
-        if(response.status === 401)
-        {
+    .then(response => {
+
+        if (response.status === 401) {
             alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
             window.location.href = '../../index.php';
             return null;
-         }
+        }
+
+        if (!response.ok) {
+            throw new Error('Error en la petición');
+        }
+
         return response.json();
     })
     .then(data => {
+
+        if (!data) return; // 🔹 evita errores si hubo 401
+
         const select = document.getElementById("encargado");
-        select.innerHTML = "";
-        const option = document.createElement("option");    
-            option.value = ""
-            option.textContent = "Seleccione un Socio";
-            select.appendChild(option);
+        select.innerHTML = '<option value="">Seleccione un Socio</option>';
+
         data.forEach(persona => {
-            const option = document.createElement("option");    
+            const option = document.createElement("option");
             option.value = persona.id_persona;
             option.textContent = persona.nombres;
             select.appendChild(option);
         });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ocurrió un error al cargar los encargados');
     });
-
 }
 
+function asignarEncargadoSociedad() {
 
-function asignarEncargadoSociedad(){
-  
-    let datos= new URLSearchParams();
-    datos.append('id_sociedad',document.getElementById('id_sociedad_encargado').value);
-    datos.append('encargado',document.getElementById('encargado').value);
-    datos.append('password',document.getElementById('password').value);
-    datos.append('rol',"Socio");
+    const datos = {
+        id_sociedad: document.getElementById('id_sociedad_encargado').value,
+        encargado: document.getElementById('encargado').value,
+        password: document.getElementById('password').value,
+        rol: "Socio"
+    };
 
-    fetch(BASE_URL + `view/sociedad/asignarEncargadoSociedad.php`, {
-        method: 'POST',
-        body:datos,
-    })
-    .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.json();
-    })
-    .then(text => {
-       
+    peticionCRUD(BASE_URL + "view/sociedad/asignarEncargadoSociedad.php", 'POST', datos)
+    .then(response => {
+
+        if (!response) return; // 🔹 por si tu helper ya manejó 401
+
         listarTodasSociedades();
-      listarTodasSociedades();
-         modalEncargado.hide();
-            alert(text);
-       
+        modalEncargado.hide();
+
+        // 🔹 si backend devuelve { success, message }
+        if (response.success) {
+            alert(response.message || 'Encargado asignado correctamente');
+        } else {
+            alert(response.message || 'No se pudo asignar el encargado');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ocurrió un error al asignar el encargado');
     });
-
-
 }
 
 
-function listarEncargadosSociedadesId(){
-   let id_sociedad_encargado=document.getElementById('id_sociedad_encargado').value;
+function listarEncargadosSociedadesId() {
+
+    const id_sociedad_encargado = document.getElementById('id_sociedad_encargado').value;
+
+    if (!id_sociedad_encargado) {
+        alert('Seleccione una sociedad');
+        return;
+    }
+
     fetch(BASE_URL + `view/sociedad/listarEncargadosSociedadesId.php?id_sociedad=${id_sociedad_encargado}`, {
         method: 'GET',
-        
+        headers: {
+            'Authorization': localStorage.getItem('token')
+        }
     })
-     .then(response =>{
-        if(response.status === 401)
-        {
+    .then(response => {
+
+        if (response.status === 401) {
             alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
             window.location.href = '../../index.php';
             return null;
-         }
+        }
+
+        if (!response.ok) {
+            throw new Error('Error en la petición');
+        }
+
         return response.json();
     })
     .then(data => {
+
+        if (!data) return; // 🔹 evita error si hubo 401
+
         const tableBody = document.querySelector("#tabla_encargados tbody");
-        tableBody.innerHTML = ""; // Limpiar tabla antes de llenarla
-        data.forEach((sociedad, index) => {
+        tableBody.innerHTML = "";
+
+        data.forEach((sociedad) => {
             const row = document.createElement("tr");
+
             row.innerHTML = `
                 <td>${sociedad.id_administrador}</td>
                 <td>${sociedad.nombres}</td>
                 <td>${sociedad.rol}</td>
-               
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="eliminarEncargadoSociedad(${sociedad.id_administrador})">Eliminar</button>
-                  
+                    <button class="btn btn-warning btn-sm" onclick="eliminarEncargadoSociedad(${sociedad.id_administrador})">
+                        Eliminar
+                    </button>
                 </td>
             `;
+
             tableBody.appendChild(row);
         });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ocurrió un error al listar los encargados');
     });
 }
 
@@ -156,19 +189,7 @@ function listarEncargadosSociedadesId(){
 
 function listarTodasSociedades(){
    
-    fetch(BASE_URL + `view/sociedad/listarTodasSociedades.php`, {
-        method: 'GET',
-        
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.json();
-    })
+ peticionConsulta(BASE_URL + `view/sociedad/listarTodasSociedades.php`, 'GET', null)
     .then(data => {
         const tableBody = document.querySelector("#tabla-sociedades tbody");
         tableBody.innerHTML = ""; // Limpiar tabla antes de llenarla
@@ -190,6 +211,10 @@ function listarTodasSociedades(){
     });
 }
 
+
+
+
+ 
 
 
 
@@ -236,28 +261,12 @@ function buscarSociedad(id){
 
 function eliminarEncargadoSociedad(id_admin){
 
+peticionCRUD(BASE_URL + `view/sociedad/eliminarEncargadoSociedad.php?id_admin=${id_admin}`, 'GET', null)
+     .then(data => {
 
-    fetch(BASE_URL + `view/sociedad/eliminarEncargadoSociedad.php?id_admin=${id_admin}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(text => {
-    
-            listarEncargadosSociedadesId();
+           listarEncargadosSociedadesId();
            alert(text);
-        
-    });
+        });
 
 }
 
@@ -267,30 +276,19 @@ function registrarSociedad(){
 
     const nombre = document.getElementById('sociedad').value;
     const valor = document.getElementById('valor').value;
-    fetch(BASE_URL + `view/sociedad/registrarSociedad.php`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `sociedad=${encodeURIComponent(nombre)}&valor=${encodeURIComponent(valor)}`
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.text();
-    })
-    .then(resp => {
-      
-            
-            modalSociedad.hide();
+    const datos = {
+        sociedad: nombre,
+        valor: valor
+    };
+    peticionCRUD(BASE_URL + `view/sociedad/registrarSociedad.php`, 'POST', datos)
+     .then(response => {
+           modalSociedad.hide();
             listarTodasSociedades(); // Actualizar la lista de sociedades
-            alert(resp);
-        
-    });
+            alert(response.message);
+     });
+
+
+
 
 }
 
@@ -299,24 +297,15 @@ function adicionarSociedad(){
     const id = document.getElementById('id_sociedad').value;
     const nombre = document.getElementById('sociedad').value;
     const valor = document.getElementById('valor').value;
-    fetch(BASE_URL + `view/sociedad/adicionarSociedad.php`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `id_sociedad=${encodeURIComponent(id)}&sociedad=${encodeURIComponent(nombre)}&valor=${encodeURIComponent(valor)}`
-    })
-     .then(response =>{
-        if(response.status === 401)
-        {
-            alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
-            window.location.href = '../../index.php';
-            return null;
-         }
-        return response.json();
-    })
-    .then(data => {
-        console.log(data);
+
+    const datos = {
+        id_sociedad: id,
+        sociedad: nombre,
+        valor: valor
+    };
+    peticionCRUD(BASE_URL + `view/sociedad/adicionarSociedad.php`, 'POST', datos)
+     .then(data => {
+          
         if (data.success) {
             alert("Sociedad actualizada exitosamente.");
             modalSociedad.hide();
@@ -324,7 +313,9 @@ function adicionarSociedad(){
         } else {
             alert("Error al actualizar la sociedad: " + data.message);
         }
-    });
+     });
+
+
 }
 
 

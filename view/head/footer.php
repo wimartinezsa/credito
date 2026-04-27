@@ -29,11 +29,31 @@
 
 document.addEventListener("DOMContentLoaded", function () {
     const nombre = localStorage.getItem("usuario");
+    let usuarioTexto = "Invitado";
+    let rol = null;
 
     if (nombre) {
-        document.getElementById("nombreUsuario").textContent = "👤 " + nombre;
-    } else {
-        document.getElementById("nombreUsuario").textContent = "Invitado";
+        try {
+            usuarioTexto = "👤 " + JSON.parse(nombre);
+        } catch (e) {
+            usuarioTexto = "👤 " + nombre;
+        }
+    }
+
+    const rolRaw = localStorage.getItem("rol");
+    if (rolRaw) {
+        try {
+            rol = JSON.parse(rolRaw);
+        } catch (e) {
+            rol = rolRaw;
+        }
+    }
+
+    document.getElementById("nombreUsuario").textContent = usuarioTexto;
+
+    const sociedadNav = document.getElementById("sociedadNavItem");
+    if (sociedadNav) {
+        sociedadNav.style.display = rol === 'Admin' ? 'block' : 'none';
     }
 });
 

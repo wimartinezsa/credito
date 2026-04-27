@@ -1,7 +1,7 @@
 <?php
-ini_set('session.cookie_path', '/');
 
-session_start();
+
+
 
 require_once("../../controller/usuarioController.php");
 require_once("../../controller/autenticacionController.php");

@@ -66,7 +66,7 @@ public function listarSociedadesEncargados($usuario){
 
 public function listarPerosnasEncargados(){
       try {
-            $stament = $this->PDO->prepare("SELECT * FROM personas ");
+            $stament = $this->PDO->prepare("SELECT id_persona,identificacion,nombres FROM personas ");
             $stament->execute();
             return $stament->fetchAll(PDO::FETCH_ASSOC);
             } 
@@ -149,7 +149,10 @@ public function asignarEncargadoSociedad($id_sociedad, $encargado, $rol, $passwo
 
         $this->PDO->commit();
 
-        return "Encargado asignado correctamente";
+        return [
+            'success' => true,
+            'message' => 'Encargado asignado con éxito'
+        ];
 
     } catch (Exception $e) {
 
@@ -259,7 +262,9 @@ public function adicionarSociedad($id_sociedad,$nombre, $valor){
 
     } catch (Exception $e) {
 
-        $this->PDO->rollBack();
+        if ($this->PDO->inTransaction()) {
+            $this->PDO->rollBack();
+        }
         return $e->getMessage();
     }
 }

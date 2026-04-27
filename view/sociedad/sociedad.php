@@ -151,5 +151,10 @@ require_once ("../head/footer.php");
     const BASE_URL = "<?= BASE_URL?>";
 </script>
 
+
+<script src="<?= BASE_URL ?>view/js/peticiones.js"></script>
+
+
+
 <script src="<?= BASE_URL ?>view/sociedad/sociedad.js"></script>
 

@@ -19,7 +19,7 @@ class autenticacionController{
              $token = bin2hex(random_bytes(32));
             $this->model->guardarToken($user['id_persona'], $token );
             // return as array; let caller encode to JSON
-            return array('token' => $token, 'usuario' => $user['nombres']);
+            return array('token' => $token, 'usuario' => $user['nombres'],'rol' => $user['rol']);
         } else {
             // Si la autenticación falla, puedes devolver un mensaje de error o redirigir al usuario a una página de inicio de sesión.
             return false;

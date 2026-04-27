@@ -43,11 +43,7 @@ if (!$usuario) {
 // =========================
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-    $resultado = $controller->listarPerosnasEncargados();
+    $resultado = $controller->listarPerosnasEncargados($usuario);
 
-    echo json_encode([
-        "status" => "success",
-        "message" => "Sociedades cargadas correctamente",
-        "data" => $resultado
-    ]);
+    echo json_encode($resultado);
 }

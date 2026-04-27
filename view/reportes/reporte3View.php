@@ -1,15 +1,8 @@
 
 <?php   
-ini_set('session.cookie_path', '/');
-
-session_start();
-if(!isset($_SESSION['token'])){
-    header("Location:". BASE_URL . "creditos/index.php");
-    exit;
-}
+require_once '../../config.php'; 
 require_once ("../head/head.php");
 ?>
-
 
 
 <div class="container-fluid"> 
@@ -79,7 +72,14 @@ require_once ("../head/head.php");
 require_once ("../head/footer.php");
 ?>
 
- <script src="../reportes/reporte.js"></script>
+
+<script>
+    const BASE_URL = "<?= BASE_URL?>";
+</script>
+
+<script src="<?= BASE_URL ?>view/js/peticiones.js"></script>
+
+ <script src="<?= BASE_URL ?>view/reportes/reporte.js"></script>
 
   <script>
   listarSociedades();

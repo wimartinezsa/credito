@@ -3,40 +3,67 @@
 <?php
 require_once("../../controller/garantiaController.php");
 require_once("../../controller/autenticacionController.php");
-$controller_garantia = new garantiaController();
 
+$controller_autenticacion = new autenticacionController();
+$controller = new garantiaController();
 
+header("Content-Type: application/json");
 
- $controller_autenticacion = new autenticacionController();
-  ini_set('session.cookie_path', '/');
-  session_start();
-    if(isset($_SESSION["token"])){
-            $usuario = $controller_autenticacion->validarToken($_SESSION['token']);
-            if (!json_encode($usuario) && !strlen(json_encode($usuario)) > 0) {
-        // echo json_encode($usuario );
-        http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => 'Token inválido o expirado']);
-        exit;
-    }
-    } else {
-        http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => 'Token no proporcionado']);
-        exit;
-    }
+// ==========================
+// VALIDAR TOKEN
+// ==========================
+$headers = function_exists('getallheaders') ? getallheaders() : [];
+$headers = array_change_key_case($headers, CASE_LOWER);
 
+$authHeader = $headers['authorization'] ?? $_SERVER['HTTP_AUTHORIZATION'] ?? null;
 
-        
-
-
-
-// Token válido, procesar solicitud
-
-
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $id_prestamo = $_GET['id_prestamo'];
-    $resultado = $controller_garantia->listarGarantiasPrestamo($id_prestamo);
-    echo json_encode($resultado);
+if (!$authHeader) {
+    http_response_code(401);
+    echo json_encode(["status" => "error", "message" => "Token no enviado"]);
+    exit;
 }
 
+$token = preg_replace('/^Bearer\s/i', '', $authHeader);
 
+$usuario = $controller_autenticacion->validarToken($token);
+
+if (!$usuario) {
+    http_response_code(401);
+    echo json_encode(["status" => "error", "message" => "Token inválido"]);
+    exit;
+}
+
+// ==========================
+// MÉTODO GET
+// ==========================
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+    $id_prestamo = $_GET['id_prestamo'] ?? null;
+
+    if (!$id_prestamo) {
+        echo json_encode([
+            "status" => "error",
+            "message" => "Falta id_prestamo"
+        ]);
+        exit;
+    }
+
+    try {
+        // 🔥 AQUÍ ESTABA EL ERROR
+        $resultado = $controller->listarGarantiasPrestamo($id_prestamo);
+
+        echo json_encode([
+            "status" => "ok",
+            "data" => $resultado
+        ]);
+
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            "status" => "error",
+            "message" => "Error interno",
+            "detalle" => $e->getMessage()
+        ]);
+    }
+}
 ?>

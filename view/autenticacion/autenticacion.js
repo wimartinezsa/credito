@@ -15,6 +15,7 @@ function login(){
         if (data && data.token) {
             localStorage.setItem("token", data.token);
             localStorage.setItem("usuario", JSON.stringify(data.usuario));
+            localStorage.setItem("rol", JSON.stringify(data.rol));
 
             alert('Login exitoso');
 

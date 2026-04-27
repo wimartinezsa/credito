@@ -24,17 +24,6 @@
 
 <?php require_once '../../config.php'; ?>
 
-<?php
- if (session_status() === PHP_SESSION_NONE) {
-    ini_set('session.cookie_path', '/');
-ini_set('session.cookie_domain', 'confianzacontratualsas.com');
-     session_start();
- }
- $role = isset($_SESSION['usuario']['rol']) ? $_SESSION['usuario']['rol'] : null;
-
-?>
-
-
 <div class="container-fluid">
     <nav class="navbar navbar-expand-lg  navbar-dark bg-dark">
             <div class="container-fluid">
@@ -59,11 +48,9 @@ ini_set('session.cookie_domain', 'confianzacontratualsas.com');
                     </li>
 
  
-                       <?php if ($role == 'Admin'): ?>
-                            <li class="nav-item">
+                             <li id="sociedadNavItem" class="nav-item" style="display:none;">
                                 <a class="nav-link" href="<?= BASE_URL ?>view/sociedad/sociedad.php">Sociedad</a>
                             </li>
-                    <?php endif; ?>
 
                    <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -90,3 +77,40 @@ ini_set('session.cookie_domain', 'confianzacontratualsas.com');
     </nav>
 
 </div>
+<script>
+function cerrarSesion() {
+    // Eliminar el token del almacenamiento local
+    localStorage.removeItem('token');
+    // Redirigir al usuario a la página de inicio de sesión
+    window.location.href = '<?= BASE_URL ?>view/login/login.php';
+}
+// Función para mostrar el nombre del usuario en la barra de navegación
+/*
+function mostrarNombreUsuario() {
+    const token = localStorage.getItem('token');
+    if (token) {
+        // Decodificar el token para obtener la información del usuario
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const nombreUsuario = payload.nombre; // Asegúrate de que el token tenga un campo 'nombre'
+        document.getElementById('nombreUsuario').textContent = nombreUsuario;
+    }
+}
+*/
+// Llamar a la función para mostrar el nombre del usuario al cargar la página
+//mostrarNombreUsuario();
+
+// Función para mostrar u ocultar el enlace de Sociedad según el rol del usuario
+function mostrarEnlaceSociedad() {
+    const rol = localStorage.getItem('rol');
+    if (rol === 'admin') { // Cambia 'admin' por el rol que corresponda
+        document.getElementById('sociedadNavItem').style.display = 'block';
+        } else {
+            document.getElementById('sociedadNavItem').style.display = 'none';
+        }
+    }
+
+// Llamar a la función para mostrar u ocultar el enlace de Sociedad al cargar la página
+mostrarEnlaceSociedad();
+
+
+</script>

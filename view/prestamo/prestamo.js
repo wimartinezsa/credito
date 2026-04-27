@@ -624,31 +624,37 @@ async function devolucionCuota(id_cuota, valor_cuota) {
 
 async function listarSociedadesEncargados() {
 
-    const token = localStorage.getItem("token");
-
     const data = await peticionConsulta(
         BASE_URL + `view/sociedad/listarSociedadesEncargados.php`,
-        "GET",
-        null
+        "GET"
     );
 
     console.log("DATA:", data);
 
-    if (!data || !Array.isArray(data)) {
-        console.error("La respuesta no es un arreglo:", data);
+    // 🔥 Validar estructura del backend
+    if (!data || data.status !== "success" || !Array.isArray(data.data)) {
+        console.error("Respuesta inválida:", data);
+        alert(data?.message || "Error al cargar sociedades");
         return;
     }
 
     const select = document.getElementById("lista_sociedades");
+
+    if (!select) {
+        console.error("No existe el select");
+        return;
+    }
+
     select.innerHTML = "";
 
-    const option = document.createElement("option");    
-    option.disabled = true;
-    option.selected = true;
-    option.textContent = "Seleccione una Sociedad";
-    select.appendChild(option);
+    const optionDefault = document.createElement("option");    
+    optionDefault.disabled = true;
+    optionDefault.selected = true;
+    optionDefault.textContent = "Seleccione una Sociedad";
+    select.appendChild(optionDefault);
 
-    data.forEach(sociedad => {
+    // ✅ USAR data.data
+    data.data.forEach(sociedad => {
         const option = document.createElement("option");    
         option.value = sociedad.id_sociedad;
         option.textContent = sociedad.sociedad;
@@ -674,7 +680,7 @@ async function listarSociedades(){
         const select = document.getElementById("sociedad");
         select.innerHTML = "";
 
-        data.forEach(sociedad => {
+        data.data.forEach(sociedad => {
             const option = document.createElement("option");    
             option.value = sociedad.id_sociedad;
             option.textContent = sociedad.sociedad;
@@ -821,65 +827,240 @@ window.subirGarantia = function(){
 
 };
 
-function listarTipoGarantia(){
+async function listarTipoGarantia() {
 
-    peticionConsulta(BASE_URL + `view/garantia/listarTipoGarantia.php`,"GET")
-    .then(data => {
-         const select = document.getElementById("tipo_garantia");
+    try {
+        // ==========================
+        // PETICIÓN
+        // ==========================
+        const response = await fetch(
+            `${BASE_URL}view/garantia/listarTipoGarantia.php`,
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
+                }
+            }
+        );
+
+        // ==========================
+        // MANEJO HTTP
+        // ==========================
+        if (response.status === 401) {
+            alert("Sesión expirada");
+            window.location.href = "../../index.php";
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // ==========================
+        // VALIDAR RESPUESTA
+        // ==========================
+        if (!data || data.status === "error") {
+            alert(data?.message || "Error al listar tipos de garantía");
+            return;
+        }
+
+        const lista = Array.isArray(data) ? data : data.data;
+
+        if (!Array.isArray(lista)) {
+            throw new Error("Formato de respuesta inválido");
+        }
+
+        const select = document.getElementById("tipo_garantia");
+
+        if (!select) {
+            console.warn("Select tipo_garantia no existe");
+            return;
+        }
+
+        // ==========================
+        // LIMPIAR SELECT
+        // ==========================
         select.innerHTML = "";
-        const option = document.createElement("option");    
-            option.value = ""
-            option.textContent = "Seleccione un tipo de garantía";
-            select.appendChild(option);
-        data.forEach(tipo => {
-            const option = document.createElement("option");    
+
+        const optionDefault = document.createElement("option");
+        optionDefault.value = "";
+        optionDefault.textContent = "Seleccione un tipo de garantía";
+        select.appendChild(optionDefault);
+
+        // ==========================
+        // RENDER
+        // ==========================
+        lista.forEach(tipo => {
+            const option = document.createElement("option");
             option.value = tipo.id_tipo_garantia;
             option.textContent = tipo.nombre_tipo;
             select.appendChild(option);
         });
-  
-    });
 
- 
+    } catch (error) {
+        console.error("Error en listarTipoGarantia:", error);
+        alert("Error al cargar tipos de garantía");
+    }
 }
 
-function listarGarantiasPrestamo(id_prestamo){
+// ==========================
+// Listar garantías por préstamo
+// ==========================
+// ==========================
+// Listar garantías por préstamo
+// ==========================
+async function listarGarantiasPrestamo(id_prestamo) {
 
-peticionConsulta(BASE_URL + `view/garantia/listarGarantiasPrestamo.php?id_prestamo=${id_prestamo}`,"GET")
-    .then(response =>{
+    try {
+        // ==========================
+        // VALIDACIÓN
+        // ==========================
+        if (!id_prestamo) {
+            alert("ID de préstamo requerido");
+            return;
+        }
 
+        const params = new URLSearchParams({ id_prestamo });
+
+        // ==========================
+        // PETICIÓN
+        // ==========================
+        const response = await fetch(
+            `${BASE_URL}view/garantia/listarGarantiasPrestamo.php?${params.toString()}`,
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+        // ==========================
+        // MANEJO HTTP
+        // ==========================
+        if (response.status === 401) {
+            alert("Sesión expirada");
+            window.location.href = "../../index.php";
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        // ⚠️ Validar que realmente venga JSON
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("La respuesta no es JSON (posible error PHP o ruta incorrecta)");
+        }
+
+        const data = await response.json();
+
+        // ==========================
+        // VALIDAR RESPUESTA API
+        // ==========================
+        if (!data || data.status === "error") {
+            alert(data?.message || "Error al obtener garantías");
+            return;
+        }
+
+        const lista = Array.isArray(data) ? data : data.data;
+
+        if (!Array.isArray(lista)) {
+            throw new Error("Formato de respuesta inválido");
+        }
+
+        // ==========================
+        // VALIDAR DOM
+        // ==========================
         const tabla = document.getElementById("tabla-garantias");
-        let tbody = tabla.querySelector('tbody');
+
+        if (!tabla) {
+            console.warn("Tabla #tabla-garantias no encontrada");
+            return;
+        }
+
+        let tbody = tabla.querySelector("tbody");
+
         if (!tbody) {
-            tbody = document.createElement('tbody');
+            tbody = document.createElement("tbody");
             tabla.appendChild(tbody);
         }
+
         tbody.innerHTML = "";
-        data.forEach(garantia => {
+
+        // ==========================
+        // RENDER
+        // ==========================
+        lista.forEach(garantia => {
+
+            const id = garantia.id_garantia ?? '';
+            const nombre = garantia.nombre_tipo ?? '';
+            const ruta = garantia.ruta ?? '#';
+
             const row = tbody.insertRow();
+
             row.innerHTML = `
-                <td>${garantia.id_garantia}</td>
-                <td>${garantia.nombre_tipo}</td>
+                <td>${id}</td>
+                <td>${nombre}</td>
                 <td>
-                <a href="${garantia.ruta}" class="btn btn-primary" target="_blank">Ver</a>
-                <a onclick="eliminarGarantia(${garantia.id_garantia});" class="btn btn-danger">Eliminar</a>
+                    <a href="${ruta}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Ver</a>
+                    <button class="btn btn-danger" onclick="eliminarGarantia(${id})">
+                        Eliminar
+                    </button>
                 </td>
             `;
         });
-     });
 
+    } catch (error) {
+        console.error("Error en listarGarantiasPrestamo:", error);
+        alert("Error al listar garantías");
+    }
 }
 
 
-function eliminarGarantia(id_garantia){
+
+function eliminarGarantia(id_garantia) {
+
+    if (!id_garantia) {
+        alert("ID de garantía requerido");
+        return;
+    }
+
     if (!confirm('¿Eliminar esta garantía?')) return;
 
-peticionCRUD(BASE_URL + `view/garantia/eliminarGarantia.php?id_garantia=${id_garantia}`, 'GET', null)
-    .then(text => {
-        listarGarantiasPrestamo(document.getElementById("codigo_prestamo").value);
-        alert(text);
+    peticionCRUD(
+        `${BASE_URL}view/garantia/eliminarGarantia.php`,
+        'POST',
+        { id_garantia }
+    )
+    .then(res => {
+
+        if (!res) return; // manejo de error ya lo hace el helper
+
+        // 🔄 refrescar tabla
+        const idPrestamo = document.getElementById("codigo_prestamo")?.value;
+
+        if (idPrestamo) {
+            listarGarantiasPrestamo(idPrestamo);
+        }
+
+        // ✅ mensaje correcto
+        alert(res.message || "Garantía eliminada correctamente");
+
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("Error al eliminar garantía");
     });
 }
+
+
+
+
 
 window.eliminarGarantia = eliminarGarantia;
 
