@@ -56,7 +56,7 @@ require_once ("../head/head.php");
 
                             <div class="mb-3">
                                 <label for="valor" class="form-label">Valor</label>
-                                <input type="number" name="valor" class="form-control" id="valor"  > 
+                                <input type="text" name="valor" class="form-control" id="valor"  > 
                             </div>
 
                 </form>

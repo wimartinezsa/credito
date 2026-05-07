@@ -12,7 +12,19 @@ function modalGastos(){
 
 
 
+const input_valor = document.getElementById('valor');
 
+input_valor.addEventListener('input', function (e) {
+
+    // Eliminar todo lo que no sea número
+    let valor = e.target.value.replace(/\D/g, '');
+
+    // Formatear con separadores de miles
+    valor = new Intl.NumberFormat('es-CO').format(valor).replace(/\./g, ',');
+
+    // Agregar símbolo $
+    e.target.value =valor;
+});
 
 
 function formatearPesos(valor) {
@@ -189,7 +201,7 @@ async function registrarGasto(){
         sociedad: document.getElementById("sociedad").value,
         fecha: document.getElementById("fecha").value,
         detalle: document.getElementById("detalle").value,
-        valor: document.getElementById("valor").value
+        valor: document.getElementById("valor").value.replace(/,/g, '')
     };
 
     try {

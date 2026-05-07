@@ -40,20 +40,32 @@ class autenticacionController{
     return $usuario; // 🔥 devolver datos reales del usuario
 }
 
+public function eliminarToken($token) {
 
-      public function eliminarToken($token) {
-       
-        $estado=$this->model->eliminarToken($token);
-        if($estado) {
-            if (session_status() === PHP_SESSION_NONE) {
-                ini_set('session.cookie_path', '/');
-                session_start();
-            }
-            unset($_SESSION['token']);
-        } else {
-            // Si la eliminación del token falla, puedes devolver un mensaje de error o redirigir al usuario a una página de inicio de sesión.
-            return false;
+    $estado = $this->model->eliminarToken($token);
+
+    if ($estado) {
+
+        if (session_status() === PHP_SESSION_NONE) {
+            ini_set('session.cookie_path', '/');
+            session_start();
         }
+
+        unset($_SESSION['token']);
+
+        return [
+            "status" => true,
+            "message" => "Sesión cerrada correctamente"
+        ];
+
+    } else {
+
+        return [
+            "status" => false,
+            "message" => "No fue posible cerrar la sesión"
+        ];
+
+    }
 }
 
 

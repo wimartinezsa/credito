@@ -77,40 +77,58 @@
     </nav>
 
 </div>
+
+
 <script>
-function cerrarSesion() {
-    // Eliminar el token del almacenamiento local
-    localStorage.removeItem('token');
-    // Redirigir al usuario a la página de inicio de sesión
-    window.location.href = '<?= BASE_URL ?>view/login/login.php';
-}
-// Función para mostrar el nombre del usuario en la barra de navegación
+    const BASE_URL = "<?= BASE_URL?>";
+</script>
+<script>
+
 /*
-function mostrarNombreUsuario() {
+function cerrarSesion() {
+
     const token = localStorage.getItem('token');
-    if (token) {
-        // Decodificar el token para obtener la información del usuario
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const nombreUsuario = payload.nombre; // Asegúrate de que el token tenga un campo 'nombre'
-        document.getElementById('nombreUsuario').textContent = nombreUsuario;
-    }
-}
-*/
-// Llamar a la función para mostrar el nombre del usuario al cargar la página
-//mostrarNombreUsuario();
+    alert(token);
 
-// Función para mostrar u ocultar el enlace de Sociedad según el rol del usuario
-function mostrarEnlaceSociedad() {
-    const rol = localStorage.getItem('rol');
-    if (rol === 'admin') { // Cambia 'admin' por el rol que corresponda
-        document.getElementById('sociedadNavItem').style.display = 'block';
-        } else {
-            document.getElementById('sociedadNavItem').style.display = 'none';
+    peticionConsulta(
+        BASE_URL + 'view/autentication/cerrarSesion.php',
+        'GET',
+        null,
+        {
+            Authorization: `Bearer ${token}`
         }
-    }
+    )
+    .then(response => {
 
-// Llamar a la función para mostrar u ocultar el enlace de Sociedad al cargar la página
-mostrarEnlaceSociedad();
+        const data = typeof response === 'string'
+            ? JSON.parse(response)
+            : response;
 
+        if (data.status === true) {
+
+            // Eliminar token local
+            localStorage.removeItem('token');
+
+            // Redireccionar
+           // window.location.href =BASE_URL + 'view/login/login.php';
+
+        } else {
+
+            alert(data.message || 'No fue posible cerrar sesión');
+
+        }
+
+    })
+    .catch(error => {
+
+        console.error('Error:', error);
+        alert('Error al cerrar sesión');
+
+    });
+
+    
+}
+
+*/
 
 </script>

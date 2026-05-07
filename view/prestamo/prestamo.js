@@ -1,6 +1,56 @@
 
 let modalPrestamo = null;
 
+
+
+
+const input_valor_prestado = document.getElementById('valor_prestado');
+
+input_valor_prestado.addEventListener('input', function (e) {
+
+    // Eliminar todo lo que no sea número
+    let valor = e.target.value.replace(/\D/g, '');
+
+    // Formatear con separadores de miles
+    valor = new Intl.NumberFormat('es-CO').format(valor).replace(/\./g, ',');
+
+    // Agregar símbolo $
+    e.target.value =valor;
+});
+
+
+
+const input_valor_pagado = document.getElementById('valor_pagado');
+
+input_valor_pagado.addEventListener('input', function (e) {
+
+    // Eliminar todo lo que no sea número
+    let valor = e.target.value.replace(/\D/g, '');
+
+    // Formatear con separadores de miles
+    valor = new Intl.NumberFormat('es-CO').format(valor).replace(/\./g, ',');
+
+    // Agregar símbolo $
+    e.target.value =valor;
+});
+
+
+
+const input_valor_pago = document.getElementById('valor_pago');
+
+input_valor_pago.addEventListener('input', function (e) {
+
+    // Eliminar todo lo que no sea número
+    let valor = e.target.value.replace(/\D/g, '');
+
+    // Formatear con separadores de miles
+    valor = new Intl.NumberFormat('es-CO').format(valor).replace(/\./g, ',');
+
+    // Agregar símbolo $
+    e.target.value =valor;
+});
+
+
 function modalPrestamos(){
         const el = document.getElementById('modalPrestamo');
         modalPrestamo = new bootstrap.Modal(el, { keyboard: false });
@@ -58,6 +108,8 @@ function modalAdminGarantia(id_prestado){
 
 
 let modalModificarCuotas= null;
+
+
 
 
 function modalModificarCuota(id_cuota,nro_cuota,fecha_pago,valor,tipo){
@@ -127,7 +179,7 @@ async function modificarCuota() {
         codigo_cuota: document.getElementById('codigo_cuota').value,
         nro_pago: document.getElementById('nro_pago').value,
         fecha_pago: document.getElementById('fecha_pago').value,
-        valor_pago: document.getElementById('valor_pago').value,
+        valor_pago: document.getElementById('valor_pago').value.replace(/,/g, ''),
         tipo_pago: document.getElementById('tipo_pago').value
     };
 
@@ -210,7 +262,7 @@ async function registarNuevaCuota() {
         id_prestamo: document.getElementById("cod_prestamo").value,
         nro_pago: document.getElementById('nro_pago').value,
         fecha_pago: document.getElementById('fecha_pago').value,
-        valor_pago: document.getElementById('valor_pago').value,
+        valor_pago: document.getElementById('valor_pago').value.replace(/,/g,''),
         tipo_pago: document.getElementById('tipo_pago').value
     };
 
@@ -263,7 +315,7 @@ async function registarNuevaCuota() {
         cliente: document.getElementById('cliente').value,
         fecha: document.getElementById('fecha').value,
         tiempo: document.getElementById('tiempo').value,
-        valor: document.getElementById('valor_prestado').value,
+        valor: document.getElementById('valor_prestado').value.replace(/,/g, ''),
         interes: document.getElementById('interes').value,
         tipo: document.getElementById('tipo').value,
         fiador: document.getElementById('fiador').value,
@@ -393,7 +445,7 @@ async function actualizarPrestamo() {
         cliente: document.getElementById('cliente').value,
         fecha: document.getElementById('fecha').value,
         tiempo: document.getElementById('tiempo').value,
-        valor: document.getElementById('valor_prestado').value,
+        valor: document.getElementById('valor_prestado').value.replace(/,/g,''),
         interes: document.getElementById('interes').value,
         tipo: document.getElementById('tipo').value,
         fiador: document.getElementById('fiador').value,
@@ -558,7 +610,7 @@ function registrarPagoCuota() {
     if (!confirm('¿Confirma que desea registrar el pago de la cuota?')) return;
 
     let id_cuota_pago = document.getElementById("id_cuota_pago").value;
-    let valor_pagado = document.getElementById('valor_pagado').value;
+    let valor_pagado = document.getElementById('valor_pagado').value.replace(/,/g,'');
     let fecha_recaudo = document.getElementById('fecha_recaudo').value;
 
     // ✅ Validación básica
@@ -665,10 +717,6 @@ async function listarSociedadesEncargados() {
 
 
 
-function cerrarSesion(){
-    localStorage.clear(); // 🔥 limpiar sesión
-    window.location.href = "../../index.php";
-}
 
 
 
@@ -908,11 +956,7 @@ async function listarTipoGarantia() {
 // ==========================
 // Listar garantías por préstamo
 // ==========================
-// ==========================
-// Listar garantías por préstamo
-// ==========================
 async function listarGarantiasPrestamo(id_prestamo) {
-
     try {
         // ==========================
         // VALIDACIÓN
@@ -927,50 +971,22 @@ async function listarGarantiasPrestamo(id_prestamo) {
         // ==========================
         // PETICIÓN
         // ==========================
-        const response = await fetch(
+        const data = await peticionConsulta(
             `${BASE_URL}view/garantia/listarGarantiasPrestamo.php?${params.toString()}`,
-            {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
-                    "Accept": "application/json"
-                }
-            }
+            "GET"
         );
 
-        // ==========================
-        // MANEJO HTTP
-        // ==========================
-        if (response.status === 401) {
-            alert("Sesión expirada");
-            window.location.href = "../../index.php";
-            return;
-        }
-
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-
-        // ⚠️ Validar que realmente venga JSON
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            throw new Error("La respuesta no es JSON (posible error PHP o ruta incorrecta)");
-        }
-
-        const data = await response.json();
+        console.log("RESPUESTA BACKEND:", data);
 
         // ==========================
-        // VALIDAR RESPUESTA API
+        // VALIDAR RESPUESTA
         // ==========================
-        if (!data || data.status === "error") {
-            alert(data?.message || "Error al obtener garantías");
-            return;
+        if (!data || data.status !== "ok") {
+            throw new Error(data?.message || "Error en la respuesta del servidor");
         }
 
-        const lista = Array.isArray(data) ? data : data.data;
-
-        if (!Array.isArray(lista)) {
-            throw new Error("Formato de respuesta inválido");
+        if (!Array.isArray(data.data)) {
+            throw new Error("Formato de datos inválido");
         }
 
         // ==========================
@@ -995,11 +1011,10 @@ async function listarGarantiasPrestamo(id_prestamo) {
         // ==========================
         // RENDER
         // ==========================
-        lista.forEach(garantia => {
-
-            const id = garantia.id_garantia ?? '';
-            const nombre = garantia.nombre_tipo ?? '';
-            const ruta = garantia.ruta ?? '#';
+        data.data.forEach(({ id_garantia, nombre_tipo, ruta }) => {
+            const id = id_garantia ?? "";
+            const nombre = nombre_tipo ?? "";
+            const link = ruta ?? "#";
 
             const row = tbody.insertRow();
 
@@ -1007,7 +1022,7 @@ async function listarGarantiasPrestamo(id_prestamo) {
                 <td>${id}</td>
                 <td>${nombre}</td>
                 <td>
-                    <a href="${ruta}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Ver</a>
+                    <a href="${link}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Ver</a>
                     <button class="btn btn-danger" onclick="eliminarGarantia(${id})">
                         Eliminar
                     </button>
@@ -1016,11 +1031,10 @@ async function listarGarantiasPrestamo(id_prestamo) {
         });
 
     } catch (error) {
-        console.error("Error en listarGarantiasPrestamo:", error);
-        alert("Error al listar garantías");
+        console.error("❌ Error al listar garantías:", error);
+        alert(error.message || "Error al cargar las garantías");
     }
 }
-
 
 
 function eliminarGarantia(id_garantia) {

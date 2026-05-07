@@ -53,7 +53,7 @@ require_once ("../head/head.php");
 
 </div>
 
-<!-- Modal Registrar Usuario-->
+<!-- Modal Registrar prestamos-->
 <div class="modal fade" id="modalPrestamo" data-bs-target="#modalPrestamo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
@@ -120,7 +120,7 @@ require_once ("../head/head.php");
                         <div class="col-6">
                               <div class="mb-3">
                               <label for="valor_prestado" class="form-label">Valor Prestado</label>
-                              <input type="number" name="valor_prestado" class="form-control" id="valor_prestado" placeholder="Digite el valor prestado">
+                              <input type="text" name="valor_prestado" class="form-control" id="valor_prestado" placeholder="Digite el valor prestado">
                           </div>
                         </div>
                      
@@ -254,7 +254,7 @@ require_once ("../head/head.php");
          <div class="col-12">
            <div class="mb-2">
                               <label for="valor_pagado" class="form-label">Valor Pagao</label>
-                              <input type="number" name="valor_pagado" class="form-control" id="valor_pagado" placeholder="Digite el numero de cuota">              
+                              <input type="text" name="valor_pagado" class="form-control" id="valor_pagado" placeholder="Digite el numero de cuota">              
          
             </div>
             <div class="mb-2">
@@ -323,7 +323,7 @@ require_once ("../head/head.php");
 
             <div class="mb-2">
                               <label for="ficha" class="form-label">Valor</label>
-                            <input type="number" name="valor_pago" class="form-control" id="valor_pago" placeholder="Digite el Valor a Pagar">              
+                            <input type="text" name="valor_pago" class="form-control" id="valor_pago" placeholder="Digite el Valor a Pagar">              
             </div>
 
             <div class="mb-2">

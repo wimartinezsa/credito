@@ -1,6 +1,6 @@
    
    </div>
-
+<?php require_once '../../config.php'; ?>
    
    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
@@ -18,13 +18,15 @@
 
 <!-- Botón Excel -->
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-   
-   
-
-
   
 
+ 
+
 </body>
+
+<script>
+    const BASE_URL = "<?= BASE_URL?>";
+</script>
 <script>
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -58,8 +60,71 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+function cerrarSesion() {
+
+    
+
+    const token = localStorage.getItem('token');
+
+    
+
+    if (!token) {
+        alert('No existe token');
+        return;
+    }
+
+    const url = BASE_URL + 'view/autenticacion/cerrarSesion.php';
+
+   
+
+    peticionConsulta(
+        url,
+        'GET',
+        null
+    )
+    .then(response => {
+
+        console.log('Respuesta cruda:', response);
+
+        const data = typeof response === 'string'
+            ? JSON.parse(response)
+            : response;
+
+        
+
+        if (data.status === true) {
+
+            
+
+            localStorage.removeItem('token');
+
+          
+
+         window.location.href =
+             BASE_URL + 'index.php';
+
+        } else {
+
+            console.log('Error devuelto por backend');
+
+            alert(data.message || 'No fue posible cerrar sesión');
+
+        }
+
+    })
+    .catch(error => {
+
+        console.error('ERROR COMPLETO:', error);
+
+        alert('Error al cerrar sesión');
+
+    });
+
+}
 
 
+
+/*
    function cerrarSesion() {
       // opcional alert de depuración
       // alert('cerrando sesión');
@@ -79,7 +144,9 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error('Error al cerrar sesión:', error);
     });
 
-}</script>
+}
+*/
+</script>
 </html>
 
 

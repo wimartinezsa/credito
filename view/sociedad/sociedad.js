@@ -3,6 +3,26 @@
 
 let modalSociedad = null;
 
+
+const input_valor = document.getElementById('valor');
+
+input_valor.addEventListener('input', function (e) {
+
+    // Eliminar todo lo que no sea número
+    let valor = e.target.value.replace(/\D/g, '');
+
+    // Formatear con separadores de miles
+    valor = new Intl.NumberFormat('es-CO').format(valor).replace(/\./g, ',');
+
+    // Agregar símbolo $
+    e.target.value =valor;
+});
+
+
+
+
+
+
 function modalSociedades(){
         const el = document.getElementById('modalSociedad');
         modalSociedad = new bootstrap.Modal(el, { keyboard: false });
@@ -275,7 +295,7 @@ peticionCRUD(BASE_URL + `view/sociedad/eliminarEncargadoSociedad.php?id_admin=${
 function registrarSociedad(){
 
     const nombre = document.getElementById('sociedad').value;
-    const valor = document.getElementById('valor').value;
+    const valor = document.getElementById('valor').value.replace(/,/g, '');
     const datos = {
         sociedad: nombre,
         valor: valor
